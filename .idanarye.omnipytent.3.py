@@ -3,6 +3,10 @@ from omnipytent.integration.plumbum import local
 from omnipytent.execution import ShellCommandExecuter
 
 
+if not VAR['g:ale_java_javac_classpath']:
+    VAR['g:ale_java_javac_classpath'] = FN['javacomplete#server#GetClassPath']()
+
+
 @ShellCommandExecuter
 def ERUN(command):
     CMD.Erun.bang(command)
@@ -34,7 +38,7 @@ def compile(ctx):
 
 @task
 def run(ctx):
-    gradle['run'] & TERMINAL_PANEL
+    gradle['run']['-Pargs=/home/idanarye/links/study/Thesis/VocalTerritorySimulator/RunWithNisui.java /home/idanarye/links/study/Thesis/VocalTerritorySimulator/build/VocalTerritorySimulator.jar'] & TERMINAL_PANEL
 
 
 @task
