@@ -3,7 +3,7 @@ from omnipytent.integration.plumbum import local
 from omnipytent.execution import ShellCommandExecuter
 
 
-if not VAR['g:ale_java_javac_classpath']:
+if not FN.exists('g:ale_java_javac_classpath') or not VAR['g:ale_java_javac_classpath']:
     VAR['g:ale_java_javac_classpath'] = FN['javacomplete#server#GetClassPath']()
 
 
