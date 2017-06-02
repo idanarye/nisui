@@ -16,7 +16,7 @@ import nisui.core.DataPoint;
 import nisui.core.ExperimentFunction;
 import nisui.core.ExperimentResult;
 
-public abstract class JavaExperimentRunner {
+public abstract class JavaExperimentRunner<DP extends DataPoint, ER extends ExperimentResult> {
 	public static JavaExperimentRunner load(String mainFile, String... dependencies) {
 		try {
 			Path path = Paths.get(mainFile);
@@ -45,5 +45,6 @@ public abstract class JavaExperimentRunner {
 		}
 	}
 
-	public abstract void doIt();
+	public abstract DP createDataPoint(String source);
+	public abstract ER runExperiment(DP dataPoint, long seed);
 }

@@ -32,6 +32,7 @@ allprojects {
 }
 
 run {
+   standardInput = System.in
    enableAssertions = true
    if (project.hasProperty('mainClass')) {
       main = mainClass
