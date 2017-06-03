@@ -38,6 +38,8 @@ def compile(ctx):
 
 @task
 def run(ctx):
+    local['tmpplot/run.py'] & BANG
+    return
     cmd = gradle['run']['-Pargs=%s' % ' '.join([
         '/home/idanarye/links/study/Thesis/VocalTerritorySimulator/RunWithNisui.java',
         '/home/idanarye/links/study/Thesis/VocalTerritorySimulator/build/VocalTerritorySimulator.jar',
