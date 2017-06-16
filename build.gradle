@@ -42,6 +42,18 @@ run {
    }
 }
 
+task fatJar(type: Jar) {
+    manifest {
+        attributes 'Implementation-Title': 'Nisui',
+                   /*'Implementation-Version': version,*/
+                   'Main-Class': 'nisui.app.NisuiApp'
+    }
+    baseName = 'Nisui'
+    destinationDir = file('build')
+    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
+    with jar
+}
+
 subprojects {
     dependencies {
         testCompile group: 'org.apache.logging.log4j', name: 'log4j-core', version: '2.6.2'

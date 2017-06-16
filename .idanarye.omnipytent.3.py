@@ -72,3 +72,7 @@ def lombok_jar_file():
     candidates = (local.path(p) for p in local['find']['/home/idanarye/.gradle', '-name', 'lombok-*.jar']().splitlines())
     return max(candidates, key=lambda c: c.basename)
 
+
+@task
+def jar(ctx):
+    local['gradle']['fatJar'] & BANG
