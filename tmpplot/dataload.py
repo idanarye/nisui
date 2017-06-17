@@ -39,26 +39,66 @@ class ExperimentsData(object):
     def per_seed(self):
         return self._by_seed.values()
 
-    def get_pairs(self, xfield, agg, yfield, **filters):
+    @staticmethod
+    def _check_filters(dp, *predicates, **filters):
+        if any(getattr(dp, k) != v for k, v in filters.items()):
+            return False
+        if not all(predicate(dp) for predicate in predicates):
+            return False
+        return True
+
+    def get_pairs(self, xfield, agg, yfield, *predicates, **filters):
         for dp, ers in self._by_data_point.items():
-            if any(getattr(dp, k) != v for k, v in filters.items()):
+            if not self._check_filters(dp, *predicates, **filters):
                 continue
+            # if any(getattr(dp, k) != v for k, v in filters.items()):
+                # continue
+            # if not all(predicate(dp) for predicate in predicates):
+                # continue
             yield getattr(dp, xfield), agg(er[yfield] for er in ers)
 
-    def plot(self, xfield, agg, yfield, **filters):
+    def plot(self, xfield, agg, yfield, *predicates, group_by='', **filters):
         import matplotlib.pyplot as plt
 
-        xs = []
-        ys = []
-        for x, y in sorted(self.get_pairs(xfield, agg, yfield, **filters)):
-            xs.append(x)
-            ys.append(y)
+        if group_by:
+            if isinstance(group_by, str):
+                group_by = [group_by]
+            else:
+                group_by == list(group_by)
 
-        assert len(xs) == len(set(xs))
+            def group_by_tuple(dp):
+                return tuple(getattr(dp, k) for k in group_by)
+
+            all_groups = set(group_by_tuple(dp)
+                             for dp in self._by_data_point.keys()
+                             if self._check_filters(dp, *predicates, **filters))
+            print(all_groups)
+
+            def make_label(group):
+                return ', '.join('%s=%s' % pair for pair in zip(group_by, group))
+
+            def make_filter(group):
+                return dict(zip(group_by, group), **filters)
+
+            all_filters = [(make_label(group), make_filter(group)) for group in all_groups]
+        else:
+            all_filters = [(None, filters)]
+
+        for label, filters in all_filters:
+            xs = []
+            ys = []
+            for x, y in sorted(self.get_pairs(xfield, agg, yfield, *predicates, **filters)):
+                xs.append(x)
+                ys.append(y)
+
+            assert len(xs) == len(set(xs))
+
+            plt.plot(xs, ys, label=label)
 
         plt.xlabel(xfield)
         plt.ylabel('%s of %s' % (agg.__name__, yfield))
-        plt.plot(xs, ys)
+        if group_by:
+            plt.legend()
         plt.show()
 
 
