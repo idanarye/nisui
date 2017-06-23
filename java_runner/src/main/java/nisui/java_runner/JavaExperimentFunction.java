@@ -18,17 +18,16 @@ import nisui.core.DataPoint;
 import nisui.core.ExperimentFunction;
 import nisui.core.ExperimentResult;
 import nisui.core.ExperimentValuesHandler;
-import nisui.core.ExperimentsRunner;
 
-public abstract class JavaExperimentRunner<DP extends DataPoint, ER extends ExperimentResult>
+public abstract class JavaExperimentFunction<DP extends DataPoint, ER extends ExperimentResult>
 	implements ExperimentFunction<DP, ER>
 {
-	public static JavaExperimentRunner load(String mainFile, String... dependencies) {
+	public static JavaExperimentFunction load(String mainFile, String... dependencies) {
 		try {
 			Path path = Paths.get(mainFile);
 			String className = path.getFileName().toString();
 			className = className.substring(0, className.length() - 5);
-			Path tempDir = Files.createTempDirectory("nisui-JavaExperimentRunner-compiled-classes");
+			Path tempDir = Files.createTempDirectory("nisui-JavaExperimentFunction-compiled-classes");
 			LinkedList<URL> allDependencies = new LinkedList<URL>();
 
 			for (URL url : ((URLClassLoader)ClassLoader.getSystemClassLoader()).getURLs()) {
@@ -45,7 +44,7 @@ public abstract class JavaExperimentRunner<DP extends DataPoint, ER extends Expe
 			URLClassLoader loader = URLClassLoader.newInstance(Stream.concat(
 						allDependencies.stream(),
 						Stream.of(tempDir.toUri().toURL())).toArray(l -> new URL[l]));
-			return (JavaExperimentRunner)Class.forName(className, true, loader).newInstance();
+			return (JavaExperimentFunction)Class.forName(className, true, loader).newInstance();
 		} catch (Exception e) {
 			throw new Error(e);
 		}
@@ -59,7 +58,7 @@ public abstract class JavaExperimentRunner<DP extends DataPoint, ER extends Expe
 	private JavaExperimentValuesHandler<ExperimentResult> experimentResultHandler;
 
 	@SuppressWarnings("unchecked")
-	public JavaExperimentRunner() {
+	public JavaExperimentFunction() {
 		for (Method m : getClass().getMethods()) {
 			if (m.getName() != "runExperiment") {
 				continue;

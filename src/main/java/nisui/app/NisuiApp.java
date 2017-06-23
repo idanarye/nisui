@@ -11,7 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import nisui.core.*;
-import nisui.java_runner.JavaExperimentRunner;
+import nisui.java_runner.JavaExperimentFunction;
 import nisui.java_runner.JavaExperimentValuesHandler;
 
 public class NisuiApp {
@@ -19,7 +19,7 @@ public class NisuiApp {
 
     @SuppressWarnings("unchecked")
     public static void main(String[] args) {
-        JavaExperimentRunner<DataPoint, ?> runner = JavaExperimentRunner.load(args[0], Arrays.copyOfRange(args, 1, args.length));
+        JavaExperimentFunction<DataPoint, ?> runner = JavaExperimentFunction.load(args[0], Arrays.copyOfRange(args, 1, args.length));
         if (runner != null) {
             Scanner scan = new Scanner(System.in);
             JavaExperimentValuesHandler.Field[] fields = Arrays.stream(scan.nextLine().split("\t"))
