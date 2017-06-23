@@ -16,14 +16,16 @@ class ExperimentsData(object):
                 self._experiment_result_keys |= experiment_result._fields.keys()
                 self._by_seed.setdefault(seed, ResultsForSeed())._data.append((data_point, experiment_result))
 
-        self._by_seed = {s: bs for s, bs in self._by_seed.items() if bs.single_robot_results}
+        # self._by_seed = {s: bs for s, bs in self._by_seed.items() if bs.single_robot_results}
+        self._by_seed = {s: bs for s, bs in self._by_seed.items()}  # if bs.single_robot_results}
 
         self._by_data_point = {}
         for rfs in self.per_seed:
             single_robot = rfs.single_robot_results
             for dp, er in rfs._data:
                 self._by_data_point.setdefault(dp, []).append({
-                    k: (getattr(er, k) / getattr(single_robot, k)
+                    # k: (getattr(er, k) / getattr(single_robot, k)
+                    k: (getattr(er, k)
                         if k != 'coverageRedundancy'
                         else getattr(er, k))
                     for k in self._experiment_result_keys
@@ -55,10 +57,13 @@ class ExperimentsData(object):
                 # continue
             # if not all(predicate(dp) for predicate in predicates):
                 # continue
-            yield getattr(dp, xfield), agg(er[yfield] for er in ers)
+            yield xfield(dp), agg(yfield(er) for er in ers)
 
     def plot(self, xfield, agg, yfield, *predicates, group_by='', **filters):
         import matplotlib.pyplot as plt
+
+        xlabel, xfield = _field_getter(xfield)
+        ylabel, yfield = _field_getter(yfield)
 
         if group_by:
             if isinstance(group_by, str):
@@ -72,7 +77,6 @@ class ExperimentsData(object):
             all_groups = set(group_by_tuple(dp)
                              for dp in self._by_data_point.keys()
                              if self._check_filters(dp, *predicates, **filters))
-            print(all_groups)
 
             def make_label(group):
                 return ', '.join('%s=%s' % pair for pair in zip(group_by, group))
@@ -84,6 +88,7 @@ class ExperimentsData(object):
         else:
             all_filters = [(None, filters)]
 
+        all_xs = set()
         for label, filters in all_filters:
             xs = []
             ys = []
@@ -93,12 +98,17 @@ class ExperimentsData(object):
 
             assert len(xs) == len(set(xs))
 
-            plt.plot(xs, ys, label=label)
+            plt.plot(xs, ys, marker='.', label=label)
+            all_xs.update(xs)
 
-        plt.xlabel(xfield)
-        plt.ylabel('%s of %s' % (agg.__name__, yfield))
+        baseline = agg(yfield(rfs.single_robot_results) for rfs in self.per_seed if rfs.single_robot_results)
+        plt.plot(sorted(all_xs), [baseline] * len(all_xs), 'k--')
+
+        plt.xlabel(xlabel)
+        plt.ylabel('%s of %s' % (agg.__name__, ylabel))
         if group_by:
-            plt.legend()
+            plt.legend(ncol=3, loc=9)
+
         plt.show()
 
 
@@ -186,6 +196,9 @@ class JavaObj(object):
     def __ne__(self, other):
         return not(self == other)
 
+    def __getitem__(self, name):
+        return getattr(self, name)
+
 
 class DataPoint(JavaObj):
     pass
@@ -193,3 +206,11 @@ class DataPoint(JavaObj):
 
 class ExperimentResult(JavaObj):
     pass
+
+
+def _field_getter(field):
+    if isinstance(field, str):
+        def getter(obj):
+            return obj[field]
+        return field, getter
+    return field.__name__, field
