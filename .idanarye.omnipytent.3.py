@@ -38,16 +38,15 @@ def compile(ctx):
 
 @task
 def run(ctx):
-    local['tmpplot/run.py'] & BANG
-    return
+    # local['tmpplot/run.py'] & BANG
+    # return
     cmd = gradle['run']['-Pargs=%s' % ' '.join([
         '/home/idanarye/links/study/Thesis/VocalTerritorySimulator/RunWithNisui.java',
         '/home/idanarye/links/study/Thesis/VocalTerritorySimulator/build/VocalTerritorySimulator.jar',
     ])]
     cmd = cmd < '/home/idanarye/links/study/Thesis/VocalTerritorySimulator/data-points.txt'
-    cmd = cmd | local['tee']['-a', 'results.txt']
     with local.path('runit.sh').open('w') as f:
-        f.write(str(cmd))
+        f.write(str(cmd | local['tee']['-a', 'results.txt']))
         f.write('\n')
     cmd & TERMINAL_PANEL
 

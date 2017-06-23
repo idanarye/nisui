@@ -5,27 +5,39 @@ import java.io.PrintStream;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.Scanner;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import nisui.core.*;
 import nisui.java_runner.JavaExperimentRunner;
+import nisui.java_runner.JavaExperimentValuesHandler;
 
 public class NisuiApp {
     private static Logger logger = LoggerFactory.getLogger(NisuiApp.class);
 
     @SuppressWarnings("unchecked")
     public static void main(String[] args) {
-        JavaExperimentRunner runner = JavaExperimentRunner.load(args[0], Arrays.copyOfRange(args, 1, args.length));
+        JavaExperimentRunner<DataPoint, ?> runner = JavaExperimentRunner.load(args[0], Arrays.copyOfRange(args, 1, args.length));
         if (runner != null) {
             Scanner scan = new Scanner(System.in);
+            JavaExperimentValuesHandler.Field[] fields = Arrays.stream(scan.nextLine().split("\t"))
+                .map(runner.getDataPointHandler()::field)
+                .toArray(JavaExperimentValuesHandler.Field[]::new);
             LinkedList<DataPoint> dataPoints = new LinkedList<DataPoint>();
             while (scan.hasNextLine()) {
                 String line = scan.nextLine();
-                dataPoints.add(runner.createDataPoint(line));
+                DataPoint dp = runner.getDataPointHandler().createValue();
+                String[] parts = line.split("\t");
+                assert parts.length == fields.length;
+                for (int i = 0; i < parts.length; ++i) {
+                    JavaExperimentValuesHandler.Field field = fields[i];
+                    Object value = field.parseString(parts[i]);
+                    field.set(dp, value);
+                }
+                dataPoints.add(dp);
             }
-
             while (true) {
                 long seed = System.currentTimeMillis();
                 for (DataPoint dataPoint : dataPoints) {
@@ -38,22 +50,5 @@ public class NisuiApp {
                 }
             }
         }
-    }
-
-    @SuppressWarnings("unchecked")
-    private static void run(JavaExperimentRunner runner, String dataPointText, long seed) {
-        PrintStream oldErr = System.err;
-        PrintStream newErr = new PrintStream(new ByteArrayOutputStream());
-        System.setErr(newErr);
-        ExperimentResult result = null;
-        DataPoint dataPoint = runner.createDataPoint(dataPointText);
-        System.out.println(dataPoint);
-        try {
-            result = runner.runExperiment(dataPoint, seed);
-        } finally {
-            System.setErr(oldErr);
-        }
-
-        System.out.println(result);
     }
 }
