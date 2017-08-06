@@ -27,6 +27,9 @@ public abstract class ExperimentValuesHandler<T> {
 			if (getType().isAssignableFrom(byte.class)) {
 				return Byte.parseByte(string);
 			}
+			if (getType().isAssignableFrom(boolean.class)) {
+				return Boolean.parseBoolean(string);
+			}
 			if (getType().isAssignableFrom(double.class)) {
 				return Double.parseDouble(string);
 			}
