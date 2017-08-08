@@ -49,7 +49,7 @@ class ExperimentsData(object):
             return False
         return True
 
-    def get_pairs(self, xfield, agg, yfield, *predicates, **filters):
+    def get_pairs(self, dp_field, agg, rs_field, *predicates, **filters):
         for dp, ers in self._by_data_point.items():
             if not self._check_filters(dp, *predicates, **filters):
                 continue
@@ -57,13 +57,15 @@ class ExperimentsData(object):
                 # continue
             # if not all(predicate(dp) for predicate in predicates):
                 # continue
-            yield xfield(dp), agg(yfield(er) for er in ers)
+            yield tuple(f(dp) for f in dp_field), agg(rs_field(er) for er in ers)
 
-    def plot(self, xfield, agg, yfield, *predicates, group_by='', **filters):
+    def plot(self, dp_fields, agg, rs_field, *predicates, group_by='', **filters):
         import matplotlib.pyplot as plt
 
-        xlabel, xfield = _field_getter(xfield)
-        ylabel, yfield = _field_getter(yfield)
+        if not isinstance(dp_fields, tuple):
+            dp_fields = (dp_fields,)
+        dp_labels, dp_fields = _field_getter(dp_fields)
+        rs_label, rs_field = _field_getter(rs_field)
 
         if group_by:
             if isinstance(group_by, str):
@@ -89,25 +91,39 @@ class ExperimentsData(object):
             all_filters = [(None, filters)]
 
         all_xs = set()
+        fig = plt.figure()
         for label, filters in all_filters:
-            xs = []
-            ys = []
-            for x, y in sorted(self.get_pairs(xfield, agg, yfield, *predicates, **filters)):
-                xs.append(x)
-                ys.append(y)
+            dp_values = tuple([] for _ in dp_fields)
+            res_values = []
+            for dp, y in sorted(self.get_pairs(dp_fields, agg, rs_field, *predicates, **filters)):
+                for vs, p in zip(dp_values, dp):
+                    vs.append(p)
+                res_values.append(y)
 
-            assert len(xs) == len(set(xs))
+            assert sum(1 for _ in zip(*dp_values)) == len(set(zip(*dp_values)))
 
-            plt.plot(xs, ys, marker='.', label=label)
-            all_xs.update(xs)
+            if len(dp_values) == 1:
+                plt.plot(*dp_values, res_values, marker='.', label=label)
+                all_xs.update(*dp_values)
+            elif len(dp_values) == 2:
+                from mpl_toolkits.mplot3d import Axes3D
+                from matplotlib import cm
+                from matplotlib.ticker import LinearLocator, FormatStrFormatter
 
-        baseline = agg(yfield(rfs.single_robot_results) for rfs in self.per_seed if rfs.single_robot_results)
-        plt.plot(sorted(all_xs), [baseline] * len(all_xs), 'k--')
+                ax = fig.gca(projection='3d')
+                ax.set_xlabel(dp_labels[0])
+                ax.set_ylabel(dp_labels[1])
+                ax.set_zlabel('%s of %s' % (agg.__name__, rs_label))
+                surf = ax.plot_trisurf(*dp_values, res_values, cmap=cm.coolwarm, linewidth=0, antialiased=False)
 
-        plt.xlabel(xlabel)
-        plt.ylabel('%s of %s' % (agg.__name__, ylabel))
-        if group_by:
-            plt.legend(ncol=3, loc=9)
+        if len(dp_values) == 1:
+            baseline = agg(rs_field(rfs.single_robot_results) for rfs in self.per_seed if rfs.single_robot_results)
+            plt.plot(sorted(all_xs), [baseline] * len(all_xs), 'k--')
+
+            plt.xlabel(*dp_labels)
+            plt.ylabel('%s of %s' % (agg.__name__, rs_label))
+            if group_by:
+                plt.legend(ncol=3, loc=9)
 
         plt.show()
 
@@ -209,6 +225,8 @@ class ExperimentResult(JavaObj):
 
 
 def _field_getter(field):
+    if isinstance(field, tuple):
+        return zip(*map(_field_getter, field))
     if isinstance(field, str):
         def getter(obj):
             return obj[field]
