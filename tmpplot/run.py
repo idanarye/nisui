@@ -26,7 +26,13 @@ def avg(inp):
 def coverageSpeed(obj):
     return obj['coverageTime'] / obj['coveragePercentage']
 # data.plot('detectionRadius', avg, coverageSpeed, lambda dp: dp.memoryTime in {1000, 5000, 10000}, group_by=['memoryTime'], numberOfRobots=2) # detectionRadius=20)
+# data.plot('detectionRadius', avg, 'coverageTime', lambda dp: dp.memoryTime in {1000, 5000, 10000}, group_by=['memoryTime'], numberOfRobots=2) # detectionRadius=20)
 # data.plot('detectionRadius', avg, 'coveragePercentage', lambda dp: dp.memoryTime in {1000, 5000, 10000}, group_by=['memoryTime'], numberOfRobots=2) # detectionRadius=20)
-data.plot(('detectionRadius', 'memoryTime'), avg, 'coverageRedundancy', lambda dp: dp.memoryTime in {1000, 5000, 10000}, numberOfRobots=2) # detectionRadius=20)
+# data.plot(('detectionRadius', 'memoryTime'), avg, 'coverageRedundancy', lambda dp: dp.memoryTime in {1000, 5000, 10000}, numberOfRobots=2) # detectionRadius=20)
 # data.plot('detectionRadius', avg, 'coverageRedundancy', lambda dp: dp.memoryTime in {1000, 5000, 10000}, group_by=['memoryTime'], numberOfRobots=2) # detectionRadius=20)
 #  data.plot(('detectionRadius', 'memoryTime'), avg, 'coverageRedundancy', lambda dp: dp.memoryTime in {1000, 5000, 10000}, group_by=['numberOfRobots']) # detectionRadius=20)
+# data.plot('detectionRadius', avg, 'coverageRedundancy', lambda dp: dp.memoryTime in {1000, 5000, 10000}, group_by=['memoryTime'], numberOfRobots=2) # detectionRadius=20)
+
+
+# data.plot('numberOfRobots', avg, 'coverageTime', lambda dp: 1 < dp.numberOfRobots, group_by=['detectionRadius'])
+data.plot(('detectionRadius', 'numberOfRobots'), avg, 'coverageTime', lambda dp: 1 < dp.numberOfRobots, group_by=['memoryTime', 'ignoreInMyOwnTurf'])

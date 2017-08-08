@@ -91,7 +91,6 @@ class ExperimentsData(object):
             all_filters = [(None, filters)]
 
         all_xs = set()
-        fig = plt.figure()
         for label, filters in all_filters:
             dp_values = tuple([] for _ in dp_fields)
             res_values = []
@@ -110,11 +109,14 @@ class ExperimentsData(object):
                 from matplotlib import cm
                 from matplotlib.ticker import LinearLocator, FormatStrFormatter
 
+                fig = plt.figure()
                 ax = fig.gca(projection='3d')
                 ax.set_xlabel(dp_labels[0])
                 ax.set_ylabel(dp_labels[1])
                 ax.set_zlabel('%s of %s' % (agg.__name__, rs_label))
-                surf = ax.plot_trisurf(*dp_values, res_values, cmap=cm.coolwarm, linewidth=0, antialiased=False)
+                surf = ax.plot_trisurf(*dp_values, res_values, cmap=cm.coolwarm, linewidth=1, antialiased=True, shade=True)
+                if group_by:
+                    fig.suptitle(label)
 
         if len(dp_values) == 1:
             baseline = agg(rs_field(rfs.single_robot_results) for rfs in self.per_seed if rfs.single_robot_results)
