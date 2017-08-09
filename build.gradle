@@ -67,6 +67,17 @@ project(":java_runner") {
     }
 }
 
+project(":h2_store") {
+    dependencies {
+       compile group: 'com.h2database', name: 'h2', version: '1.4.196'
+       compile project(':core')
+
+       // Use this to create test data
+       testCompile project(':java_runner')
+       testCompile 'org.projectlombok:lombok:1.16.12'
+    }
+}
+
 
 // App project's settings
 
@@ -83,3 +94,6 @@ dependencies {
     compile project(':java_runner')
 }
 
+test {
+    testLogging.showStandardStreams = true
+}

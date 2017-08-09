@@ -38,6 +38,7 @@ def compile(ctx):
 
 @task
 def run(ctx):
+    return
     local['tmpplot/run.py'] & BANG
     return
     cmd = gradle['run']['-Pargs=%s' % ' '.join([
@@ -59,7 +60,8 @@ def clean(ctx):
 @task
 def test(ctx):
     # gradle_tests() & BANG
-    gradle_tests('nisui.core.BasicExperimentRunningTest') & ERUN
+    # gradle_tests('nisui.core.BasicExperimentRunningTest') & ERUN
+    gradle_tests('nisui.h2_store.BuildTablesTest') & ERUN
 
 
 @task

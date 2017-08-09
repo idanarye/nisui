@@ -20,3 +20,4 @@ rootProject.name = 'nisui'
 
 include 'core'
 include 'java_runner'
+include 'h2_store'

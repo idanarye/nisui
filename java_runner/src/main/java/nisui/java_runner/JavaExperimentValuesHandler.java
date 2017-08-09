@@ -5,9 +5,11 @@ import java.beans.IntrospectionException;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.stream.Collectors;
 
 import nisui.core.ExperimentValuesHandler;
@@ -29,7 +31,7 @@ public class JavaExperimentValuesHandler<T> extends ExperimentValuesHandler<T> {
 				// Make sure we don't get inherited properties here
 				return clazz.isAssignableFrom(pd.getReadMethod().getDeclaringClass())
 					&& clazz.isAssignableFrom(pd.getWriteMethod().getDeclaringClass());
-			}).map(pd -> new Field(pd)).collect(Collectors.toCollection(ArrayList::new));
+			}).map(pd -> new JavaField(pd)).collect(Collectors.toCollection(ArrayList::new));
 		} catch (IntrospectionException | NoSuchMethodException e) {
 			throw new Error(e);
 		}
@@ -51,10 +53,10 @@ public class JavaExperimentValuesHandler<T> extends ExperimentValuesHandler<T> {
 		}
 	}
 
-	public class Field extends ExperimentValuesHandler<T>.Field {
+	public class JavaField extends Field {
 		private PropertyDescriptor propertyDescriptor;
 
-		private Field(PropertyDescriptor propertyDescriptor) {
+		private JavaField(PropertyDescriptor propertyDescriptor) {
 			this.propertyDescriptor = propertyDescriptor;
 
 			propertyDescriptor.getReadMethod().setAccessible(true);
@@ -90,6 +92,12 @@ public class JavaExperimentValuesHandler<T> extends ExperimentValuesHandler<T> {
 		}
 	}
 
+	@Override
+	public List<ExperimentValuesHandler<T>.Field> fields() {
+		return fields;
+	}
+
+	@Override
 	public Field field(String name) {
 		for (Field field : fields) {
 			if (field.getName().equals(name)) {
