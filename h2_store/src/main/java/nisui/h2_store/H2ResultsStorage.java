@@ -18,6 +18,9 @@ public class H2ResultsStorage extends ResultsStorage {
     public void prepareStorage() {
         try (H2Connection con = connect()) {
             con.prepareTable("data_points", dataPointHandler);
+            con.prepareTable("experiment_results", experimentResultHandler,
+                    new H2FieldDefinition("data_point_id", long.class),
+                    new H2FieldDefinition("seed", long.class));
         }
     }
 

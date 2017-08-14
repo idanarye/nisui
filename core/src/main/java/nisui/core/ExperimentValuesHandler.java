@@ -38,6 +38,9 @@ public abstract class ExperimentValuesHandler<T> {
 			if (getType().isAssignableFrom(float.class)) {
 				return Float.parseFloat(string);
 			}
+			if (getType().isAssignableFrom(String.class)) {
+				return string;
+			}
 			return null;
 		}
 	}

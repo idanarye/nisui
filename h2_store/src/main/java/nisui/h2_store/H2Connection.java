@@ -7,6 +7,9 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.stream.Stream;
 
 import nisui.core.ExperimentValuesHandler;
 import nisui.core.ResultsStorage;
@@ -44,40 +47,64 @@ public class H2Connection extends ResultsStorage.Connection {
         }
     }
 
-    private String typeToSqlName(Class<?> clazz) {
-        if (clazz.isAssignableFrom(long.class)) {
-            return "BIGINT";
+    public void prepareTable(String tableName, ExperimentValuesHandler<?> valueHandler, H2FieldDefinition... metaColumns) {
+        Iterable<H2FieldDefinition> fields = () -> Stream.concat(
+                Arrays.stream(metaColumns),
+                valueHandler.fields().stream().map(H2FieldDefinition::new)
+                ).iterator();
+        HashMap<String, H2FieldDefinition> existingFields = getTableColumns(tableName);
+        if (existingFields == null) {
+            buildTable(tableName, fields);
+        } else {
+            fixTable(tableName, existingFields, fields);
         }
-        if (clazz.isAssignableFrom(int.class)) {
-            return "INT";
-        }
-        if (clazz.isAssignableFrom(short.class)) {
-            return "SMALLINT";
-        }
-        if (clazz.isAssignableFrom(byte.class)) {
-            return "TINYINT";
-        }
-        if (clazz.isAssignableFrom(boolean.class)) {
-            return "BOOLEAN";
-        }
-        if (clazz.isAssignableFrom(double.class)) {
-            return "DOUBLE";
-        }
-        if (clazz.isAssignableFrom(float.class)) {
-            return "REAL";
-        }
-        return null;
     }
 
-    public void prepareTable(String tableName, ExperimentValuesHandler<?> valueHandler) {
+    private void buildTable(String tableName, Iterable<H2FieldDefinition> fields) {
         try (Statement stmt = con.createStatement()) {
             StringBuilder sql = new StringBuilder();
             sql.append("CREATE TABLE ").append(tableName).append("(id IDENTITY PRIMARY KEY");
-            for (ExperimentValuesHandler<?>.Field field : valueHandler.fields()) {
-                sql.append(", ").append(field.getName()).append(" ").append(typeToSqlName(field.getType()));
+            for (H2FieldDefinition field : fields) {
+                sql.append(", ").append(field.getName()).append(" ").append(field.getSqlType());
             }
             sql.append(");");
             stmt.execute(sql.toString());
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private void fixTable(String tableName, HashMap<String, H2FieldDefinition> existingFields, Iterable<H2FieldDefinition> fields) {
+        try (Statement stmt = con.createStatement()) {
+            for (H2FieldDefinition field : fields) {
+                H2FieldDefinition existingField = existingFields.remove(field.getName().toLowerCase());
+                if (existingField == null) {
+                    field.addToTable(stmt, tableName);
+                } else if (!field.equals(existingField)) {
+                    field.fixInTable(stmt, tableName);
+                }
+            }
+            for (H2FieldDefinition remainingField : existingFields.values()) {
+                remainingField.removeFromTable(stmt, tableName);
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private HashMap<String, H2FieldDefinition> getTableColumns(String tableName) {
+        try (Statement stmt = con.createStatement()) {
+            ResultSet rs = stmt.executeQuery(String.format("SHOW COLUMNS FROM %s;", tableName));
+            if (!rs.next()) {
+                // no table
+                return null;
+            }
+            HashMap<String, H2FieldDefinition> fields = new HashMap<>();
+            while (rs.next()) {
+                H2FieldDefinition field = H2FieldDefinition.fromResultSet(rs);
+                fields.put(field.getName().toLowerCase(), field);
+            }
+            return fields;
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -91,7 +118,7 @@ public class H2Connection extends ResultsStorage.Connection {
             }
             outStream.println();
             outStream.println("-------------------------------");
-            while(rs.next()) {
+            while (rs.next()) {
                 for (int i = 1; i <= rs.getMetaData().getColumnCount(); ++i) {
                     outStream.printf("%s\t", rs.getObject(i));
                 }
