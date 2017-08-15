@@ -7,8 +7,10 @@ import java.sql.Statement;
 
 import org.junit.rules.TemporaryFolder;
 
-import nisui.core.ExperimentValuesHandler;
+import nisui.core.DataPointInserter;
+import nisui.core.DynamicExperimentValue;
 import nisui.core.DynamicExperimentValueHandler;
+import nisui.core.ExperimentValuesHandler;
 import org.junit.*;
 
 public class BuildTablesTest {
@@ -25,12 +27,12 @@ public class BuildTablesTest {
 
 	@Test
 	public void createTables() throws SQLException {
-		H2ResultsStorage storage = new H2ResultsStorage(tmpDbFileName(),
+		H2ResultsStorage<?, ?> storage = new H2ResultsStorage<>(tmpDbFileName(),
 				new DynamicExperimentValueHandler().addField("a", int.class),
 				new DynamicExperimentValueHandler().addField("x", double.class));
 		storage.prepareStorage();
-		try (H2Connection con = storage.connect()) {
-			try (ResultSet rs = con.statement("SHOW COLUMNS FROM data_points;").executeQuery()) {
+		try (H2ResultsStorage<?, ?>.Connection con = storage.connect()) {
+			try (ResultSet rs = con.createPreparedStatement("SHOW COLUMNS FROM %s;", con.DATA_POINTS_TABLE_NAME).executeQuery()) {
 				rs.next();
 				assert rs.getString(1).equalsIgnoreCase("id");
 
@@ -41,7 +43,7 @@ public class BuildTablesTest {
 				assert !rs.next();
 			}
 
-			try (ResultSet rs = con.statement("SHOW COLUMNS FROM experiment_results;").executeQuery()) {
+			try (ResultSet rs = con.createPreparedStatement("SHOW COLUMNS FROM %s;", con.EXPERIMENT_RESULTS_TABLE_NAME).executeQuery()) {
 				rs.next();
 				assert rs.getString(1).equalsIgnoreCase("id");
 
@@ -65,18 +67,18 @@ public class BuildTablesTest {
 	@Test
 	public void addFields() throws SQLException {
 		String filename = tmpDbFileName();
-		H2ResultsStorage storage = new H2ResultsStorage(filename,
+		H2ResultsStorage<?, ?> storage = new H2ResultsStorage<>(filename,
 				new DynamicExperimentValueHandler().addField("a", int.class),
 				new DynamicExperimentValueHandler().addField("x", double.class));
 		storage.prepareStorage();
 
-		storage = new H2ResultsStorage(filename,
+		storage = new H2ResultsStorage<>(filename,
 				new DynamicExperimentValueHandler().addField("a", int.class).addField("b", double.class),
 				new DynamicExperimentValueHandler().addField("x", double.class));
 		storage.prepareStorage();
 
-		try (H2Connection con = storage.connect()) {
-			try (ResultSet rs = con.statement("SHOW COLUMNS FROM data_points;").executeQuery()) {
+		try (H2ResultsStorage<?, ?>.Connection con = storage.connect()) {
+			try (ResultSet rs = con.createPreparedStatement("SHOW COLUMNS FROM %s;", con.DATA_POINTS_TABLE_NAME).executeQuery()) {
 				rs.next();
 				assert rs.getString(1).equalsIgnoreCase("id");
 
@@ -96,18 +98,18 @@ public class BuildTablesTest {
 	@Test
 	public void removeFields() throws SQLException {
 		String filename = tmpDbFileName();
-		H2ResultsStorage storage = new H2ResultsStorage(filename,
+		H2ResultsStorage<?, ?> storage = new H2ResultsStorage<>(filename,
 				new DynamicExperimentValueHandler().addField("a", int.class).addField("b", double.class),
 				new DynamicExperimentValueHandler().addField("x", double.class));
 		storage.prepareStorage();
 
-		storage = new H2ResultsStorage(filename,
+		storage = new H2ResultsStorage<>(filename,
 				new DynamicExperimentValueHandler().addField("a", int.class),
 				new DynamicExperimentValueHandler().addField("x", double.class));
 		storage.prepareStorage();
 
-		try (H2Connection con = storage.connect()) {
-			try (ResultSet rs = con.statement("SHOW COLUMNS FROM data_points;").executeQuery()) {
+		try (H2ResultsStorage<?, ?>.Connection con = storage.connect()) {
+			try (ResultSet rs = con.createPreparedStatement("SHOW COLUMNS FROM %s;", con.DATA_POINTS_TABLE_NAME).executeQuery()) {
 				rs.next();
 				assert rs.getString(1).equalsIgnoreCase("id");
 
@@ -123,18 +125,18 @@ public class BuildTablesTest {
 	@Test
 	public void changeFields() throws SQLException {
 		String filename = tmpDbFileName();
-		H2ResultsStorage storage = new H2ResultsStorage(filename,
+		H2ResultsStorage<?, ?> storage = new H2ResultsStorage<>(filename,
 				new DynamicExperimentValueHandler().addField("a", int.class).addField("b", double.class),
 				new DynamicExperimentValueHandler().addField("x", double.class));
 		storage.prepareStorage();
 
-		storage = new H2ResultsStorage(filename,
+		storage = new H2ResultsStorage<>(filename,
 				new DynamicExperimentValueHandler().addField("a", int.class).addField("b", String.class),
 				new DynamicExperimentValueHandler().addField("x", double.class));
 		storage.prepareStorage();
 
-		try (H2Connection con = storage.connect()) {
-			try (ResultSet rs = con.statement("SHOW COLUMNS FROM data_points;").executeQuery()) {
+		try (H2ResultsStorage<?, ?>.Connection con = storage.connect()) {
+			try (ResultSet rs = con.createPreparedStatement("SHOW COLUMNS FROM %s;", con.DATA_POINTS_TABLE_NAME).executeQuery()) {
 				rs.next();
 				assert rs.getString(1).equalsIgnoreCase("id");
 
@@ -148,6 +150,37 @@ public class BuildTablesTest {
 
 				assert !rs.next();
 			}
+		}
+	}
+
+	@Test
+	public void addDataPoints() throws SQLException {
+		DynamicExperimentValueHandler dph = new DynamicExperimentValueHandler()
+			.addField("a", int.class)
+			.addField("b", double.class);
+		H2ResultsStorage<DynamicExperimentValue, DynamicExperimentValue> storage = new H2ResultsStorage<>(tmpDbFileName(),
+				dph,
+				new DynamicExperimentValueHandler().addField("x", double.class));
+		storage.prepareStorage();
+
+		try (H2ResultsStorage<DynamicExperimentValue, ?>.Connection con = storage.connect()) {
+			try (H2Operations.InsertDataPoint<DynamicExperimentValue, ?> inserter = con.insertDataPoints()) {
+				DynamicExperimentValue dp = dph.createValue();
+				dp.set("a", 12);
+				dp.set("b", 1.12);
+				inserter.insert(dp);
+
+				dp = dph.createValue();
+				dp.set("a", 15);
+				dp.set("b", 2.15);
+				inserter.insert(dp);
+
+				dp = dph.createValue();
+				dp.set("a", 20);
+				dp.set("b", 3.2);
+				inserter.insert(dp);
+			}
+			con.print(System.err, "SELECT * FROM %s;", con.DATA_POINTS_TABLE_NAME);
 		}
 	}
 }

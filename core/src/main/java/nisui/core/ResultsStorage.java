@@ -1,9 +1,10 @@
 package nisui.core;
 
-public abstract class ResultsStorage {
+public abstract class ResultsStorage<D, R> {
     public abstract void prepareStorage();
     public abstract Connection connect();
 
-    public static abstract class Connection implements AutoCloseable {
+    public abstract class Connection implements AutoCloseable {
+	public abstract DataPointInserter<D> insertDataPoints();
     }
 }
