@@ -1,6 +1,6 @@
 package nisui.core;
 
-import java.util.List;
+import java.util.Collection;
 
 public abstract class ExperimentValuesHandler<T> {
 	public abstract T createValue();
@@ -44,6 +44,6 @@ public abstract class ExperimentValuesHandler<T> {
 			return null;
 		}
 	}
-	public abstract List<Field> fields();
+	public abstract Collection<? extends Field> fields();
 	public abstract Field field(String name);
 }

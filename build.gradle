@@ -64,6 +64,8 @@ subprojects {
 project(":java_runner") {
     dependencies {
         compile project(':core')
+
+        testCompile 'org.projectlombok:lombok:1.16.12'
     }
 }
 
@@ -73,8 +75,7 @@ project(":h2_store") {
        compile project(':core')
 
        // Use this to create test data
-       testCompile project(':java_runner')
-       testCompile 'org.projectlombok:lombok:1.16.12'
+       /* testCompile project(':java_runner') */
     }
 }
 

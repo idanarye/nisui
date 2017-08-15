@@ -7,30 +7,9 @@ import java.sql.Statement;
 
 import org.junit.rules.TemporaryFolder;
 
-import lombok.*;
 import nisui.core.ExperimentValuesHandler;
-import nisui.java_runner.JavaExperimentValuesHandler;
+import nisui.core.DynamicExperimentValueHandler;
 import org.junit.*;
-
-@Data
-class TestDataPoint1 implements nisui.core.DataPoint {
-	private int a;
-}
-@Data
-class TestDataPoint2 implements nisui.core.DataPoint {
-	private int a;
-	private double b;
-}
-@Data
-class TestDataPoint3 implements nisui.core.DataPoint {
-	private int a;
-	private String b;
-}
-
-@Data
-class TestExperimentResult implements nisui.core.ExperimentResult {
-	private double x;
-}
 
 public class BuildTablesTest {
 	@Rule
@@ -46,7 +25,9 @@ public class BuildTablesTest {
 
 	@Test
 	public void createTables() throws SQLException {
-		H2ResultsStorage storage = new H2ResultsStorage(tmpDbFileName(), new JavaExperimentValuesHandler<>(TestDataPoint1.class), new JavaExperimentValuesHandler<>(TestExperimentResult.class));
+		H2ResultsStorage storage = new H2ResultsStorage(tmpDbFileName(),
+				new DynamicExperimentValueHandler().addField("a", int.class),
+				new DynamicExperimentValueHandler().addField("x", double.class));
 		storage.prepareStorage();
 		try (H2Connection con = storage.connect()) {
 			try (ResultSet rs = con.statement("SHOW COLUMNS FROM data_points;").executeQuery()) {
@@ -84,10 +65,14 @@ public class BuildTablesTest {
 	@Test
 	public void addFields() throws SQLException {
 		String filename = tmpDbFileName();
-		H2ResultsStorage storage = new H2ResultsStorage(filename, new JavaExperimentValuesHandler<>(TestDataPoint1.class), new JavaExperimentValuesHandler<>(TestExperimentResult.class));
+		H2ResultsStorage storage = new H2ResultsStorage(filename,
+				new DynamicExperimentValueHandler().addField("a", int.class),
+				new DynamicExperimentValueHandler().addField("x", double.class));
 		storage.prepareStorage();
 
-		storage = new H2ResultsStorage(filename, new JavaExperimentValuesHandler<>(TestDataPoint2.class), new JavaExperimentValuesHandler<>(TestExperimentResult.class));
+		storage = new H2ResultsStorage(filename,
+				new DynamicExperimentValueHandler().addField("a", int.class).addField("b", double.class),
+				new DynamicExperimentValueHandler().addField("x", double.class));
 		storage.prepareStorage();
 
 		try (H2Connection con = storage.connect()) {
@@ -111,10 +96,14 @@ public class BuildTablesTest {
 	@Test
 	public void removeFields() throws SQLException {
 		String filename = tmpDbFileName();
-		H2ResultsStorage storage = new H2ResultsStorage(filename, new JavaExperimentValuesHandler<>(TestDataPoint2.class), new JavaExperimentValuesHandler<>(TestExperimentResult.class));
+		H2ResultsStorage storage = new H2ResultsStorage(filename,
+				new DynamicExperimentValueHandler().addField("a", int.class).addField("b", double.class),
+				new DynamicExperimentValueHandler().addField("x", double.class));
 		storage.prepareStorage();
 
-		storage = new H2ResultsStorage(filename, new JavaExperimentValuesHandler<>(TestDataPoint1.class), new JavaExperimentValuesHandler<>(TestExperimentResult.class));
+		storage = new H2ResultsStorage(filename,
+				new DynamicExperimentValueHandler().addField("a", int.class),
+				new DynamicExperimentValueHandler().addField("x", double.class));
 		storage.prepareStorage();
 
 		try (H2Connection con = storage.connect()) {
@@ -134,10 +123,14 @@ public class BuildTablesTest {
 	@Test
 	public void changeFields() throws SQLException {
 		String filename = tmpDbFileName();
-		H2ResultsStorage storage = new H2ResultsStorage(filename, new JavaExperimentValuesHandler<>(TestDataPoint2.class), new JavaExperimentValuesHandler<>(TestExperimentResult.class));
+		H2ResultsStorage storage = new H2ResultsStorage(filename,
+				new DynamicExperimentValueHandler().addField("a", int.class).addField("b", double.class),
+				new DynamicExperimentValueHandler().addField("x", double.class));
 		storage.prepareStorage();
 
-		storage = new H2ResultsStorage(filename, new JavaExperimentValuesHandler<>(TestDataPoint3.class), new JavaExperimentValuesHandler<>(TestExperimentResult.class));
+		storage = new H2ResultsStorage(filename,
+				new DynamicExperimentValueHandler().addField("a", int.class).addField("b", String.class),
+				new DynamicExperimentValueHandler().addField("x", double.class));
 		storage.prepareStorage();
 
 		try (H2Connection con = storage.connect()) {

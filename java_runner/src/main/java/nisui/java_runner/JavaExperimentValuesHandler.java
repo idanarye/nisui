@@ -7,9 +7,10 @@ import java.beans.PropertyDescriptor;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
+import java.util.Collection;
+import java.util.LinkedHashMap;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import nisui.core.ExperimentValuesHandler;
@@ -17,21 +18,28 @@ import nisui.core.ExperimentValuesHandler;
 public class JavaExperimentValuesHandler<T> extends ExperimentValuesHandler<T> {
 	private Class<T> clazz;
 	private Constructor<T> constructor;
-	private ArrayList<Field> fields;
+	private LinkedHashMap<String, JavaField> fields;
 
 	public JavaExperimentValuesHandler(Class<T> clazz) {
 		this.clazz = clazz;
 		try {
 			this.constructor = clazz.getConstructor();
 			this.constructor.setAccessible(true);
-			this.fields = Arrays.stream(Introspector.getBeanInfo(clazz).getPropertyDescriptors()).filter(pd -> {
+			this.fields =
+			Arrays.stream(Introspector.getBeanInfo(clazz).getPropertyDescriptors()).filter(pd -> {
 				if (pd.getReadMethod() == null || pd.getWriteMethod() == null) {
 					return false;
 				}
 				// Make sure we don't get inherited properties here
 				return clazz.isAssignableFrom(pd.getReadMethod().getDeclaringClass())
 					&& clazz.isAssignableFrom(pd.getWriteMethod().getDeclaringClass());
-			}).map(pd -> new JavaField(pd)).collect(Collectors.toCollection(ArrayList::new));
+			}).map(pd -> new JavaField(pd)).collect(Collectors.toMap(
+					JavaField::getName,
+					Function.identity(),
+					(u, v) -> {
+						throw new IllegalStateException(String.format("Duplicate key %s", u.getName()));
+					},
+					LinkedHashMap::new));
 		} catch (IntrospectionException | NoSuchMethodException e) {
 			throw new Error(e);
 		}
@@ -93,17 +101,12 @@ public class JavaExperimentValuesHandler<T> extends ExperimentValuesHandler<T> {
 	}
 
 	@Override
-	public List<ExperimentValuesHandler<T>.Field> fields() {
-		return fields;
+	public Collection<JavaField> fields() {
+		return fields.values();
 	}
 
 	@Override
-	public Field field(String name) {
-		for (Field field : fields) {
-			if (field.getName().equals(name)) {
-				return field;
-			}
-		}
-		return null;
+	public JavaField field(String name) {
+		return fields.get(name);
 	}
 }
