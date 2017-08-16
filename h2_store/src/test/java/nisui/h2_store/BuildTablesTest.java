@@ -7,6 +7,7 @@ import java.sql.Statement;
 
 import org.junit.rules.TemporaryFolder;
 
+import nisui.core.DataPoint;
 import nisui.core.DataPointInserter;
 import nisui.core.DynamicExperimentValue;
 import nisui.core.DynamicExperimentValueHandler;
@@ -181,6 +182,29 @@ public class BuildTablesTest {
 				inserter.insert(dp);
 			}
 			con.print(System.err, "SELECT * FROM %s;", con.DATA_POINTS_TABLE_NAME);
+		}
+
+		try (H2ResultsStorage<DynamicExperimentValue, ?>.Connection con = storage.connect()) {
+			try (H2Operations.ReadDataPoints<DynamicExperimentValue, ?> reader = con.readDataPoints()) {
+				for (DataPoint<DynamicExperimentValue> dataPoint : reader) {
+					switch ((int)((H2DataPoint<?>)dataPoint).getId()) {
+						case 1:
+							assert dataPoint.value.get("a").equals(12);
+							assert dataPoint.value.get("b").equals(1.12);
+							break;
+						case 2:
+							assert dataPoint.value.get("a").equals(15);
+							assert dataPoint.value.get("b").equals(2.15);
+							break;
+						case 3:
+							assert dataPoint.value.get("a").equals(20);
+							assert dataPoint.value.get("b").equals(3.2);
+							break;
+						default:
+							assert false;
+					}
+				}
+			}
 		}
 	}
 }

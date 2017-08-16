@@ -166,5 +166,10 @@ public class H2ResultsStorage<D, R> extends ResultsStorage<D, R> {
         public H2Operations.InsertDataPoint<D, R> insertDataPoints() {
             return new H2Operations.InsertDataPoint<>(this);
         }
+
+        @Override
+        public H2Operations.ReadDataPoints<D, R> readDataPoints() {
+            return new H2Operations.ReadDataPoints<>(this);
+        }
     }
 }

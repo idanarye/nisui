@@ -19,16 +19,16 @@ public class NisuiApp {
 
     @SuppressWarnings("unchecked")
     public static void main(String[] args) {
-        JavaExperimentFunction<DataPoint, ?> runner = JavaExperimentFunction.load(args[0], Arrays.copyOfRange(args, 1, args.length));
+        JavaExperimentFunction<Object, ?> runner = JavaExperimentFunction.load(args[0], Arrays.copyOfRange(args, 1, args.length));
         if (runner != null) {
             Scanner scan = new Scanner(System.in);
             JavaExperimentValuesHandler.Field[] fields = Arrays.stream(scan.nextLine().split("\t"))
                 .map(runner.getDataPointHandler()::field)
                 .toArray(JavaExperimentValuesHandler.Field[]::new);
-            LinkedList<DataPoint> dataPoints = new LinkedList<DataPoint>();
+            LinkedList<Object> dataPoints = new LinkedList<>();
             while (scan.hasNextLine()) {
                 String line = scan.nextLine();
-                DataPoint dp = runner.getDataPointHandler().createValue();
+                Object dp = runner.getDataPointHandler().createValue();
                 String[] parts = line.split("\t");
                 assert parts.length == fields.length;
                 for (int i = 0; i < parts.length; ++i) {
@@ -40,9 +40,9 @@ public class NisuiApp {
             }
             while (true) {
                 long seed = System.currentTimeMillis();
-                for (DataPoint dataPoint : dataPoints) {
+                for (Object dataPoint : dataPoints) {
                     try {
-                        ExperimentResult result = runner.runExperiment(dataPoint, seed);
+                        Object result = runner.runExperiment(dataPoint, seed);
                         System.out.printf("%s\t%s\t%s\n", dataPoint, seed, result);
                     } catch (Throwable e) {
                         System.out.printf("%s\t%s\t%s\n", dataPoint, seed, e.getClass());

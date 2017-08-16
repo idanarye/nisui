@@ -1,4 +1,9 @@
 package nisui.core;
 
-public interface ExperimentResult {
+public abstract class ExperimentResult<T> {
+	public final T value;
+
+	public ExperimentResult(T value) {
+		this.value = value;
+	}
 }

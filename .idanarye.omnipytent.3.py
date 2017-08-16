@@ -84,3 +84,14 @@ def lombok_jar_file():
 @task
 def jar(ctx):
     local['gradle']['fatJar'] & BANG
+
+
+@task
+def test_with_vts(ctx):
+    cmd = gradle['run']['-Pargs=%s' % ' '.join([
+        '/home/idanarye/links/study/Thesis/VocalTerritorySimulator/RunWithNisui.java',
+        '/home/idanarye/links/study/Thesis/VocalTerritorySimulator/build/VocalTerritorySimulator.jar',
+    ])]
+    cmd = cmd < '/home/idanarye/links/study/Thesis/VocalTerritorySimulator/data-points.txt'
+    cmd & TERMINAL_PANEL
+

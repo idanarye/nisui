@@ -14,12 +14,10 @@ import java.util.stream.Stream;
 import javax.tools.JavaCompiler;
 import javax.tools.ToolProvider;
 
-import nisui.core.DataPoint;
 import nisui.core.ExperimentFunction;
-import nisui.core.ExperimentResult;
 import nisui.core.ExperimentValuesHandler;
 
-public abstract class JavaExperimentFunction<DP extends DataPoint, ER extends ExperimentResult>
+public abstract class JavaExperimentFunction<DP, ER>
 	implements ExperimentFunction<DP, ER>
 {
 	public static JavaExperimentFunction load(String mainFile, String... dependencies) {
@@ -54,16 +52,13 @@ public abstract class JavaExperimentFunction<DP extends DataPoint, ER extends Ex
 		return sub != of && of.isAssignableFrom(sub);
 	}
 
-	private JavaExperimentValuesHandler<DataPoint> dataPointHandler;
-	private JavaExperimentValuesHandler<ExperimentResult> experimentResultHandler;
+	private JavaExperimentValuesHandler<DP> dataPointHandler;
+	private JavaExperimentValuesHandler<ER> experimentResultHandler;
 
 	@SuppressWarnings("unchecked")
 	public JavaExperimentFunction() {
 		for (Method m : getClass().getMethods()) {
 			if (m.getName() != "runExperiment") {
-				continue;
-			}
-			if (!isSubClassOf(m.getReturnType(), ExperimentResult.class)) {
 				continue;
 			}
 			Class<?>[] parameters = m.getParameterTypes();
@@ -73,7 +68,7 @@ public abstract class JavaExperimentFunction<DP extends DataPoint, ER extends Ex
 			if (!parameters[1].isAssignableFrom(long.class)) {
 				continue;
 			}
-			dataPointHandler = new JavaExperimentValuesHandler((Class<DataPoint>)parameters[0]);
+			dataPointHandler = new JavaExperimentValuesHandler((Class<DP>)parameters[0]);
 			experimentResultHandler = new JavaExperimentValuesHandler((Class<ER>)m.getReturnType());
 			return;
 		}
@@ -81,12 +76,12 @@ public abstract class JavaExperimentFunction<DP extends DataPoint, ER extends Ex
 	}
 
 	@Override
-	public ExperimentValuesHandler<DataPoint> getDataPointHandler() {
+	public ExperimentValuesHandler<DP> getDataPointHandler() {
 		return dataPointHandler;
 	}
 
 	@Override
-	public ExperimentValuesHandler<ExperimentResult> getExperimentResultHandler() {
+	public ExperimentValuesHandler<ER> getExperimentResultHandler() {
 		return experimentResultHandler;
 	}
 }
