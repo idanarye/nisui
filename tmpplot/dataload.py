@@ -190,6 +190,11 @@ class JavaObj(object):
                     pass
                 else:
                     break
+            else:
+                if v == 'true':
+                    v = True
+                elif v == 'false':
+                    v = False
             fields[k] = v
 
         return cls(**fields)

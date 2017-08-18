@@ -40,16 +40,6 @@ def compile(ctx):
 def run(ctx):
     return
     local['tmpplot/run.py'] & BANG
-    return
-    cmd = gradle['run']['-Pargs=%s' % ' '.join([
-        '/home/idanarye/links/study/Thesis/VocalTerritorySimulator/RunWithNisui.java',
-        '/home/idanarye/links/study/Thesis/VocalTerritorySimulator/build/VocalTerritorySimulator.jar',
-    ])]
-    cmd = cmd < '/home/idanarye/links/study/Thesis/VocalTerritorySimulator/data-points.txt'
-    with local.path('runit.sh').open('w') as f:
-        f.write(str(cmd | local['tee']['-a', 'results.txt']))
-        f.write('\n')
-    cmd & TERMINAL_PANEL
 
 
 @task
@@ -86,12 +76,24 @@ def jar(ctx):
     local['gradle']['fatJar'] & BANG
 
 
+_vts_args = [
+    '/home/idanarye/links/study/Thesis/VocalTerritorySimulator/RunWithNisui.java',
+    '/home/idanarye/links/study/Thesis/VocalTerritorySimulator/build/VocalTerritorySimulator.jar',
+]
+_vts_data_points = '/home/idanarye/links/study/Thesis/VocalTerritorySimulator/data-points.txt'
+
 @task
 def test_with_vts(ctx):
-    cmd = gradle['run']['-Pargs=%s' % ' '.join([
-        '/home/idanarye/links/study/Thesis/VocalTerritorySimulator/RunWithNisui.java',
-        '/home/idanarye/links/study/Thesis/VocalTerritorySimulator/build/VocalTerritorySimulator.jar',
-    ])]
-    cmd = cmd < '/home/idanarye/links/study/Thesis/VocalTerritorySimulator/data-points.txt'
+    cmd = gradle['run']['-Pargs=%s' % ' '.join(_vts_args)]
+    cmd = cmd < _vts_data_points
     cmd & TERMINAL_PANEL
 
+
+@task(jar)
+def create_runit_script(ctx):
+    cmd = local['java']['-jar', 'build/Nisui.jar']
+    cmd = cmd[_vts_args]
+    cmd = cmd < _vts_data_points
+    with local.path('runit.sh').open('w') as f:
+        f.write(str(cmd | local['tee']['-a', 'results.txt']))
+        f.write('\n')
