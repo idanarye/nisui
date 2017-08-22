@@ -59,8 +59,9 @@ class ExperimentsData(object):
                 # continue
             yield tuple(f(dp) for f in dp_field), agg(rs_field(er) for er in ers)
 
-    def plot(self, dp_fields, agg, rs_field, *predicates, group_by='', **filters):
+    def plot(self, dp_fields, agg, rs_field, *predicates, group_by='', filename=None, **filters):
         import matplotlib.pyplot as plt
+        plt.figure(figsize=(10, 10))
 
         if not isinstance(dp_fields, tuple):
             dp_fields = (dp_fields,)
@@ -86,12 +87,16 @@ class ExperimentsData(object):
             def make_filter(group):
                 return dict(zip(group_by, group), **filters)
 
-            all_filters = [(make_label(group), make_filter(group)) for group in all_groups]
+            all_filters = [(group, make_filter(group)) for group in all_groups]
         else:
+            def make_label(group):
+                assert group is None
+                return None
             all_filters = [(None, filters)]
 
         all_xs = set()
-        for label, filters in all_filters:
+        for group_by_tuple, filters in sorted(all_filters):
+            label = make_label(group_by_tuple)
             dp_values = tuple([] for _ in dp_fields)
             res_values = []
             for dp, y in sorted(self.get_pairs(dp_fields, agg, rs_field, *predicates, **filters)):
@@ -118,7 +123,7 @@ class ExperimentsData(object):
                 if group_by:
                     fig.suptitle(label)
 
-        if len(dp_values) == 1:
+        if len(dp_fields) == 1:
             baseline = agg(rs_field(rfs.single_robot_results) for rfs in self.per_seed if rfs.single_robot_results)
             plt.plot(sorted(all_xs), [baseline] * len(all_xs), 'k--')
 
@@ -127,7 +132,11 @@ class ExperimentsData(object):
             if group_by:
                 plt.legend(ncol=3, loc=9)
 
-        plt.show()
+        plt.tight_layout()
+        if filename:
+            plt.savefig(filename)
+        else:
+            plt.show()
 
 
 class ResultsForSeed(object):
