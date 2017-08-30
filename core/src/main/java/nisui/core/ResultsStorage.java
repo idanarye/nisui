@@ -7,5 +7,8 @@ public abstract class ResultsStorage<D, R> {
     public abstract class Connection implements AutoCloseable {
 	public abstract DataPointInserter<D> insertDataPoints();
 	public abstract DataPointsReader<D> readDataPoints();
+
+	public abstract ExperimentResultInserter<R> insertExperimentResults();
+	public abstract ExperimentResultsReader<D, R> readExperimentResults(Iterable<DataPoint<D>> dataPoints);
     }
 }

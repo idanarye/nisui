@@ -13,6 +13,7 @@ import java.util.stream.Stream;
 
 import nisui.core.ExperimentValuesHandler;
 import nisui.core.ResultsStorage;
+import nisui.core.DataPoint;
 
 public class H2ResultsStorage<D, R> extends ResultsStorage<D, R> {
     private String filename;
@@ -143,20 +144,24 @@ public class H2ResultsStorage<D, R> extends ResultsStorage<D, R> {
             }
         }
 
+        public void print(PrintStream outStream, ResultSet rs) throws SQLException {
+            for (int i = 1; i <= rs.getMetaData().getColumnCount(); ++i) {
+                outStream.printf("%s\t", rs.getMetaData().getColumnName(i));
+            }
+            outStream.println();
+            outStream.println("-------------------------------");
+            while (rs.next()) {
+                for (int i = 1; i <= rs.getMetaData().getColumnCount(); ++i) {
+                    outStream.printf("%s\t", rs.getObject(i));
+                }
+                outStream.println();
+            }
+        }
+
         public void print(PrintStream outStream, String sql, Object... args) {
             try (Statement stmt = con.createStatement()) {
                 ResultSet rs = stmt.executeQuery(String.format(sql, args));
-                for (int i = 1; i <= rs.getMetaData().getColumnCount(); ++i) {
-                    outStream.printf("%s\t", rs.getMetaData().getColumnName(i));
-                }
-                outStream.println();
-                outStream.println("-------------------------------");
-                while (rs.next()) {
-                    for (int i = 1; i <= rs.getMetaData().getColumnCount(); ++i) {
-                        outStream.printf("%s\t", rs.getObject(i));
-                    }
-                    outStream.println();
-                }
+                print(outStream, rs);
             } catch (SQLException e) {
                 throw new RuntimeException(e);
             }
@@ -170,6 +175,16 @@ public class H2ResultsStorage<D, R> extends ResultsStorage<D, R> {
         @Override
         public H2Operations.ReadDataPoints<D, R> readDataPoints() {
             return new H2Operations.ReadDataPoints<>(this);
+        }
+
+        @Override
+        public H2Operations.InsertExperimentResult<D, R> insertExperimentResults() {
+            return new H2Operations.InsertExperimentResult<>(this);
+        }
+
+        @Override
+        public H2Operations.ReadExperimentResults<D, R> readExperimentResults(Iterable<DataPoint<D>> dataPoints) {
+            return new H2Operations.ReadExperimentResults<>(this, dataPoints);
         }
     }
 }

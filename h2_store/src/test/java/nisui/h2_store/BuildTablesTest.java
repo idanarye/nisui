@@ -14,17 +14,7 @@ import nisui.core.DynamicExperimentValueHandler;
 import nisui.core.ExperimentValuesHandler;
 import org.junit.*;
 
-public class BuildTablesTest {
-	@Rule
-	public TemporaryFolder dbFolder = new TemporaryFolder();
-
-	private String tmpDbFileName() {
-		try {
-			return dbFolder.newFile("test-db").getAbsolutePath();
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		}
-	}
+public class BuildTablesTest extends TestsBase {
 
 	@Test
 	public void createTables() throws SQLException {
@@ -150,60 +140,6 @@ public class BuildTablesTest {
 				assert rs.getString(2).toUpperCase().startsWith("VARCHAR");
 
 				assert !rs.next();
-			}
-		}
-	}
-
-	@Test
-	public void addDataPoints() throws SQLException {
-		DynamicExperimentValueHandler dph = new DynamicExperimentValueHandler()
-			.addField("a", int.class)
-			.addField("b", double.class);
-		H2ResultsStorage<DynamicExperimentValue, DynamicExperimentValue> storage = new H2ResultsStorage<>(tmpDbFileName(),
-				dph,
-				new DynamicExperimentValueHandler().addField("x", double.class));
-		storage.prepareStorage();
-
-		try (H2ResultsStorage<DynamicExperimentValue, ?>.Connection con = storage.connect()) {
-			try (H2Operations.InsertDataPoint<DynamicExperimentValue, ?> inserter = con.insertDataPoints()) {
-				DynamicExperimentValue dp = dph.createValue();
-				dp.set("a", 12);
-				dp.set("b", 1.12);
-				inserter.insert(dp);
-
-				dp = dph.createValue();
-				dp.set("a", 15);
-				dp.set("b", 2.15);
-				inserter.insert(dp);
-
-				dp = dph.createValue();
-				dp.set("a", 20);
-				dp.set("b", 3.2);
-				inserter.insert(dp);
-			}
-			con.print(System.err, "SELECT * FROM %s;", con.DATA_POINTS_TABLE_NAME);
-		}
-
-		try (H2ResultsStorage<DynamicExperimentValue, ?>.Connection con = storage.connect()) {
-			try (H2Operations.ReadDataPoints<DynamicExperimentValue, ?> reader = con.readDataPoints()) {
-				for (DataPoint<DynamicExperimentValue> dataPoint : reader) {
-					switch ((int)((H2DataPoint<?>)dataPoint).getId()) {
-						case 1:
-							assert dataPoint.value.get("a").equals(12);
-							assert dataPoint.value.get("b").equals(1.12);
-							break;
-						case 2:
-							assert dataPoint.value.get("a").equals(15);
-							assert dataPoint.value.get("b").equals(2.15);
-							break;
-						case 3:
-							assert dataPoint.value.get("a").equals(20);
-							assert dataPoint.value.get("b").equals(3.2);
-							break;
-						default:
-							assert false;
-					}
-				}
 			}
 		}
 	}
