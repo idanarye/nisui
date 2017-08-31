@@ -6,6 +6,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 import org.junit.rules.TemporaryFolder;
+import org.assertj.core.api.Assertions;
 
 import nisui.core.DataPoint;
 import nisui.core.DataPointInserter;
@@ -50,16 +51,16 @@ public class FillAndReadDataTest extends TestsBase {
 				for (DataPoint<DynamicExperimentValue> dataPoint : reader) {
 					switch ((int)((H2DataPoint<?>)dataPoint).getId()) {
 						case 1:
-							assert dataPoint.getValue().get("a").equals(12);
-							assert dataPoint.getValue().get("b").equals(1.12);
+							Assertions.assertThat(dataPoint.getValue().get("a")).isEqualTo(12);
+							Assertions.assertThat(dataPoint.getValue().get("b")).isEqualTo(1.12);
 							break;
 						case 2:
-							assert dataPoint.getValue().get("a").equals(15);
-							assert dataPoint.getValue().get("b").equals(2.15);
+							Assertions.assertThat(dataPoint.getValue().get("a")).isEqualTo(15);
+							Assertions.assertThat(dataPoint.getValue().get("b")).isEqualTo(2.15);
 							break;
 						case 3:
-							assert dataPoint.getValue().get("a").equals(20);
-							assert dataPoint.getValue().get("b").equals(3.2);
+							Assertions.assertThat(dataPoint.getValue().get("a")).isEqualTo(20);
+							Assertions.assertThat(dataPoint.getValue().get("b")).isEqualTo(3.2);
 							break;
 						default:
 							assert false;
@@ -110,24 +111,24 @@ public class FillAndReadDataTest extends TestsBase {
 				for (ExperimentResult<DynamicExperimentValue, DynamicExperimentValue> experimentResult : reader) {
 					switch ((int)((H2ExperimentResult<?, ?>)experimentResult).getId()) {
 						case 1:
-							assert experimentResult.getDataPoint().getValue().get("a").equals(1);
-							assert experimentResult.getSeed() == 1;
-							assert experimentResult.getValue().get("x").equals(11);
+							Assertions.assertThat(experimentResult.getDataPoint().getValue().get("a")).isEqualTo(1);
+							Assertions.assertThat(experimentResult.getSeed()).isEqualTo(1);
+							Assertions.assertThat(experimentResult.getValue().get("x")).isEqualTo(11);
 							break;
 						case 2:
-							assert experimentResult.getDataPoint().getValue().get("a").equals(1);
-							assert experimentResult.getSeed() == 2;
-							assert experimentResult.getValue().get("x").equals(12);
+							Assertions.assertThat(experimentResult.getDataPoint().getValue().get("a")).isEqualTo(1);
+							Assertions.assertThat(experimentResult.getSeed()).isEqualTo(2);
+							Assertions.assertThat(experimentResult.getValue().get("x")).isEqualTo(12);
 							break;
 						case 3:
-							assert experimentResult.getDataPoint().getValue().get("a").equals(2);
-							assert experimentResult.getSeed() == 3;
-							assert experimentResult.getValue().get("x").equals(21);
+							Assertions.assertThat(experimentResult.getDataPoint().getValue().get("a")).isEqualTo(2);
+							Assertions.assertThat(experimentResult.getSeed()).isEqualTo(3);
+							Assertions.assertThat(experimentResult.getValue().get("x")).isEqualTo(21);
 							break;
 						case 4:
-							assert experimentResult.getDataPoint().getValue().get("a").equals(2);
-							assert experimentResult.getSeed() == 4;
-							assert experimentResult.getValue().get("x").equals(22);
+							Assertions.assertThat(experimentResult.getDataPoint().getValue().get("a")).isEqualTo(2);
+							Assertions.assertThat(experimentResult.getSeed()).isEqualTo(4);
+							Assertions.assertThat(experimentResult.getValue().get("x")).isEqualTo(22);
 							break;
 						default:
 							assert false;

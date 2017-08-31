@@ -1,6 +1,7 @@
 package nisui.core;
 
 import org.junit.*;
+import org.assertj.core.api.Assertions;
 
 public class DynamicValuesTest {
 	@Test
@@ -19,7 +20,7 @@ public class DynamicValuesTest {
 
 		int zipExistedForAgesButJavaStreamsDoesntHaveIt = 0;
 		for (ExperimentValuesHandler<DynamicExperimentValue>.Field field : handler.fields()) {
-			assert field.get(value).equals(fieldValues[zipExistedForAgesButJavaStreamsDoesntHaveIt]);
+			Assertions.assertThat(field.get(value)).isEqualTo(fieldValues[zipExistedForAgesButJavaStreamsDoesntHaveIt]);
 			++zipExistedForAgesButJavaStreamsDoesntHaveIt;
 		}
 
@@ -31,9 +32,9 @@ public class DynamicValuesTest {
 			++zipExistedForAgesButJavaStreamsDoesntHaveIt;
 		}
 
-		assert value.get("a").equals(4);
-		assert value.get("b").equals(5.5);
-		assert value.get("c").equals("6");
+		Assertions.assertThat(value.get("a")).isEqualTo(4);
+		Assertions.assertThat(value.get("b")).isEqualTo(5.5);
+		Assertions.assertThat(value.get("c")).isEqualTo("6");
 	}
 }
 

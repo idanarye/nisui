@@ -6,6 +6,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 import org.junit.rules.TemporaryFolder;
+import org.assertj.core.api.Assertions;
 
 import nisui.core.DataPoint;
 import nisui.core.DataPointInserter;
@@ -25,32 +26,32 @@ public class BuildTablesTest extends TestsBase {
 		try (H2ResultsStorage<?, ?>.Connection con = storage.connect()) {
 			try (ResultSet rs = con.createPreparedStatement("SHOW COLUMNS FROM %s;", con.DATA_POINTS_TABLE_NAME).executeQuery()) {
 				rs.next();
-				assert rs.getString(1).equalsIgnoreCase("id");
+				Assertions.assertThat(rs.getString(1)).isEqualToIgnoringCase("id");
 
 				rs.next();
-				assert rs.getString(1).equalsIgnoreCase("a");
-				assert rs.getString(2).toUpperCase().startsWith("INTEGER");
+				Assertions.assertThat(rs.getString(1)).isEqualToIgnoringCase("a");
+				Assertions.assertThat(rs.getString(2).toUpperCase()).startsWith("INTEGER");
 
-				assert !rs.next();
+				Assertions.assertThat(rs.next()).isFalse();
 			}
 
 			try (ResultSet rs = con.createPreparedStatement("SHOW COLUMNS FROM %s;", con.EXPERIMENT_RESULTS_TABLE_NAME).executeQuery()) {
 				rs.next();
-				assert rs.getString(1).equalsIgnoreCase("id");
+				Assertions.assertThat(rs.getString(1)).isEqualToIgnoringCase("id");
 
 				rs.next();
-				assert rs.getString(1).equalsIgnoreCase("data_point_id");
-				assert rs.getString(2).toUpperCase().startsWith("BIGINT");
+				Assertions.assertThat(rs.getString(1)).isEqualToIgnoringCase("data_point_id");
+				Assertions.assertThat(rs.getString(2).toUpperCase()).startsWith("BIGINT");
 
 				rs.next();
-				assert rs.getString(1).equalsIgnoreCase("seed");
-				assert rs.getString(2).toUpperCase().startsWith("BIGINT");
+				Assertions.assertThat(rs.getString(1)).isEqualToIgnoringCase("seed");
+				Assertions.assertThat(rs.getString(2).toUpperCase()).startsWith("BIGINT");
 
 				rs.next();
-				assert rs.getString(1).equalsIgnoreCase("x");
-				assert rs.getString(2).toUpperCase().startsWith("DOUBLE");
+				Assertions.assertThat(rs.getString(1)).isEqualToIgnoringCase("x");
+				Assertions.assertThat(rs.getString(2).toUpperCase()).startsWith("DOUBLE");
 
-				assert !rs.next();
+				Assertions.assertThat(rs.next()).isFalse();
 			}
 		}
 	}
@@ -71,17 +72,17 @@ public class BuildTablesTest extends TestsBase {
 		try (H2ResultsStorage<?, ?>.Connection con = storage.connect()) {
 			try (ResultSet rs = con.createPreparedStatement("SHOW COLUMNS FROM %s;", con.DATA_POINTS_TABLE_NAME).executeQuery()) {
 				rs.next();
-				assert rs.getString(1).equalsIgnoreCase("id");
+				Assertions.assertThat(rs.getString(1)).isEqualToIgnoringCase("id");
 
 				rs.next();
-				assert rs.getString(1).equalsIgnoreCase("a");
-				assert rs.getString(2).toUpperCase().startsWith("INTEGER");
+				Assertions.assertThat(rs.getString(1)).isEqualToIgnoringCase("a");
+				Assertions.assertThat(rs.getString(2).toUpperCase()).startsWith("INTEGER");
 
 				rs.next();
-				assert rs.getString(1).equalsIgnoreCase("b");
-				assert rs.getString(2).toUpperCase().startsWith("DOUBLE");
+				Assertions.assertThat(rs.getString(1)).isEqualToIgnoringCase("b");
+				Assertions.assertThat(rs.getString(2).toUpperCase()).startsWith("DOUBLE");
 
-				assert !rs.next();
+				Assertions.assertThat(rs.next()).isFalse();
 			}
 		}
 	}
@@ -102,13 +103,13 @@ public class BuildTablesTest extends TestsBase {
 		try (H2ResultsStorage<?, ?>.Connection con = storage.connect()) {
 			try (ResultSet rs = con.createPreparedStatement("SHOW COLUMNS FROM %s;", con.DATA_POINTS_TABLE_NAME).executeQuery()) {
 				rs.next();
-				assert rs.getString(1).equalsIgnoreCase("id");
+				Assertions.assertThat(rs.getString(1)).isEqualToIgnoringCase("id");
 
 				rs.next();
-				assert rs.getString(1).equalsIgnoreCase("a");
-				assert rs.getString(2).toUpperCase().startsWith("INTEGER");
+				Assertions.assertThat(rs.getString(1)).isEqualToIgnoringCase("a");
+				Assertions.assertThat(rs.getString(2).toUpperCase()).startsWith("INTEGER");
 
-				assert !rs.next();
+				Assertions.assertThat(rs.next()).isFalse();
 			}
 		}
 	}
@@ -129,17 +130,17 @@ public class BuildTablesTest extends TestsBase {
 		try (H2ResultsStorage<?, ?>.Connection con = storage.connect()) {
 			try (ResultSet rs = con.createPreparedStatement("SHOW COLUMNS FROM %s;", con.DATA_POINTS_TABLE_NAME).executeQuery()) {
 				rs.next();
-				assert rs.getString(1).equalsIgnoreCase("id");
+				Assertions.assertThat(rs.getString(1)).isEqualToIgnoringCase("id");
 
 				rs.next();
-				assert rs.getString(1).equalsIgnoreCase("a");
-				assert rs.getString(2).toUpperCase().startsWith("INTEGER");
+				Assertions.assertThat(rs.getString(1)).isEqualToIgnoringCase("a");
+				Assertions.assertThat(rs.getString(2).toUpperCase()).startsWith("INTEGER");
 
 				rs.next();
-				assert rs.getString(1).equalsIgnoreCase("b");
-				assert rs.getString(2).toUpperCase().startsWith("VARCHAR");
+				Assertions.assertThat(rs.getString(1)).isEqualToIgnoringCase("b");
+				Assertions.assertThat(rs.getString(2).toUpperCase()).startsWith("VARCHAR");
 
-				assert !rs.next();
+				Assertions.assertThat(rs.next()).isFalse();
 			}
 		}
 	}

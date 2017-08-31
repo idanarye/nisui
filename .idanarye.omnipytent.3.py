@@ -52,8 +52,8 @@ def test(ctx):
     # gradle_tests() & BANG
     # gradle_tests('nisui.core.BasicExperimentRunningTest') & ERUN
     # gradle_tests('nisui.h2_store.BuildTablesTest') & ERUN
-    gradle_tests('nisui.h2_store.FillAndReadDataTest') & ERUN
-    # gradle_tests('nisui.core.DynamicValuesTest') & ERUN
+    # gradle_tests('nisui.h2_store.FillAndReadDataTest') & ERUN
+    gradle_tests('nisui.core.DynamicValuesTest') & ERUN
     # gradle_tests('nisui.java_runner.JavaValuesTest') & ERUN
 
 

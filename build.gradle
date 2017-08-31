@@ -20,6 +20,8 @@ allprojects {
     dependencies {
         compile 'org.slf4j:slf4j-api:1.7.21'
         testCompile 'junit:junit:4.12'
+        testCompile 'org.assertj:assertj-core:3.8.0'
+        /* testCompile 'org.assertj:assertj-swing-junit:3.8.0' */
     }
     test {
         outputs.upToDateWhen { false }

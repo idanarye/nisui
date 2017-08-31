@@ -1,8 +1,10 @@
 package nisui.java_runner;
 
 import lombok.*;
-import nisui.core.ExperimentValuesHandler;
 import org.junit.*;
+import org.assertj.core.api.Assertions;
+
+import nisui.core.ExperimentValuesHandler;
 
 @Data
 @NoArgsConstructor
@@ -19,9 +21,9 @@ public class JavaValuesTest {
 		ExperimentValuesHandler<ValueClass> handler = new JavaExperimentValuesHandler<>(ValueClass.class);
 		ValueClass value = new ValueClass(1, 2.5, "3");
 
-		assert handler.field("a").get(value).equals(1);
-		assert handler.field("b").get(value).equals(2.5);
-		assert handler.field("c").get(value).equals("3");
+		Assertions.assertThat(handler.field("a").get(value)).isEqualTo(1);
+		Assertions.assertThat(handler.field("b").get(value)).isEqualTo(2.5);
+		Assertions.assertThat(handler.field("c").get(value)).isEqualTo("3");
 
 		value = handler.createValue();
 
@@ -29,9 +31,9 @@ public class JavaValuesTest {
 		handler.field("b").set(value, 5.5);
 		handler.field("c").set(value, "6");
 
-		assert value.getA() == 4;
-		assert value.getB() == 5.5;
-		assert value.getC() == "6";
+		Assertions.assertThat(value.getA()).isEqualTo(4);
+		Assertions.assertThat(value.getB()).isEqualTo(5.5);
+		Assertions.assertThat(value.getC()).isEqualTo("6");
 	}
 }
 
