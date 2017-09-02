@@ -1,26 +1,31 @@
 package nisui.java_runner;
 
+import static javax.tools.JavaCompiler.CompilationTask;
+
 import java.io.IOError;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.net.URI;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.tools.JavaCompiler;
+import javax.tools.JavaFileObject;
+import javax.tools.StandardJavaFileManager;
 import javax.tools.ToolProvider;
-
 import nisui.core.ExperimentFunction;
 import nisui.core.ExperimentValuesHandler;
 
 public abstract class JavaExperimentFunction<DP, ER>
 	implements ExperimentFunction<DP, ER>
 {
-	public static JavaExperimentFunction load(String mainFile, String... dependencies) {
+	public static JavaExperimentFunction load(URI mainFile, URI... dependencies) {
 		try {
 			Path path = Paths.get(mainFile);
 			String className = path.getFileName().toString();
@@ -31,19 +36,36 @@ public abstract class JavaExperimentFunction<DP, ER>
 			for (URL url : ((URLClassLoader)ClassLoader.getSystemClassLoader()).getURLs()) {
 				allDependencies.add(url);
 			}
-			for (String dependency : dependencies) {
-				allDependencies.add(Paths.get(dependency).toUri().toURL());
+			for (URI dependency : dependencies) {
+				allDependencies.add(dependency.toURL());
 			}
 
 			JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
 			String dependenciesStr = allDependencies.stream().map(url -> url.getPath()).collect(Collectors.joining(":"));
+			// StandardJavaFileManager fileManager = compiler.getStandardFileManager(null, null, null);
+			// LinkedList<String> options = new LinkedList<>();
+
+			// options.add("-classpath");
+			// options.add(dependenciesStr);
+
+			// LinkedList<JavaFileObject> compUnits = new LinkedList<>();
+			// for (JavaFileObject javaFileObject : fileManager.getJavaFileObjects(path.toString())) {
+				// compUnits.add(javaFileObject);
+			// }
+			// CompilationTask compilationTask = compiler.getTask(null, fileManager, null, options, Arrays.asList("DataPoint", "ExperimentResult"), compUnits);
+			// if (!compilationTask.call()) {
+				// // TODO: replace with custom exception
+				// throw new RuntimeException("Unable to compile");
+			// }
+
 			compiler.run(null, null, null, "-cp", dependenciesStr, path.toString(), "-d", tempDir.toString());
 
 			URLClassLoader loader = URLClassLoader.newInstance(Stream.concat(
 						allDependencies.stream(),
 						Stream.of(tempDir.toUri().toURL())).toArray(l -> new URL[l]));
-			return (JavaExperimentFunction)Class.forName(className, true, loader).newInstance();
-		} catch (Exception e) {
+			Class clazz = Class.forName(className, true, loader);
+			return (JavaExperimentFunction)clazz.newInstance();
+		} catch (Throwable e) {
 			throw new Error(e);
 		}
 	}

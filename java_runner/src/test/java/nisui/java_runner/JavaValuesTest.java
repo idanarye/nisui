@@ -36,4 +36,3 @@ public class JavaValuesTest {
 		Assertions.assertThat(value.getC()).isEqualTo("6");
 	}
 }
-

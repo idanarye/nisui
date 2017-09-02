@@ -2,6 +2,8 @@ package nisui.app;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.Scanner;
@@ -18,8 +20,14 @@ public class NisuiApp {
     private static Logger logger = LoggerFactory.getLogger(NisuiApp.class);
 
     @SuppressWarnings("unchecked")
-    public static void main(String[] args) {
-        JavaExperimentFunction<Object, ?> runner = JavaExperimentFunction.load(args[0], Arrays.copyOfRange(args, 1, args.length));
+    public static void main(String[] args) throws URISyntaxException {
+        JavaExperimentFunction<Object, ?> runner = JavaExperimentFunction.load(new URI(args[0]), Arrays.stream(args).skip(1).map(arg -> {
+            try {
+                return new URI(arg);
+            } catch (URISyntaxException e) {
+                throw new RuntimeException(e);
+            }
+        }).toArray(URI[]::new));
         if (runner != null) {
             Scanner scan = new Scanner(System.in);
             JavaExperimentValuesHandler.Field[] fields = Arrays.stream(scan.nextLine().split("\t"))
