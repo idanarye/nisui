@@ -54,6 +54,14 @@ def coverageSpeed(obj):
     # data.plot(('detectionRadius'), avg, 'coveragePercentage',
     # # data.plot(('detectionRadius'), avg, coverageSpeed,
               # lambda dp: 1 < dp.numberOfRobots,
+    # data.plot(('numberOfRobots'), avg, 'coveragePercentage',
+              # lambda dp: 1 < dp.numberOfRobots,
+              # group_by=['marginsOverMarkerForDetection'],
+              # filename='detectionRadius-%s.png' % dt,
+              # detectionRadius=dt)
+    # data.plot(('detectionRadius'), avg, 'coveragePercentage',
+    # # data.plot(('detectionRadius'), avg, coverageSpeed,
+              # lambda dp: 1 < dp.numberOfRobots,
               # group_by=['keepInteria'],
               # filename='numberOfRobots-%s.png' % nr,
               # numberOfRobots=nr)

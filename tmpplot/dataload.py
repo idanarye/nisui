@@ -59,6 +59,16 @@ class ExperimentsData(object):
                 # continue
             yield tuple(f(dp) for f in dp_field), agg(rs_field(er) for er in ers)
 
+    def get_success_histogram(self):
+        result = {}
+        for dp, _, er in self._data:
+            try:
+                dp_dict = result[dp]
+            except KeyError:
+                dp_dict = result[dp] = {True: 0, False: 0}
+            dp_dict[er is not None] += 1
+        return result
+
     def plot(self, dp_fields, agg, rs_field, *predicates, group_by='', filename=None, **filters):
         import matplotlib.pyplot as plt
         plt.figure(figsize=(10, 10))
