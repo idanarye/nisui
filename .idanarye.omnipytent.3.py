@@ -39,8 +39,7 @@ def compile(ctx):
 
 @task
 def run(ctx):
-    return
-    local['tmpplot/run.py'] & BANG
+    pass
 
 
 @task
@@ -90,22 +89,3 @@ def test_with_vts(ctx):
     cmd = gradle['run']['-Pargs=%s' % ' '.join(_vts_args)]
     cmd = cmd < _vts_data_points
     cmd & TERMINAL_PANEL
-
-
-@task(jar)
-def create_runit_script(ctx):
-    cmd = local['java']['-jar', 'build/Nisui.jar']
-    cmd = cmd[_vts_args]
-    cmd = cmd < _vts_data_points
-    with local.path('runit.sh').open('w') as f:
-        f.write(str(cmd | local['tee']['-a', 'results.txt']))
-        f.write('\n')
-
-
-@task
-def explore(ctx, results_file_name=None):
-    cmd = local['python3']['tmpplot/explore.py']
-    if results_file_name:
-        cmd = cmd[results_file_name]
-    cmd & TERMINAL_TAB
-explore.complete(file_completer('.'))
