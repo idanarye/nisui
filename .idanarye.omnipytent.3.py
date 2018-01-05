@@ -4,8 +4,8 @@ from omnipytent.completers import file_completer
 from omnipytent.ext.idan import local, ERUN, gradle
 
 
-if FN.exists('g:ale_java_javac_classpath') and not VAR['g:ale_java_javac_classpath']:
-    VAR['g:ale_java_javac_classpath'] = FN['javacomplete#server#GetClassPath']()
+# if FN.exists('g:ale_java_javac_classpath') and not VAR['g:ale_java_javac_classpath']:
+    # VAR['g:ale_java_javac_classpath'] = FN['javacomplete#server#GetClassPath']()
 
 
 run_py = local['./run.py']
@@ -28,6 +28,10 @@ def gradle_tests(test):
     return cmd
 
 
+def class_exec_cmd(class_name):
+    return gradle['run']['-q']['-PmainClass=%s' % class_name]
+
+
 @task
 def compile(ctx):
     gradle['build']['-x', 'test'] & ERUN.bang
@@ -38,21 +42,36 @@ def build(ctx):
     gradle[':core:build']['-x', 'test'] & ERUN.bang
 
 
-@task
-def run(ctx):
-    pass
-    # cmd = run_py['experiment', 'info']
-    # cmd = run_py['experiment', 'run']['transmittionRadius=10', 'markerRadius=20']
-    # cmd = run_py['experiment', 'run']['faces=20']
-    # cmd = run_py['dp', 'add']['transmittionRadius=10', 'markerRadius=20']
-    # cmd = run_py['dp', 'add']['-n', 21, 'faces=5', 'num=20']
-    # cmd = run_py['dp', 'list']
-    # cmd = run_py['run']
-    # cmd = run_py['run', '--help']
-    # cmd = run_py['query', 'run', '-bnum', '-ffaces=6', 'avg(total)/num', '(faces+min)/2.0']
-    cmd = run_py['query', 'run', '-bnum', 'avg(total)/num', '(faces+min)/2.0']
+@task.options(alias=':1')
+def choose_command(ctx):
+    @ctx.key
+    def key(cmd):
+        try:
+            _, cmd = cmd
+        except ValueError:
+            pass
+        return str(cmd)
 
-    cmd & BANG
+    yield run_py['experiment', 'info']
+    yield run_py['experiment', 'run']['transmittionRadius=10', 'markerRadius=20']
+    yield run_py['experiment', 'run']['faces=20']
+    yield run_py['dp', 'add']['transmittionRadius=10', 'markerRadius=20']
+    yield run_py['dp', 'add']['-n', 21, 'faces=5', 'num=20']
+    yield run_py['dp', 'list']
+    yield run_py['run']
+    yield run_py['run', '--help']
+    yield run_py['query', 'run', '-bnum', '-ffaces=6', 'avg(total)/num', '(faces+min)/2.0']
+    yield run_py['query', 'run', '-bnum', 'avg(total)/num', '(faces+min)/2.0']
+    yield TERMINAL_PANEL, class_exec_cmd('nisui.app.NisuiGui')['-Pargs=']
+
+
+@task
+def run(ctx, cmd=choose_command):
+    try:
+        run_with, cmd = cmd
+    except ValueError:
+        run_with = BANG
+    cmd & run_with
 
 
 @task
@@ -84,6 +103,7 @@ def the_test_to_run(ctx):
     cli_DataPointCommandsTests = 'nisui.cli.DataPointCommandsTests'
     cli_ExperimentResultCommandsTests = 'nisui.cli.ExperimentResultCommandsTests'
     cli_QueriesCommandsTests = 'nisui.cli.QueriesCommandsTests'
+    gui_ExperimentRunningControlTest = 'nisui.gui.ExperimentRunningControlTest'
 
 
 @task(the_test_to_run)

@@ -100,6 +100,7 @@ project(":cli") {
        compile project(':simple_reactor')
 
        testCompile 'org.assertj:assertj-core:3.8.0'
+       testCompile 'org.assertj:assertj-swing-junit:3.8.0'
 
        testCompile project(':java_runner')
        testCompile project(':h2_store')
@@ -132,6 +133,7 @@ dependencies {
     compile project(':java_runner')
     compile project(':cli')
     compile project(':h2_store')
+    compile project(':gui')
 }
 
 test {
