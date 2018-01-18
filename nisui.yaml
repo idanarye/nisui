@@ -1,0 +1,5 @@
+experiment:
+  entry: file:///home/idanarye/links/study/Thesis/VocalTerritorySimulator/RunWithNisui.java
+  dependencies:
+    - /home/idanarye/links/study/Thesis/VocalTerritorySimulator/build/VocalTerritorySimulator.jar
+database: nisui.h2

@@ -12,7 +12,9 @@ if FN.exists('g:ale_java_javac_classpath') and not VAR['g:ale_java_javac_classpa
 def ERUN(command):
     CMD.Erun.bang(command)
 
+
 gradle = local['gradle']['-q']
+run_py = local['./run.py']
 
 
 def subproject_names():
@@ -39,7 +41,10 @@ def compile(ctx):
 
 @task
 def run(ctx):
-    pass
+    # cmd = run_py[_vts_args]
+    cmd = run_py['experiment', 'info']
+    # cmd = run_py['experiment']
+    cmd & BANG
 
 
 @task

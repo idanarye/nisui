@@ -83,12 +83,26 @@ project(":h2_store") {
     }
 }
 
+project(":cli") {
+    dependencies {
+       compile project(':core')
+       compile 'info.picocli:picocli:2.2.1'
+
+       testCompile 'org.assertj:assertj-core:3.8.0'
+
+       testCompile project(':java_runner')
+       testCompile project(':h2_store')
+
+    }
+}
+
 
 // App project's settings
 
 dependencies {
     compile group: 'org.apache.logging.log4j', name: 'log4j-core', version: '2.6.2'
     compile group: 'org.apache.logging.log4j', name: 'log4j-slf4j-impl', version: '2.6.2'
+    compile 'com.esotericsoftware.yamlbeans:yamlbeans:1.13'
 
     /*// Declare the dependency for your favourite test framework you want to use in your tests.*/
     /*// TestNG is also supported by the Gradle Test task. Just change the*/
@@ -97,6 +111,7 @@ dependencies {
 
     compile project(':core')
     compile project(':java_runner')
+    compile project(':cli')
 }
 
 test {

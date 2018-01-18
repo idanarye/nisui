@@ -1,6 +1,8 @@
 package nisui.app;
 
 import java.io.ByteArrayOutputStream;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.PrintStream;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -11,16 +13,24 @@ import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import com.esotericsoftware.yamlbeans.YamlException;
+import com.esotericsoftware.yamlbeans.YamlReader;
 
 import nisui.core.*;
 import nisui.java_runner.JavaExperimentFunction;
 import nisui.java_runner.JavaExperimentValuesHandler;
+import nisui.cli.EntryPoint;
 
 public class NisuiApp {
     private static Logger logger = LoggerFactory.getLogger(NisuiApp.class);
 
     @SuppressWarnings("unchecked")
-    public static void main(String[] args) throws URISyntaxException {
+    public static void main(String[] args) throws URISyntaxException, YamlException, FileNotFoundException {
+        YamlReader yamlReader = new YamlReader(new FileReader("nisui.yaml"));
+        NisuiConfig config = yamlReader.read(NisuiConfig.class);
+        EntryPoint entryPoint = new EntryPoint(config);
+        entryPoint.run(args);
+        /*
         JavaExperimentFunction<Object, ?> runner = JavaExperimentFunction.load(new URI(args[0]), Arrays.stream(args).skip(1).map(arg -> {
             try {
                 return new URI(arg);
@@ -58,5 +68,6 @@ public class NisuiApp {
                 }
             }
         }
+        */
     }
 }
