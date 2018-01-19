@@ -41,9 +41,10 @@ def compile(ctx):
 
 @task
 def run(ctx):
-    # cmd = run_py[_vts_args]
-    cmd = run_py['experiment', 'info']
-    # cmd = run_py['experiment']
+    # cmd = run_py['experiment', 'info']
+
+    cmd = run_py['experiment', 'run']['transmittionRadius=10', 'markerRadius=20']
+
     cmd & BANG
 
 
