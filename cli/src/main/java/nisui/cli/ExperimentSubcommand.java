@@ -11,25 +11,28 @@ import nisui.core.ExperimentValuesHandler;
 import nisui.core.NisuiFactory;
 
 @CommandLine.Command
-public class ExperimentSubcommand {
+public class ExperimentSubcommand extends CommandGroup {
     private static Logger logger = LoggerFactory.getLogger(ExperimentSubcommand.class);
 
-    private NisuiFactory nisuiFactory;
-
-    void register(CommandLine commandLine) {
-        commandLine.addSubcommand("experiment",
-                new CommandLine(this)
-                .addSubcommand("info", new Info())
-                .addSubcommand("run", new Run())
-                );
-    }
+    // void register(CommandLine commandLine) {
+        // CommandLine subCommand = new CommandLine(this)
+            // .addSubcommand("info", new Info())
+            // .addSubcommand("run", new Run());
+        // commandLine.addSubcommand("experiment", subCommand);
+        // commandLine.addSubcommand("e", subCommand);
+    // }
 
     public ExperimentSubcommand(NisuiFactory nisuiFactory) {
-        this.nisuiFactory = nisuiFactory;
+        super(nisuiFactory, "experiment", "e");
     }
 
     @CommandLine.Command
     class Info implements SubCommand {
+		@Override
+		public String[] getNames() {
+			return new String[]{"info"};
+		}
+
         @Override
         public void run(InputStream in, PrintStream out) {
             ExperimentFunction<?, ?> experimentFunction = nisuiFactory.createExperimentFunction();
@@ -59,6 +62,11 @@ public class ExperimentSubcommand {
 
     @CommandLine.Command
     class Run implements SubCommand {
+		@Override
+		public String[] getNames() {
+			return new String[]{"run"};
+		}
+
         @CommandLine.Option(names = {"-s", "--seed"})
         long seed = 0;
 
@@ -66,12 +74,12 @@ public class ExperimentSubcommand {
         List<String> dataPointValues;
 
         @Override
-        @SuppressWarnings("unchecked")
         public void run(InputStream in, PrintStream out) {
-            run(out, nisuiFactory.createExperimentFunction());
+            ExperimentFunction<?, ?> experimentFunction = nisuiFactory.createExperimentFunction();
+            run(out, experimentFunction);
         }
 
-        public <D, R> void run(PrintStream out, ExperimentFunction<D, R> experimentFunction) {
+        private <D, R> void run(PrintStream out, ExperimentFunction<D, R> experimentFunction) {
             ExperimentValuesHandler<D> dataPointHandler = experimentFunction.getDataPointHandler();
             D dataPoint = dataPointHandler.createValue();
             for (String dataPointValue : dataPointValues) {

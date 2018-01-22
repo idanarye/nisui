@@ -17,13 +17,15 @@ public class EntryPoint {
 
 	public void run(String... args) {
 		CommandLine commandLine = new CommandLine(this);
+
 		new ExperimentSubcommand(nisuiFactory).register(commandLine);
+		new DataPointSubcommand(nisuiFactory).register(commandLine);
+
 		for (CommandLine subCommand : commandLine.parse(args)) {
 			Object obj = subCommand.<Object>getCommand();
 			if (obj instanceof SubCommand) {
 				SubCommand.class.cast(obj).run(System.in, System.out);
 			}
 		}
-		// System.out.printf("Running %s\n", Arrays.asList(args));
 	}
 }
