@@ -68,12 +68,15 @@ public class ExperimentSubcommand {
         @Override
         @SuppressWarnings("unchecked")
         public void run(InputStream in, PrintStream out) {
-            ExperimentFunction experimentFunction = nisuiFactory.createExperimentFunction();
-            ExperimentValuesHandler dataPointHandler = experimentFunction.getDataPointHandler();
-            Object dataPoint = dataPointHandler.createValue();
+            run(out, nisuiFactory.createExperimentFunction());
+        }
+
+        public <D, R> void run(PrintStream out, ExperimentFunction<D, R> experimentFunction) {
+            ExperimentValuesHandler<D> dataPointHandler = experimentFunction.getDataPointHandler();
+            D dataPoint = dataPointHandler.createValue();
             for (String dataPointValue : dataPointValues) {
                 String[] parts = dataPointValue.split("=", 2);
-                ExperimentValuesHandler.Field field = dataPointHandler.field(parts[0]);
+                ExperimentValuesHandler<D>.Field field = dataPointHandler.field(parts[0]);
                 field.set(dataPoint, field.parseString(parts[1]));
             }
 
@@ -82,10 +85,9 @@ public class ExperimentSubcommand {
                 seed = System.currentTimeMillis();
                 logger.info("Picking seed = {}", seed);
             }
-            Object experimentResult = experimentFunction.runExperiment(dataPoint, seed);
+            R experimentResult = experimentFunction.runExperiment(dataPoint, seed);
 
-            for (Object field_ : experimentFunction.getExperimentResultHandler().fields()) {
-                ExperimentValuesHandler.Field field = (ExperimentValuesHandler.Field)(field_);
+            for (ExperimentValuesHandler<R>.Field field : experimentFunction.getExperimentResultHandler().fields()) {
                 out.printf("%s: %s\n", field.getName(), field.get(experimentResult));
             }
         }
