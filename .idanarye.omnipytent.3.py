@@ -42,8 +42,8 @@ def compile(ctx):
 @task
 def run(ctx):
     cmd = run_py['experiment', 'info']
-    cmd = run_py['experiment', 'run']['transmittionRadius=10', 'markerRadius=20']
-    cmd = run_py['dp', 'add']
+    # cmd = run_py['experiment', 'run']['transmittionRadius=10', 'markerRadius=20']
+    # cmd = run_py['dp', 'add']
 
     cmd & BANG
 
@@ -61,7 +61,8 @@ def test(ctx):
     # gradle_tests('nisui.h2_store.FillAndReadDataTest') & ERUN
     # gradle_tests('nisui.core.DynamicValuesTest') & ERUN
     # gradle_tests('nisui.java_runner.JavaValuesTest') & ERUN
-    gradle_tests('nisui.java_runner.JavaExperimentTest') & ERUN
+    # gradle_tests('nisui.java_runner.JavaExperimentTest') & ERUN
+    gradle_tests('nisui.cli.ExperimentCommandsTests') & ERUN
 
 
 @task

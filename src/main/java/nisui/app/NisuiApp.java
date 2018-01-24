@@ -29,7 +29,7 @@ public class NisuiApp {
         YamlReader yamlReader = new YamlReader(new FileReader("nisui.yaml"));
         NisuiConfig config = yamlReader.read(NisuiConfig.class);
         EntryPoint entryPoint = new EntryPoint(config);
-        entryPoint.run(args);
+        entryPoint.run(System.in, System.out, args);
         /*
         JavaExperimentFunction<Object, ?> runner = JavaExperimentFunction.load(new URI(args[0]), Arrays.stream(args).skip(1).map(arg -> {
             try {

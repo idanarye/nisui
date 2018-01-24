@@ -28,10 +28,10 @@ public class ExperimentSubcommand extends CommandGroup {
 
     @CommandLine.Command
     class Info implements SubCommand {
-		@Override
-		public String[] getNames() {
-			return new String[]{"info"};
-		}
+        @Override
+        public String[] getNames() {
+            return new String[]{"info"};
+        }
 
         @Override
         public void run(InputStream in, PrintStream out) {
@@ -62,10 +62,10 @@ public class ExperimentSubcommand extends CommandGroup {
 
     @CommandLine.Command
     class Run implements SubCommand {
-		@Override
-		public String[] getNames() {
-			return new String[]{"run"};
-		}
+        @Override
+        public String[] getNames() {
+            return new String[]{"run"};
+        }
 
         @CommandLine.Option(names = {"-s", "--seed"})
         long seed = 0;
