@@ -115,6 +115,7 @@ dependencies {
     compile project(':core')
     compile project(':java_runner')
     compile project(':cli')
+    compile project(':h2_store')
 }
 
 test {

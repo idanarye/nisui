@@ -37,6 +37,16 @@ public class H2ResultsStorage<D, R> extends ResultsStorage<D, R> {
     }
 
     @Override
+    public ExperimentValuesHandler<D> getDataPointHandler() {
+        return dataPointHandler;
+    }
+
+    @Override
+    public ExperimentValuesHandler<R> getExperimentResultHandler() {
+        return experimentResultHandler;
+    }
+
+    @Override
     public Connection connect() {
         return new Connection(filename);
     }

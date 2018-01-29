@@ -41,9 +41,16 @@ def compile(ctx):
 
 @task
 def run(ctx):
-    cmd = run_py['experiment', 'info']
+    # cmd = run_py['experiment', 'info']
     # cmd = run_py['experiment', 'run']['transmittionRadius=10', 'markerRadius=20']
-    # cmd = run_py['dp', 'add']
+    cmd = run_py['dp', 'add']['transmittionRadius=10', 'markerRadius=20']
+
+    cmd & BANG
+
+
+@task
+def act(ctx):
+    cmd = run_py['dp', 'list']
 
     cmd & BANG
 

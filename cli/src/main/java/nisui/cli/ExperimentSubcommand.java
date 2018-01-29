@@ -14,14 +14,6 @@ import nisui.core.NisuiFactory;
 public class ExperimentSubcommand extends CommandGroup {
     private static Logger logger = LoggerFactory.getLogger(ExperimentSubcommand.class);
 
-    // void register(CommandLine commandLine) {
-        // CommandLine subCommand = new CommandLine(this)
-            // .addSubcommand("info", new Info())
-            // .addSubcommand("run", new Run());
-        // commandLine.addSubcommand("experiment", subCommand);
-        // commandLine.addSubcommand("e", subCommand);
-    // }
-
     public ExperimentSubcommand(NisuiFactory nisuiFactory) {
         super(nisuiFactory, "experiment", "e");
     }
@@ -81,12 +73,7 @@ public class ExperimentSubcommand extends CommandGroup {
 
         private <D, R> void run(PrintStream out, ExperimentFunction<D, R> experimentFunction) {
             ExperimentValuesHandler<D> dataPointHandler = experimentFunction.getDataPointHandler();
-            D dataPoint = dataPointHandler.createValue();
-            for (String dataPointValue : dataPointValues) {
-                String[] parts = dataPointValue.split("=", 2);
-                ExperimentValuesHandler<D>.Field field = dataPointHandler.field(parts[0]);
-                field.set(dataPoint, field.parseString(parts[1]));
-            }
+            D dataPoint = parseValueAssignment(dataPointHandler, dataPointValues);
 
             long seed = this.seed;
             if (seed == 0) {

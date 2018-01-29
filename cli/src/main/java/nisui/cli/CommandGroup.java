@@ -2,6 +2,7 @@ package nisui.cli;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import nisui.core.ExperimentValuesHandler;
 import nisui.core.NisuiFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,5 +44,15 @@ public abstract class CommandGroup {
                 | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
             logger.warn("Can't instantiate %s - %s", clazz, e);
         }
+    }
+
+    public static <V> V parseValueAssignment(ExperimentValuesHandler<V> valuesHandler, Iterable<String> valueAssignments) {
+        V value = valuesHandler.createValue();
+        for (String assignment : valueAssignments) {
+            String[] parts = assignment.split("=", 2);
+            ExperimentValuesHandler<V>.Field field = valuesHandler.field(parts[0]);
+            field.set(value, field.parseString(parts[1]));
+        }
+        return value;
     }
 }
