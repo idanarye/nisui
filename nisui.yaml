@@ -1,5 +1,6 @@
 experiment:
-  entry: /home/idanarye/links/study/Thesis/VocalTerritorySimulator/RunWithNisui.java
-  dependencies:
-    - /home/idanarye/links/study/Thesis/VocalTerritorySimulator/build/VocalTerritorySimulator.jar
+  entry: DiceRoll.java
+  # entry: /home/idanarye/links/study/Thesis/VocalTerritorySimulator/RunWithNisui.java
+  # dependencies:
+    # - /home/idanarye/links/study/Thesis/VocalTerritorySimulator/build/VocalTerritorySimulator.jar
 database: nisui.h2

@@ -2,6 +2,8 @@ package nisui.cli;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.util.function.Supplier;
+import nisui.cli.print_formats.PrintFormat;
 import nisui.core.ExperimentValuesHandler;
 import nisui.core.NisuiFactory;
 import org.slf4j.Logger;
@@ -13,6 +15,12 @@ public abstract class CommandGroup {
 
     protected NisuiFactory nisuiFactory;
     private String[] names;
+
+    Supplier<PrintFormat<?>> printFormatSupplier;
+    @SuppressWarnings("unchecked")
+    <T> PrintFormat<T> createPrintFormat() {
+        return (PrintFormat) printFormatSupplier.get();
+    }
 
     protected CommandGroup(NisuiFactory nisuiFactory, String... names) {
         this.nisuiFactory = nisuiFactory;
@@ -27,8 +35,7 @@ public abstract class CommandGroup {
 
         for (Class<?> clazz : this.getClass().getDeclaredClasses()) {
             if (SubCommand.class.isAssignableFrom(clazz)) {
-                Class<? extends SubCommand> subClass = clazz.asSubclass(SubCommand.class);
-                this.registerSubcommand(commandGroup, subClass);
+                Class<? extends SubCommand> subClass = clazz.asSubclass(SubCommand.class); this.registerSubcommand(commandGroup, subClass);
             }
         }
     }
@@ -48,7 +55,7 @@ public abstract class CommandGroup {
 
     public static <V> V parseValueAssignment(ExperimentValuesHandler<V> valuesHandler, Iterable<String> valueAssignments) {
         V value = valuesHandler.createValue();
-        for (String assignment : valueAssignments) {
+        if (valueAssignments != null) for (String assignment : valueAssignments) {
             String[] parts = assignment.split("=", 2);
             ExperimentValuesHandler<V>.Field field = valuesHandler.field(parts[0]);
             field.set(value, field.parseString(parts[1]));

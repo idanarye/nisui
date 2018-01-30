@@ -7,12 +7,15 @@ import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import picocli.CommandLine;
-
+import nisui.cli.print_formats.*;
 import nisui.core.NisuiFactory;
 
 @CommandLine.Command
 public class EntryPoint {
 	private NisuiFactory nisuiFactory;
+
+	@CommandLine.Option(names = {"--format"})
+	String format = "";
 
 	public EntryPoint(NisuiFactory nisuiFactory) {
 		this.nisuiFactory = nisuiFactory;
@@ -26,6 +29,17 @@ public class EntryPoint {
 
 		for (CommandLine subCommand : commandLine.parse(args)) {
 			Object obj = subCommand.<Object>getCommand();
+			if (obj instanceof CommandGroup) {
+				CommandGroup commandGroup = CommandGroup.class.cast(obj);
+				switch (format) {
+					case "":
+						commandGroup.printFormatSupplier = PrintJavaObject::new;
+						break;
+					case "csv":
+						commandGroup.printFormatSupplier = PrintCSV::new;
+						break;
+				}
+			}
 			if (obj instanceof SubCommand) {
 				SubCommand.class.cast(obj).run(in, out);
 			}

@@ -16,10 +16,18 @@ public class NisuiConfig implements NisuiFactory {
     }
     public Experiment experiment;
 
-    private static URI makeUri(String source) throws URISyntaxException {
+    private static URI makeUri(String source) throws URISyntaxException, IOException {
         URI uri = new URI(source);
         if (uri.getScheme() == null) {
-            uri = new URI("file", uri.getUserInfo(), uri.getHost(), uri.getPort(), uri.getPath(), uri.getQuery(), uri.getFragment());
+            uri = new URI(
+                "file",
+                uri.getUserInfo(),
+                uri.getHost(),
+                uri.getPort(),
+                new File(uri.getPath()).getCanonicalPath(),
+                uri.getQuery(),
+                uri.getFragment()
+            );
         }
         return uri;
     }
@@ -30,13 +38,13 @@ public class NisuiConfig implements NisuiFactory {
     public ExperimentFunction<?, ?> createExperimentFunction() {
         if (experimentFunction == null) {
             URI entry = null;
-            URI[] dependencies = new URI[experiment.dependencies.length];
+            URI[] dependencies = new URI[experiment.dependencies == null ? 0 : experiment.dependencies.length];
             try {
                 entry = makeUri(experiment.entry);
                 for (int i = 0; i < dependencies.length; ++i) {
                     dependencies[i] = makeUri(experiment.dependencies[i]);
                 }
-            } catch (URISyntaxException e) {
+            } catch (URISyntaxException | IOException e) {
                 throw new RuntimeException(e);
             }
             experimentFunction = JavaExperimentFunction.load(entry, dependencies);
@@ -48,11 +56,11 @@ public class NisuiConfig implements NisuiFactory {
     public ResultsStorage<?, ?> createResultsStorage() {
         ExperimentFunction<?, ?> experimentFunction = createExperimentFunction();
         String databasePath;
-		try {
-			databasePath = new File(database).getCanonicalPath();
+        try {
+            databasePath = new File(database).getCanonicalPath();
             return new H2ResultsStorage<>(databasePath, experimentFunction.getDataPointHandler(), experimentFunction.getExperimentResultHandler());
-		} catch (IOException e) {
+        } catch (IOException e) {
             throw new RuntimeException(e);
-		}
+        }
     }
 }

@@ -6,6 +6,8 @@ import picocli.CommandLine;
 import java.io.InputStream;
 import java.io.PrintStream;
 import java.util.List;
+import nisui.cli.print_formats.PrintCSV;
+import nisui.cli.print_formats.PrintFormat;
 import nisui.core.DataPoint;
 import nisui.core.DataPointInserter;
 import nisui.core.DataPointsReader;
@@ -66,11 +68,15 @@ public class DataPointSubcommand extends CommandGroup {
         }
 
         private <D> void run(PrintStream out, ResultsStorage<D, ?> storage) {
+            PrintFormat<DataPoint<D>> printFormat = createPrintFormat();
+            printFormat.addFieldsFromValueHandler(storage.getDataPointHandler(), value -> value.getValue());
             try (ResultsStorage<D, ?>.Connection con = storage.connect()) {
                 try (DataPointsReader<D> reader = con.readDataPoints()) {
+                    printFormat.printHeader(out);
                     for (DataPoint<D> dataPoint : reader) {
-                        out.println(dataPoint);
+                        printFormat.printValue(out, dataPoint);
                     }
+                    printFormat.printFooter(out);
                 }
             } catch (Exception e) {
                 logger.error("Cant connect to database - {}", e);

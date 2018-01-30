@@ -8,7 +8,8 @@ import org.junit.rules.TemporaryFolder;
 
 import nisui.core.*;
 import nisui.java_runner.JavaExperimentValuesHandler;
-import nisui.java_runner.JavaExperimentFunction;;
+import nisui.java_runner.JavaExperimentFunction;
+import nisui.h2_store.H2ResultsStorage;
 
 public abstract class TestsBase {
 	@Rule
@@ -35,8 +36,9 @@ public abstract class TestsBase {
 		}
 
 		@Override
+		@SuppressWarnings("unchecked")
 		public ResultsStorage createResultsStorage() {
-			return null;
+			return new H2ResultsStorage<>(tmpDbFileName(), testExperimentFunction.getDataPointHandler(), testExperimentFunction.getExperimentResultHandler());
 		}
 	}
 }
