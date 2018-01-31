@@ -62,7 +62,7 @@ task fatJar(type: Jar) {
 subprojects {
     dependencies {
         testCompile group: 'org.apache.logging.log4j', name: 'log4j-core', version: '2.6.2'
-        testCompile group: 'org.apache.logging.log4j', name: 'log4j-slf4j-impl', version: '2.6.2'
+        testCompile group: 'org.slf4j', name: 'slf4j-simple', version: '1.7.25'
     }
 }
 
@@ -104,7 +104,7 @@ project(":cli") {
 
 dependencies {
     compile group: 'org.apache.logging.log4j', name: 'log4j-core', version: '2.6.2'
-    compile group: 'org.apache.logging.log4j', name: 'log4j-slf4j-impl', version: '2.6.2'
+    compile group: 'org.slf4j', name: 'slf4j-simple', version: '1.7.25'
     compile 'com.esotericsoftware.yamlbeans:yamlbeans:1.13'
 
     /*// Declare the dependency for your favourite test framework you want to use in your tests.*/
