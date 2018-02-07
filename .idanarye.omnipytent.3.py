@@ -60,13 +60,13 @@ def clean(ctx):
 def test(ctx):
     # gradle_tests() & BANG
     # gradle_tests('nisui.core.BasicExperimentRunningTest') & ERUN.bang
-    # gradle_tests('nisui.h2_store.BuildTablesTest') & ERUN.bang
+    gradle_tests('nisui.h2_store.BuildTablesTest') & ERUN.bang
     # gradle_tests('nisui.h2_store.FillAndReadDataTest') & ERUN.bang
     # gradle_tests('nisui.core.DynamicValuesTest') & ERUN.bang
     # gradle_tests('nisui.java_runner.JavaValuesTest') & ERUN.bang
     # gradle_tests('nisui.java_runner.JavaExperimentTest') & ERUN.bang
     # gradle_tests('nisui.cli.ExperimentCommandsTests') & ERUN.bang
-    gradle_tests('nisui.cli.DataPointCommandsTests') & ERUN.bang
+    # gradle_tests('nisui.cli.DataPointCommandsTests') & ERUN.bang
 
 
 @task

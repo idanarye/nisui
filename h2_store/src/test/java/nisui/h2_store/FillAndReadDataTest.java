@@ -32,17 +32,17 @@ public class FillAndReadDataTest extends TestsBase {
 				DynamicExperimentValue dp = dph.createValue();
 				dp.set("a", 12);
 				dp.set("b", 1.12);
-				inserter.insert(dp);
+				inserter.insert(1, 0, dp);
 
 				dp = dph.createValue();
 				dp.set("a", 15);
 				dp.set("b", 2.15);
-				inserter.insert(dp);
+				inserter.insert(2, 0, dp);
 
 				dp = dph.createValue();
 				dp.set("a", 20);
 				dp.set("b", 3.2);
-				inserter.insert(dp);
+				inserter.insert(3, 1, dp);
 			}
 		}
 
@@ -83,11 +83,11 @@ public class FillAndReadDataTest extends TestsBase {
 			try (H2Operations.InsertDataPoint<DynamicExperimentValue, ?> inserter = con.insertDataPoints()) {
 				DynamicExperimentValue dp = dph.createValue();
 				dp.set("a", 1);
-				inserter.insert(dp);
+				inserter.insert(1, 0, dp);
 
 				dp = dph.createValue();
 				dp.set("a", 2);
-				inserter.insert(dp);
+				inserter.insert(1, 0, dp);
 			}
 
 			long seed = 1;

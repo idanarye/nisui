@@ -27,6 +27,10 @@ public class BuildTablesTest extends TestsBase {
 			try (ResultSet rs = con.createPreparedStatement("SHOW COLUMNS FROM %s;", con.DATA_POINTS_TABLE_NAME).executeQuery()) {
 				rs.next();
 				Assertions.assertThat(rs.getString(1)).isEqualToIgnoringCase("id");
+				rs.next();
+				Assertions.assertThat(rs.getString(1)).isEqualToIgnoringCase("num_planned");
+				rs.next();
+				Assertions.assertThat(rs.getString(1)).isEqualToIgnoringCase("num_performed");
 
 				rs.next();
 				Assertions.assertThat(rs.getString(1)).isEqualToIgnoringCase("a");
@@ -73,6 +77,10 @@ public class BuildTablesTest extends TestsBase {
 			try (ResultSet rs = con.createPreparedStatement("SHOW COLUMNS FROM %s;", con.DATA_POINTS_TABLE_NAME).executeQuery()) {
 				rs.next();
 				Assertions.assertThat(rs.getString(1)).isEqualToIgnoringCase("id");
+				rs.next();
+				Assertions.assertThat(rs.getString(1)).isEqualToIgnoringCase("num_planned");
+				rs.next();
+				Assertions.assertThat(rs.getString(1)).isEqualToIgnoringCase("num_performed");
 
 				rs.next();
 				Assertions.assertThat(rs.getString(1)).isEqualToIgnoringCase("a");
@@ -104,6 +112,10 @@ public class BuildTablesTest extends TestsBase {
 			try (ResultSet rs = con.createPreparedStatement("SHOW COLUMNS FROM %s;", con.DATA_POINTS_TABLE_NAME).executeQuery()) {
 				rs.next();
 				Assertions.assertThat(rs.getString(1)).isEqualToIgnoringCase("id");
+				rs.next();
+				Assertions.assertThat(rs.getString(1)).isEqualToIgnoringCase("num_planned");
+				rs.next();
+				Assertions.assertThat(rs.getString(1)).isEqualToIgnoringCase("num_performed");
 
 				rs.next();
 				Assertions.assertThat(rs.getString(1)).isEqualToIgnoringCase("a");
@@ -131,6 +143,10 @@ public class BuildTablesTest extends TestsBase {
 			try (ResultSet rs = con.createPreparedStatement("SHOW COLUMNS FROM %s;", con.DATA_POINTS_TABLE_NAME).executeQuery()) {
 				rs.next();
 				Assertions.assertThat(rs.getString(1)).isEqualToIgnoringCase("id");
+				rs.next();
+				Assertions.assertThat(rs.getString(1)).isEqualToIgnoringCase("num_planned");
+				rs.next();
+				Assertions.assertThat(rs.getString(1)).isEqualToIgnoringCase("num_performed");
 
 				rs.next();
 				Assertions.assertThat(rs.getString(1)).isEqualToIgnoringCase("a");
