@@ -7,9 +7,13 @@ import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Iterator;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import nisui.core.*;
 
 public abstract class H2Operations<D, R> implements AutoCloseable {
+    private static Logger logger = LoggerFactory.getLogger(H2Operations.class);
     protected H2ResultsStorage<D, R>.Connection con;
     protected PreparedStatement stmt;
 
@@ -29,18 +33,13 @@ public abstract class H2Operations<D, R> implements AutoCloseable {
             super(con);
             StringBuilder sql = new StringBuilder();
             sql.append("INSERT INTO ").append(con.DATA_POINTS_TABLE_NAME).append("(");
-            boolean wroteFirst = false;
+            sql.append("num_planned").append(", ").append("num_performed");
             for (ExperimentValuesHandler<D>.Field field : con.parent().dataPointHandler.fields()) {
-                if (wroteFirst) {
-                    sql.append(", ");
-                } else {
-                    wroteFirst = true;
-                }
-                sql.append(field.getName());
+                sql.append(", ").append(field.getName());
             }
             sql.append(") VALUES(");
             int numberOfFields = con.parent().dataPointHandler.fields().size();
-            for (int i = 0; i < numberOfFields; ++i) {
+            for (int i = 0; i < 2 + numberOfFields; ++i) {
                 if (0 < i) {
                     sql.append(", ");
                 }
@@ -51,9 +50,11 @@ public abstract class H2Operations<D, R> implements AutoCloseable {
         }
 
         @Override
-        public void insert(D dataPoint) throws SQLException {
+        public void insert(long numPlanned, long numPerformed, D dataPoint) throws SQLException {
             stmt.clearParameters();
-            int paramIndex = 1;
+            stmt.setLong(1, numPlanned);
+            stmt.setLong(2, numPerformed);
+            int paramIndex = 3;
             for (ExperimentValuesHandler<D>.Field field : con.parent().dataPointHandler.fields()) {
                 stmt.setObject(paramIndex, field.get(dataPoint));
                 ++paramIndex;
@@ -71,7 +72,7 @@ public abstract class H2Operations<D, R> implements AutoCloseable {
         public RSIterator iterator() {
             if (stmt == null) {
                 StringBuilder sql = new StringBuilder();
-                sql.append("SELECT id");
+                sql.append("SELECT id, num_planned, num_performed");
                 for (ExperimentValuesHandler<D>.Field field : con.parent().dataPointHandler.fields()) {
                     sql.append(", ").append(field.getName());
                 }
@@ -106,12 +107,12 @@ public abstract class H2Operations<D, R> implements AutoCloseable {
                     H2DataPoint<D> currentNext = next;
                     if (rs.next()) {
                         D value = con.parent().dataPointHandler.createValue();
-                        int i = 2;
+                        int i = 4;
                         for (ExperimentValuesHandler<D>.Field field : con.parent().dataPointHandler.fields()) {
                             field.set(value, rs.getObject(i));
                             ++i;
                         }
-                        next = new H2DataPoint<>(rs.getLong(1), value);
+                        next = new H2DataPoint<>(rs.getLong(1), rs.getLong(2), rs.getLong(3), value);
                     } else {
                         next = null;
                     }

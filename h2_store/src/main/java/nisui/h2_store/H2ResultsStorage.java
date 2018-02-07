@@ -29,7 +29,9 @@ public class H2ResultsStorage<D, R> extends ResultsStorage<D, R> {
     @Override
     public void prepareStorage() {
         try (Connection con = connect()) {
-            con.prepareTable(con.DATA_POINTS_TABLE_NAME, dataPointHandler);
+            con.prepareTable(con.DATA_POINTS_TABLE_NAME, dataPointHandler,
+                    new H2FieldDefinition("num_planned", long.class),
+                    new H2FieldDefinition("num_performed", long.class));
             con.prepareTable(con.EXPERIMENT_RESULTS_TABLE_NAME, experimentResultHandler,
                     new H2FieldDefinition("data_point_id", long.class),
                     new H2FieldDefinition("seed", long.class));

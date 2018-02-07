@@ -28,9 +28,13 @@ public abstract class PrintFormat<T> {
     public abstract void printValue(PrintStream out, T value);
     public abstract void printFooter(PrintStream out);
 
+    public <V> void addField(String caption, Function<T, Object> extract) {
+        fields.add(new Field(caption, extract));
+    }
+
     public <V> void addFieldsFromValueHandler(ExperimentValuesHandler<V> valuesHandler, Function<T, V> mapper) {
         for (ExperimentValuesHandler<V>.Field field : valuesHandler.fields()) {
-            fields.add(new Field(field.getName(), value -> field.get(mapper.apply(value))));
+            addField(field.getName(), value -> field.get(mapper.apply(value)));
         }
     }
 }

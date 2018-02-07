@@ -43,16 +43,16 @@ def compile(ctx):
 def run(ctx):
     # cmd = run_py['experiment', 'info']
     # cmd = run_py['experiment', 'run']['transmittionRadius=10', 'markerRadius=20']
-    cmd = run_py['experiment', 'run']['faces=20']
+    # cmd = run_py['experiment', 'run']['faces=20']
     # cmd = run_py['dp', 'add']['transmittionRadius=10', 'markerRadius=20']
-    # cmd = run_py['dp', 'add']['faces=4', 'num=10']
+    # cmd = run_py['dp', 'add']['faces=5', 'num=10', '-n', 21]
 
     cmd & BANG
 
 
 @task
 def act(ctx):
-    cmd = run_py['--format=csv']['dp', 'list']
+    cmd = run_py['--format=csv']['dp', 'list'] | local['column']['-ts,']
 
     cmd & BANG
 

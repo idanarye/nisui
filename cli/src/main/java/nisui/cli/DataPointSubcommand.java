@@ -32,6 +32,9 @@ public class DataPointSubcommand extends CommandGroup {
             return new String[]{"add"};
         }
 
+        @CommandLine.Option(names = {"-n", "--num-planned"}, required = true)
+        long numPlanned;
+
         @CommandLine.Parameters
         List<String> dataPointValues;
 
@@ -46,7 +49,7 @@ public class DataPointSubcommand extends CommandGroup {
             D dataPoint = parseValueAssignment(storage.getDataPointHandler(), dataPointValues);
             try (ResultsStorage<D, ?>.Connection con = storage.connect()) {
                 try (DataPointInserter<D> inserter = con.insertDataPoints()) {
-                    inserter.insert(dataPoint);
+                    inserter.insert(numPlanned, 0, dataPoint);
                 }
             } catch (Exception e) {
                 logger.error("Cant connect to database - {}", e);
@@ -69,6 +72,9 @@ public class DataPointSubcommand extends CommandGroup {
 
         private <D> void run(PrintStream out, ResultsStorage<D, ?> storage) {
             PrintFormat<DataPoint<D>> printFormat = createPrintFormat();
+            printFormat.addField("key", dataPoint -> dataPoint.getKey());
+            printFormat.addField("num_planned", dataPoint -> dataPoint.getNumPlanned());
+            printFormat.addField("num_performed", dataPoint -> dataPoint.getNumPerformed());
             printFormat.addFieldsFromValueHandler(storage.getDataPointHandler(), value -> value.getValue());
             try (ResultsStorage<D, ?>.Connection con = storage.connect()) {
                 try (DataPointsReader<D> reader = con.readDataPoints()) {

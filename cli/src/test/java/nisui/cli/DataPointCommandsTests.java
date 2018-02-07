@@ -37,12 +37,12 @@ public class DataPointCommandsTests extends TestsBase {
 	@Test
 	public void dataPointsAddAndList() {
 		EntryPoint entryPoint = getEntryPoint(new Experiment());
-		entryPoint.run("data-points", "add", "a=1", "b=2", "c=3");
-		entryPoint.run("data-points", "add", "a=4", "b=5", "c=6");
+		entryPoint.run("data-points", "add", "a=1", "b=2", "c=3", "-n", "20");
+		entryPoint.run("data-points", "add", "a=4", "b=5", "c=6", "--num-planned", "40");
 		String output = entryPoint.runGetOutput("--format=csv", "data-points", "list");
 		Assertions.assertThat(output).isEqualTo(
-				"a,b,c\n"
-				+ "1,2,3\n"
-				+ "4,5,6\n");
+				"key,num_planned,num_performed,a,b,c\n"
+				+ "1,20,0,1,2,3\n"
+				+ "2,40,0,4,5,6\n");
 	}
 }
