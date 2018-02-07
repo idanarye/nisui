@@ -1,19 +1,13 @@
 from omnipytent import *
-from omnipytent.integration.plumbum import local
 from omnipytent.execution import ShellCommandExecuter
 from omnipytent.completers import file_completer
+from omnipytent.ext.idan import local, ERUN, gradle
 
 
 if FN.exists('g:ale_java_javac_classpath') and not VAR['g:ale_java_javac_classpath']:
     VAR['g:ale_java_javac_classpath'] = FN['javacomplete#server#GetClassPath']()
 
 
-@ShellCommandExecuter
-def ERUN(command):
-    CMD.Erun.bang(command)
-
-
-gradle = local['gradle']['-q']
 run_py = local['./run.py']
 
 
@@ -36,7 +30,7 @@ def gradle_tests(test):
 
 @task
 def compile(ctx):
-    gradle['build']['-x', 'test'] & ERUN
+    gradle['build']['-x', 'test'] & ERUN.bang
 
 
 @task
@@ -65,14 +59,14 @@ def clean(ctx):
 @task
 def test(ctx):
     # gradle_tests() & BANG
-    # gradle_tests('nisui.core.BasicExperimentRunningTest') & ERUN
-    # gradle_tests('nisui.h2_store.BuildTablesTest') & ERUN
-    # gradle_tests('nisui.h2_store.FillAndReadDataTest') & ERUN
-    # gradle_tests('nisui.core.DynamicValuesTest') & ERUN
-    # gradle_tests('nisui.java_runner.JavaValuesTest') & ERUN
-    # gradle_tests('nisui.java_runner.JavaExperimentTest') & ERUN
-    # gradle_tests('nisui.cli.ExperimentCommandsTests') & ERUN
-    gradle_tests('nisui.cli.DataPointCommandsTests') & ERUN
+    # gradle_tests('nisui.core.BasicExperimentRunningTest') & ERUN.bang
+    # gradle_tests('nisui.h2_store.BuildTablesTest') & ERUN.bang
+    # gradle_tests('nisui.h2_store.FillAndReadDataTest') & ERUN.bang
+    # gradle_tests('nisui.core.DynamicValuesTest') & ERUN.bang
+    # gradle_tests('nisui.java_runner.JavaValuesTest') & ERUN.bang
+    # gradle_tests('nisui.java_runner.JavaExperimentTest') & ERUN.bang
+    # gradle_tests('nisui.cli.ExperimentCommandsTests') & ERUN.bang
+    gradle_tests('nisui.cli.DataPointCommandsTests') & ERUN.bang
 
 
 @task
