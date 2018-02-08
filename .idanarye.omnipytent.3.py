@@ -40,6 +40,7 @@ def run(ctx):
     # cmd = run_py['experiment', 'run']['faces=20']
     # cmd = run_py['dp', 'add']['transmittionRadius=10', 'markerRadius=20']
     # cmd = run_py['dp', 'add']['faces=5', 'num=10', '-n', 21]
+    cmd = run_py['run']
 
     cmd & BANG
 
@@ -47,6 +48,7 @@ def run(ctx):
 @task
 def act(ctx):
     cmd = run_py['--format=csv']['dp', 'list'] | local['column']['-ts,']
+    cmd = run_py['--format=csv']['er', 'list'] | local['head'] | local['column']['-ts,']
 
     cmd & BANG
 
@@ -60,13 +62,14 @@ def clean(ctx):
 def test(ctx):
     # gradle_tests() & BANG
     # gradle_tests('nisui.core.BasicExperimentRunningTest') & ERUN.bang
-    gradle_tests('nisui.h2_store.BuildTablesTest') & ERUN.bang
+    # gradle_tests('nisui.h2_store.BuildTablesTest') & ERUN.bang
     # gradle_tests('nisui.h2_store.FillAndReadDataTest') & ERUN.bang
     # gradle_tests('nisui.core.DynamicValuesTest') & ERUN.bang
     # gradle_tests('nisui.java_runner.JavaValuesTest') & ERUN.bang
     # gradle_tests('nisui.java_runner.JavaExperimentTest') & ERUN.bang
     # gradle_tests('nisui.cli.ExperimentCommandsTests') & ERUN.bang
     # gradle_tests('nisui.cli.DataPointCommandsTests') & ERUN.bang
+    gradle_tests('nisui.cli.ExperimentResultCommandsTests') & ERUN.bang
 
 
 @task

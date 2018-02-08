@@ -42,6 +42,6 @@ public class H2DataPoint<D> extends DataPoint<D> {
 
     @Override
     public String toString() {
-        return String.format("%s:%s", id, value);
+        return String.format("%s|%s/%s:%s", id, numPerformed, numPlanned, value);
     }
 }

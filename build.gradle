@@ -90,6 +90,7 @@ project(":cli") {
     dependencies {
        compile project(':core')
        compile 'info.picocli:picocli:2.2.1'
+       compile project(':simple_reactor')
 
        testCompile 'org.assertj:assertj-core:3.8.0'
 
@@ -97,6 +98,12 @@ project(":cli") {
        testCompile project(':h2_store')
 
     }
+}
+
+project(":simple_reactor") {
+   dependencies {
+       compile project(':core')
+   }
 }
 
 

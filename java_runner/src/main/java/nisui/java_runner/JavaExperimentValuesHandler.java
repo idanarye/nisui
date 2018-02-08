@@ -18,7 +18,7 @@ import nisui.core.ExperimentValuesHandler;
 public class JavaExperimentValuesHandler<T> extends ExperimentValuesHandler<T> {
 	private Class<T> clazz;
 	private Constructor<T> constructor;
-	private LinkedHashMap<String, JavaField> fields;
+	private LinkedHashMap<String, Field> fields;
 
 	public JavaExperimentValuesHandler(Class<T> clazz) {
 		this.clazz = clazz;
@@ -101,12 +101,12 @@ public class JavaExperimentValuesHandler<T> extends ExperimentValuesHandler<T> {
 	}
 
 	@Override
-	public Collection<JavaField> fields() {
+	public Collection<Field> fields() {
 		return fields.values();
 	}
 
 	@Override
-	public JavaField field(String name) {
+	public Field field(String name) {
 		return fields.get(name);
 	}
 }

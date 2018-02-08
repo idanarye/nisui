@@ -1,6 +1,11 @@
 package nisui.core;
 
+
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.function.Function;
+import java.util.function.BiConsumer;
+
 
 public abstract class ExperimentValuesHandler<T> {
 	public abstract T createValue();
@@ -46,4 +51,24 @@ public abstract class ExperimentValuesHandler<T> {
 	}
 	public abstract Collection<? extends Field> fields();
 	public abstract Field field(String name);
+
+	public <S> Function<T, S> createMapper(ExperimentValuesHandler<S> other) {
+		ArrayList<BiConsumer<T, S>> mappers = new ArrayList<>();
+		for (Field thisField : fields()) {
+			ExperimentValuesHandler<S>.Field otherField = other.field(thisField.getName());
+			if (otherField != null) {
+				mappers.add((t, s) -> {
+					Object value = thisField.get(t);
+					otherField.set(s, value);
+				});
+			}
+		}
+		return t -> {
+			S s = other.createValue();
+			for (BiConsumer<T, S> mapper : mappers) {
+				mapper.accept(t, s);
+			}
+			return s;
+		};
+	}
 }

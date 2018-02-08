@@ -125,6 +125,19 @@ public abstract class H2Operations<D, R> implements AutoCloseable {
     }
 
     public static class InsertExperimentResult<D, R> extends H2Operations<D, R> implements ExperimentResultInserter<R> {
+        private PreparedStatement updateDpStatement;
+
+        @Override
+        public void close() throws SQLException {
+            try {
+                if (updateDpStatement != null) {
+                    updateDpStatement.close();
+                }
+            } finally {
+                super.close();
+            }
+        }
+
         InsertExperimentResult(H2ResultsStorage<D, R>.Connection con) {
             super(con);
             StringBuilder sql = new StringBuilder();
@@ -134,7 +147,7 @@ public abstract class H2Operations<D, R> implements AutoCloseable {
                 sql.append(", ").append(field.getName());
             }
             sql.append(") VALUES(");
-            int numberOfFields = con.parent().dataPointHandler.fields().size();
+            int numberOfFields = con.parent().experimentResultHandler.fields().size();
             for (int i = 0; i < 2 + numberOfFields; ++i) {
                 if (0 < i) {
                     sql.append(", ");
@@ -143,6 +156,7 @@ public abstract class H2Operations<D, R> implements AutoCloseable {
             }
             sql.append(");");
             stmt = con.createPreparedStatement(sql.toString());
+            updateDpStatement = con.createPreparedStatement(String.format("UPDATE %s SET num_performed = num_performed + 1 WHERE id = ?;", con.DATA_POINTS_TABLE_NAME));
         }
 
         @Override
@@ -155,7 +169,9 @@ public abstract class H2Operations<D, R> implements AutoCloseable {
                 stmt.setObject(paramIndex, field.get(experimentResult));
                 ++paramIndex;
             }
+            updateDpStatement.setLong(1, ((H2DataPoint<?>)dataPoint).getId());
             stmt.executeUpdate();
+            updateDpStatement.executeUpdate();
         }
     }
 
