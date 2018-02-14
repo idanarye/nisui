@@ -2,7 +2,6 @@ package nisui.cli;
 
 import org.junit.*;
 import java.util.function.BiFunction;
-import lombok.*;
 
 import org.assertj.core.api.Assertions;
 
@@ -10,27 +9,25 @@ import nisui.java_runner.JavaExperimentFunction;
 
 public class DataPointCommandsTests extends TestsBase {
 	static class Experiment extends JavaExperimentFunction<Experiment.DP, Experiment.R> {
-		@Data
-		@AllArgsConstructor
-		@NoArgsConstructor
-		static class DP {
-			private int a;
-			private int b;
-			private int c;
+		public static class DP {
+			public int a;
+			public int b;
+			public int c;
 		}
 
-		@Data
-		@AllArgsConstructor
-		@NoArgsConstructor
-		static class R {
-			private int x;
-			private int y;
-			private int z;
+		public static class R {
+			public int x;
+			public int y;
+			public int z;
 		}
 
 		@Override
 		public R runExperiment(DP dp, long seed) {
-			return new R(dp.a + dp.b, dp.b + dp.c, dp.c + dp.a);
+			R r = new R();
+			r.x = dp.a + dp.b;
+			r.y = dp.b + dp.c;
+			r.z = dp.c + dp.a;
+			return r;
 		}
 	}
 

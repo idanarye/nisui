@@ -1,24 +1,18 @@
 import nisui.java_runner.JavaExperimentFunction;
 
-import lombok.*;
+public class SimpleNisuiRunner extends JavaExperimentFunction<SimpleNisuiRunner.DataPoint, SimpleNisuiRunner.ExperimentResult> {
+	public static class DataPoint {
+		public long a;
+	}
 
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-class DataPoint {
-	private long a;
-}
+	public static class ExperimentResult {
+		public long x;
+	}
 
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-class ExperimentResult {
-	private long x;
-}
-
-public class SimpleNisuiRunner extends JavaExperimentFunction<DataPoint, ExperimentResult> {
 	@Override
 	public ExperimentResult runExperiment(DataPoint dataPoint, long seed) {
-		return new ExperimentResult(100 * seed + dataPoint.getA());
+		ExperimentResult result = new ExperimentResult();
+		result.x = 100 * seed + dataPoint.a;
+		return result;
 	}
 }

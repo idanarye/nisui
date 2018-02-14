@@ -5,7 +5,6 @@ import org.junit.*;
 import java.util.Arrays;
 
 import java.util.function.BiFunction;
-import lombok.*;
 
 import org.assertj.core.api.Assertions;
 
@@ -13,26 +12,24 @@ import nisui.java_runner.JavaExperimentFunction;
 
 public class ExperimentResultCommandsTests extends TestsBase {
 	static class Experiment extends JavaExperimentFunction<Experiment.DP, Experiment.R> {
-		@Data
-		@AllArgsConstructor
-		@NoArgsConstructor
-		static class DP {
-			private int a;
-			private int b;
+		public static class DP {
+			public int a;
+			public int b;
 		}
 
-		@Data
-		@AllArgsConstructor
-		@NoArgsConstructor
-		static class R {
-			private int sum;
-			private int prod;
-			private long origSeed;
+		public static class R {
+			public int sum;
+			public int prod;
+			public long origSeed;
 		}
 
 		@Override
 		public R runExperiment(DP dp, long seed) {
-			return new R(dp.a + dp.b, dp.a * dp.b, seed);
+			R r = new R();
+			r.sum = dp.a + dp.b;
+			r.prod = dp.a * dp.b;
+			r.origSeed = seed;
+			return r;
 		}
 	}
 
@@ -44,7 +41,7 @@ public class ExperimentResultCommandsTests extends TestsBase {
 		entryPoint.run("run");
 		String output = entryPoint.runGetOutput("--format=csv", "experiment-results", "list");
 		String[] lines = output.split("\n");
-		Assertions.assertThat(lines[0]).isEqualTo("datapoint_key,a,b,seed,origSeed,prod,sum");
+		Assertions.assertThat(lines[0]).isEqualTo("datapoint_key,a,b,seed,sum,prod,origSeed");
 		lines = Arrays.copyOfRange(lines, 1, lines.length);
 		int[] counters = new int[2];
 		for (String line : lines) {
@@ -53,9 +50,9 @@ public class ExperimentResultCommandsTests extends TestsBase {
 			int a = Integer.parseInt(parts[1]);
 			int b = Integer.parseInt(parts[2]);
 			long seed = Long.parseLong(parts[3]);
-			long origSeed = Long.parseLong(parts[4]);
+			int sum = Integer.parseInt(parts[4]);
 			int prod = Integer.parseInt(parts[5]);
-			int sum = Integer.parseInt(parts[6]);
+			long origSeed = Long.parseLong(parts[6]);
 
 			++counters[datapointKey - 1];
 

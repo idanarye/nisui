@@ -70,9 +70,9 @@ project(":java_runner") {
     dependencies {
         compile project(':core')
 
-        compile 'org.projectlombok:lombok:1.16.12'
+        //compile 'org.projectlombok:lombok:1.16.12'
         // Needed to use `javax.tools.JavaCompiler` with lombok:
-        compile files("${System.properties['java.home']}/../lib/tools.jar")
+        //compile files("${System.properties['java.home']}/../lib/tools.jar")
     }
 }
 

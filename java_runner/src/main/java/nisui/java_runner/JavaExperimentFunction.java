@@ -1,23 +1,16 @@
 package nisui.java_runner;
 
-import static javax.tools.JavaCompiler.CompilationTask;
-
-import java.io.IOError;
 import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
 import java.net.URI;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.tools.JavaCompiler;
-import javax.tools.JavaFileObject;
-import javax.tools.StandardJavaFileManager;
 import javax.tools.ToolProvider;
 import nisui.core.ExperimentFunction;
 import nisui.core.ExperimentValuesHandler;
@@ -42,21 +35,6 @@ public abstract class JavaExperimentFunction<DP, ER>
 
 			JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
 			String dependenciesStr = allDependencies.stream().map(url -> url.getPath()).collect(Collectors.joining(":"));
-			// StandardJavaFileManager fileManager = compiler.getStandardFileManager(null, null, null);
-			// LinkedList<String> options = new LinkedList<>();
-
-			// options.add("-classpath");
-			// options.add(dependenciesStr);
-
-			// LinkedList<JavaFileObject> compUnits = new LinkedList<>();
-			// for (JavaFileObject javaFileObject : fileManager.getJavaFileObjects(path.toString())) {
-				// compUnits.add(javaFileObject);
-			// }
-			// CompilationTask compilationTask = compiler.getTask(null, fileManager, null, options, Arrays.asList("DataPoint", "ExperimentResult"), compUnits);
-			// if (!compilationTask.call()) {
-				// // TODO: replace with custom exception
-				// throw new RuntimeException("Unable to compile");
-			// }
 
 			compiler.run(null, null, null, "-cp", dependenciesStr, path.toString(), "-d", tempDir.toString());
 

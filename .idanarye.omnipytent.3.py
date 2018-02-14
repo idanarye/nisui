@@ -58,18 +58,24 @@ def clean(ctx):
     gradle['clean'] & BANG
 
 
-@task
-def test(ctx):
+@task.options
+def the_test_to_run(ctx):
+    core_BasicExperimentRunningTest = 'nisui.core.BasicExperimentRunningTest'
+    h2_store_BuildTablesTest = 'nisui.h2_store.BuildTablesTest'
+    h2_store_FillAndReadDataTest = 'nisui.h2_store.FillAndReadDataTest'
+    core_DynamicValuesTest = 'nisui.core.DynamicValuesTest'
+    java_runner_JavaValuesTest = 'nisui.java_runner.JavaValuesTest'
+    java_runner_JavaExperimentTest = 'nisui.java_runner.JavaExperimentTest'
+    cli_ExperimentCommandsTests = 'nisui.cli.ExperimentCommandsTests'
+    cli_DataPointCommandsTests = 'nisui.cli.DataPointCommandsTests'
+    cli_ExperimentResultCommandsTests = 'nisui.cli.ExperimentResultCommandsTests'
+
+
+@task(the_test_to_run)
+def test(ctx, *args):
     # gradle_tests() & BANG
-    # gradle_tests('nisui.core.BasicExperimentRunningTest') & ERUN.bang
-    # gradle_tests('nisui.h2_store.BuildTablesTest') & ERUN.bang
-    # gradle_tests('nisui.h2_store.FillAndReadDataTest') & ERUN.bang
-    # gradle_tests('nisui.core.DynamicValuesTest') & ERUN.bang
-    # gradle_tests('nisui.java_runner.JavaValuesTest') & ERUN.bang
-    # gradle_tests('nisui.java_runner.JavaExperimentTest') & ERUN.bang
-    # gradle_tests('nisui.cli.ExperimentCommandsTests') & ERUN.bang
-    # gradle_tests('nisui.cli.DataPointCommandsTests') & ERUN.bang
-    gradle_tests('nisui.cli.ExperimentResultCommandsTests') & ERUN.bang
+    gradle_tests(ctx.dep.the_test_to_run)[args] & ERUN.bang
+test.complete(lambda ctx: {'--info'})
 
 
 @task

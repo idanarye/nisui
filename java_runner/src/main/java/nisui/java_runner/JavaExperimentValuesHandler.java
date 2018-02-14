@@ -1,12 +1,5 @@
 package nisui.java_runner;
 
-import java.beans.BeanInfo;
-import java.beans.IntrospectionException;
-import java.beans.Introspector;
-import java.beans.PropertyDescriptor;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedHashMap;
@@ -17,32 +10,19 @@ import nisui.core.ExperimentValuesHandler;
 
 public class JavaExperimentValuesHandler<T> extends ExperimentValuesHandler<T> {
 	private Class<T> clazz;
-	private Constructor<T> constructor;
 	private LinkedHashMap<String, Field> fields;
 
 	public JavaExperimentValuesHandler(Class<T> clazz) {
 		this.clazz = clazz;
-		try {
-			this.constructor = clazz.getConstructor();
-			this.constructor.setAccessible(true);
-			this.fields =
-			Arrays.stream(Introspector.getBeanInfo(clazz).getPropertyDescriptors()).filter(pd -> {
-				if (pd.getReadMethod() == null || pd.getWriteMethod() == null) {
-					return false;
-				}
-				// Make sure we don't get inherited properties here
-				return clazz.isAssignableFrom(pd.getReadMethod().getDeclaringClass())
-					&& clazz.isAssignableFrom(pd.getWriteMethod().getDeclaringClass());
-			}).map(pd -> new JavaField(pd)).collect(Collectors.toMap(
-					JavaField::getName,
-					Function.identity(),
-					(u, v) -> {
-						throw new IllegalStateException(String.format("Duplicate key %s", u.getName()));
-					},
-					LinkedHashMap::new));
-		} catch (IntrospectionException | NoSuchMethodException e) {
-			throw new Error(e);
-		}
+		this.fields = Arrays.stream(clazz.getDeclaredFields())
+				.map(JavaField::new)
+				.collect(Collectors.toMap(
+							JavaField::getName,
+							Function.identity(),
+							(u, v) -> {
+								throw new IllegalStateException(String.format("Duplicate key %s", u.getName()));
+							},
+							LinkedHashMap::new));
 	}
 
 	@Override
@@ -53,7 +33,7 @@ public class JavaExperimentValuesHandler<T> extends ExperimentValuesHandler<T> {
 	@Override
 	public T createValue() {
 		try {
-			return constructor.newInstance();
+			return clazz.newInstance();
 		} catch (RuntimeException e) {
 			throw e;
 		} catch (Exception e) {
@@ -62,30 +42,29 @@ public class JavaExperimentValuesHandler<T> extends ExperimentValuesHandler<T> {
 	}
 
 	public class JavaField extends Field {
-		private PropertyDescriptor propertyDescriptor;
+		private java.lang.reflect.Field field;
 
-		private JavaField(PropertyDescriptor propertyDescriptor) {
-			this.propertyDescriptor = propertyDescriptor;
+		private JavaField(java.lang.reflect.Field field) {
+			this.field = field;
 
-			propertyDescriptor.getReadMethod().setAccessible(true);
-			propertyDescriptor.getWriteMethod().setAccessible(true);
+			field.setAccessible(true);
 		}
 
 		@Override
 		public String getName() {
-			return propertyDescriptor.getName();
+			return field.getName();
 		}
 
 		@Override
 		public Class getType() {
-			return propertyDescriptor.getPropertyType();
+			return field.getType();
 		}
 
 		@Override
 		public Object get(T obj) {
 			try {
-				return propertyDescriptor.getReadMethod().invoke(obj);
-			} catch (IllegalAccessException | InvocationTargetException e) {
+				return field.get(obj);
+			} catch (IllegalAccessException | IllegalArgumentException e) {
 				throw new Error(e);
 			}
 		}
@@ -93,8 +72,8 @@ public class JavaExperimentValuesHandler<T> extends ExperimentValuesHandler<T> {
 		@Override
 		public void set(T obj, Object value) {
 			try {
-				propertyDescriptor.getWriteMethod().invoke(obj, value);
-			} catch (IllegalAccessException | InvocationTargetException e) {
+				field.set(obj, value);
+			} catch (IllegalAccessException | IllegalArgumentException e) {
 				throw new Error(e);
 			}
 		}

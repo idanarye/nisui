@@ -27,7 +27,7 @@ public class JavaExperimentTest {
 
 		Object experimentResult = runner.runExperiment(dataPoint, 3);
 
-		// Formula is 100 * seed + dataPoint.getA()
+		// Formula is 100 * seed + dataPoint.a
 		Assertions.assertThat((long)runner.getExperimentResultHandler().field("x").get(experimentResult)).isEqualTo(302);
 	}
 }
