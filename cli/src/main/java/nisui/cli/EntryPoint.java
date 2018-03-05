@@ -57,7 +57,7 @@ public class EntryPoint {
                 }
                 switch (format) {
                     case "":
-                        commandGroup.printFormatSupplier = PrintJavaObject::new;
+                        commandGroup.printFormatSupplier = PrintTabular::new;
                         break;
                     case "csv":
                         commandGroup.printFormatSupplier = PrintCSV::new;

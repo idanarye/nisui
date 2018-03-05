@@ -3,8 +3,9 @@ package nisui.core;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.function.Function;
+import java.util.HashMap;
 import java.util.function.BiConsumer;
+import java.util.function.Function;
 
 
 public abstract class ExperimentValuesHandler<T> {
@@ -15,38 +16,53 @@ public abstract class ExperimentValuesHandler<T> {
 		public abstract Class<?> getType();
 		public abstract void set(T obj, Object value);
 		public abstract Object get(T obj);
+		private Function<String, Object> parser;
 
 		@Override
 		public String toString() {
 			return String.format("%s.%s", ExperimentValuesHandler.this, getName());
 		}
 
-		public Object parseString(String string) {
+		protected Function<String, Object> createParser() {
 			if (getType().isAssignableFrom(long.class)) {
-				return Long.parseLong(string);
+				return (string) -> Long.parseLong(string);
 			}
 			if (getType().isAssignableFrom(int.class)) {
-				return Integer.parseInt(string);
+				return (string) -> Integer.parseInt(string);
 			}
 			if (getType().isAssignableFrom(short.class)) {
-				return Short.parseShort(string);
+				return (string) -> Short.parseShort(string);
 			}
 			if (getType().isAssignableFrom(byte.class)) {
-				return Byte.parseByte(string);
+				return (string) -> Byte.parseByte(string);
 			}
 			if (getType().isAssignableFrom(boolean.class)) {
-				return Boolean.parseBoolean(string);
+				return (string) -> Boolean.parseBoolean(string);
 			}
 			if (getType().isAssignableFrom(double.class)) {
-				return Double.parseDouble(string);
+				return (string) -> Double.parseDouble(string);
 			}
 			if (getType().isAssignableFrom(float.class)) {
-				return Float.parseFloat(string);
+				return (string) -> Float.parseFloat(string);
 			}
 			if (getType().isAssignableFrom(String.class)) {
-				return string;
+				return (string) -> string;
 			}
-			return null;
+			if (getType().isEnum()) {
+				HashMap<String, Object> map = new HashMap<>();
+				for (Object enumConstant : getType().getEnumConstants()) {
+					map.put(enumConstant.toString(), enumConstant);
+				}
+				return map::get;
+			}
+			return (string) -> null;
+		}
+
+		public Object parseString(String string) {
+			if (parser == null) {
+				parser = createParser();
+			}
+			return parser.apply(string);
 		}
 	}
 	public abstract Collection<? extends Field> fields();

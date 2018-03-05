@@ -28,6 +28,22 @@ public abstract class H2Operations<D, R> implements AutoCloseable {
         }
     }
 
+    private static <V> Object toDbRep(ExperimentValuesHandler<V>.Field field, V experimentValue) {
+        Object value = field.get(experimentValue);
+        if (value != null && field.getType().isEnum()) {
+            value = value.toString();
+        }
+        return value;
+    }
+
+    private static <V> Object fromDbRep(ExperimentValuesHandler<V>.Field field, Object dbRep) {
+        if (dbRep instanceof String) {
+            return field.parseString((String)dbRep);
+        } else {
+            return dbRep;
+        }
+    }
+
     public static class InsertDataPoint<D, R> extends H2Operations<D, R> implements DataPointInserter<D> {
         InsertDataPoint(H2ResultsStorage<D, R>.Connection con) {
             super(con);
@@ -56,7 +72,7 @@ public abstract class H2Operations<D, R> implements AutoCloseable {
             stmt.setLong(2, numPerformed);
             int paramIndex = 3;
             for (ExperimentValuesHandler<D>.Field field : con.parent().dataPointHandler.fields()) {
-                stmt.setObject(paramIndex, field.get(dataPoint));
+                stmt.setObject(paramIndex, toDbRep(field, dataPoint));
                 ++paramIndex;
             }
             stmt.executeUpdate();
@@ -109,7 +125,7 @@ public abstract class H2Operations<D, R> implements AutoCloseable {
                         D value = con.parent().dataPointHandler.createValue();
                         int i = 4;
                         for (ExperimentValuesHandler<D>.Field field : con.parent().dataPointHandler.fields()) {
-                            field.set(value, rs.getObject(i));
+                            field.set(value, fromDbRep(field, rs.getObject(i)));
                             ++i;
                         }
                         next = new H2DataPoint<>(rs.getLong(1), rs.getLong(2), rs.getLong(3), value);
@@ -166,7 +182,7 @@ public abstract class H2Operations<D, R> implements AutoCloseable {
             stmt.setLong(2, seed);
             int paramIndex = 3;
             for (ExperimentValuesHandler<R>.Field field : con.parent().experimentResultHandler.fields()) {
-                stmt.setObject(paramIndex, field.get(experimentResult));
+                stmt.setObject(paramIndex, toDbRep(field, experimentResult));
                 ++paramIndex;
             }
             updateDpStatement.setLong(1, ((H2DataPoint<?>)dataPoint).getId());
@@ -234,7 +250,7 @@ public abstract class H2Operations<D, R> implements AutoCloseable {
                         R value = con.parent().experimentResultHandler.createValue();
                         int i = 4;
                         for (ExperimentValuesHandler<R>.Field field : con.parent().experimentResultHandler.fields()) {
-                            field.set(value, rs.getObject(i));
+                            field.set(value, fromDbRep(field, rs.getObject(i)));
                             ++i;
                         }
                         next = new H2ExperimentResult<>(rs.getLong(1), dataPoints.get(rs.getLong(2)), rs.getLong(3), value);

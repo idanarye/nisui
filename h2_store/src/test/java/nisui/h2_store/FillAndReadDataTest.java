@@ -7,7 +7,6 @@ import java.sql.Statement;
 
 import org.junit.rules.TemporaryFolder;
 import org.assertj.core.api.Assertions;
-
 import nisui.core.DataPoint;
 import nisui.core.DataPointInserter;
 import nisui.core.DynamicExperimentValue;
@@ -17,11 +16,14 @@ import nisui.core.ExperimentValuesHandler;
 import org.junit.*;
 
 public class FillAndReadDataTest extends TestsBase {
+	enum MyEnum { X, Y, Z }
+
 	@Test
 	public void addDataPoints() throws SQLException {
 		DynamicExperimentValueHandler dph = new DynamicExperimentValueHandler()
 			.addField("a", int.class)
-			.addField("b", double.class);
+			.addField("b", double.class)
+			.addField("c", MyEnum.class);
 		H2ResultsStorage<DynamicExperimentValue, DynamicExperimentValue> storage = new H2ResultsStorage<>(tmpDbFileName(),
 				dph,
 				new DynamicExperimentValueHandler().addField("x", double.class));
@@ -32,16 +34,19 @@ public class FillAndReadDataTest extends TestsBase {
 				DynamicExperimentValue dp = dph.createValue();
 				dp.set("a", 12);
 				dp.set("b", 1.12);
+				dp.set("c", MyEnum.X);
 				inserter.insert(1, 0, dp);
 
 				dp = dph.createValue();
 				dp.set("a", 15);
 				dp.set("b", 2.15);
+				dp.set("c", MyEnum.Y);
 				inserter.insert(2, 0, dp);
 
 				dp = dph.createValue();
 				dp.set("a", 20);
 				dp.set("b", 3.2);
+				dp.set("c", MyEnum.Z);
 				inserter.insert(3, 1, dp);
 			}
 		}
@@ -53,14 +58,17 @@ public class FillAndReadDataTest extends TestsBase {
 						case 1:
 							Assertions.assertThat(dataPoint.getValue().get("a")).isEqualTo(12);
 							Assertions.assertThat(dataPoint.getValue().get("b")).isEqualTo(1.12);
+							Assertions.assertThat(dataPoint.getValue().get("c")).isEqualTo(MyEnum.X);
 							break;
 						case 2:
 							Assertions.assertThat(dataPoint.getValue().get("a")).isEqualTo(15);
 							Assertions.assertThat(dataPoint.getValue().get("b")).isEqualTo(2.15);
+							Assertions.assertThat(dataPoint.getValue().get("c")).isEqualTo(MyEnum.Y);
 							break;
 						case 3:
 							Assertions.assertThat(dataPoint.getValue().get("a")).isEqualTo(20);
 							Assertions.assertThat(dataPoint.getValue().get("b")).isEqualTo(3.2);
+							Assertions.assertThat(dataPoint.getValue().get("c")).isEqualTo(MyEnum.Z);
 							break;
 						default:
 							assert false;

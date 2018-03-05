@@ -32,10 +32,13 @@ public class H2FieldDefinition {
         if (type.isAssignableFrom(String.class)) {
             return "VARCHAR";
         }
+        if (type.isEnum()) {
+            return "VARCHAR";
+        }
         return null;
     }
 
-    public static Class<?> sqlNamtToType(String sqlName) {
+    public static Class<?> sqlNameToType(String sqlName) {
         int paren = sqlName.indexOf("(");
         if (-1 < paren) {
             sqlName = sqlName.substring(0, paren);
@@ -75,7 +78,7 @@ public class H2FieldDefinition {
     }
 
     static H2FieldDefinition fromResultSet(ResultSet rs) throws SQLException {
-        return new H2FieldDefinition(rs.getString("COLUMN_NAME"), sqlNamtToType(rs.getString("TYPE")));
+        return new H2FieldDefinition(rs.getString("COLUMN_NAME"), sqlNameToType(rs.getString("TYPE")));
     }
 
     public String getName() {
