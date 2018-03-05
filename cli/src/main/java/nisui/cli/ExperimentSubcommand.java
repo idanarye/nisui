@@ -10,16 +10,25 @@ import nisui.core.ExperimentFunction;
 import nisui.core.ExperimentValuesHandler;
 import nisui.core.NisuiFactory;
 
-@CommandLine.Command
+@CommandLine.Command(
+name = "experiment",
+description = "Commands for dealing with the experminent runner, regardless of saved data-points or results.")
 public class ExperimentSubcommand extends CommandGroup {
     private static Logger logger = LoggerFactory.getLogger(ExperimentSubcommand.class);
 
-    public ExperimentSubcommand(NisuiFactory nisuiFactory) {
-        super(nisuiFactory, "experiment", "e");
+    @Override
+    public String[] getNames() {
+        return new String[]{"experiment", "e"};
     }
 
-    @CommandLine.Command
-    class Info implements SubCommand {
+    public ExperimentSubcommand(NisuiFactory nisuiFactory) {
+        super(nisuiFactory);
+    }
+
+    @CommandLine.Command(
+    name = "info",
+    description = "Print static information (data-point and result layout) on the experiment.")
+    class Info extends SubCommand {
         @Override
         public String[] getNames() {
             return new String[]{"info"};
@@ -52,17 +61,19 @@ public class ExperimentSubcommand extends CommandGroup {
         }
     }
 
-    @CommandLine.Command
-    class Run implements SubCommand {
+    @CommandLine.Command(
+    name = "run",
+    description = "Run the experiment once.")
+    class Run extends SubCommand {
         @Override
         public String[] getNames() {
             return new String[]{"run"};
         }
 
-        @CommandLine.Option(names = {"-s", "--seed"})
+        @CommandLine.Option(names = {"-s", "--seed"}, description = "Run the experiment with a specific seed. Leave out for random seed.")
         long seed = 0;
 
-        @CommandLine.Parameters
+        @CommandLine.Parameters(arity = "0..*", paramLabel = "<name>=<value>", description = "Data-point fields.")
         List<String> dataPointValues;
 
         @Override

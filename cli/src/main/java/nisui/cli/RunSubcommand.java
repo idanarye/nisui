@@ -9,10 +9,19 @@ import java.io.InputStream;
 import nisui.core.*;
 import nisui.simple_reactor.SimpleReactor;
 
-@CommandLine.Command
-public class RunSubcommand extends CommandGroup implements SubCommand {
+@CommandLine.Command(
+name = "run",
+description = "Run the data-points we have prepared, storing the results in the database.")
+public class RunSubcommand extends SubCommand {
+    protected NisuiFactory nisuiFactory;
+
     public RunSubcommand(NisuiFactory nisuiFactory) {
-        super(nisuiFactory, "run");
+        this.nisuiFactory = nisuiFactory;
+    }
+
+    @Override
+    public String[] getNames() {
+        return new String[]{"run"};
     }
 
     @Override
@@ -25,10 +34,5 @@ public class RunSubcommand extends CommandGroup implements SubCommand {
     public <D, R> void run(PrintStream out, ResultsStorage<D, R> storage, ExperimentFunction<?, ?> experimentFunction) {
         SimpleReactor<D, R> reactor = new SimpleReactor<D, R>(storage, experimentFunction);
         reactor.run();
-    }
-
-    @Override
-    public String[] getNames() {
-        return new String[]{"run"};
     }
 }

@@ -1,5 +1,7 @@
 package nisui.cli;
 
+import java.io.InputStream;
+import java.io.PrintStream;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.function.Supplier;
@@ -10,11 +12,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import picocli.CommandLine;
 
-public abstract class CommandGroup {
+public abstract class CommandGroup extends SubCommand {
     private static Logger logger = LoggerFactory.getLogger(CommandGroup.class);
 
     protected NisuiFactory nisuiFactory;
-    private String[] names;
 
     Supplier<PrintFormat<?>> printFormatSupplier;
     @SuppressWarnings("unchecked")
@@ -22,22 +23,24 @@ public abstract class CommandGroup {
         return (PrintFormat) printFormatSupplier.get();
     }
 
-    protected CommandGroup(NisuiFactory nisuiFactory, String... names) {
-        this.nisuiFactory = nisuiFactory;
-        this.names = names;
+    @Override
+    public void run(InputStream in, PrintStream out) {
     }
 
-    void register(CommandLine commandLine) {
-        CommandLine commandGroup = new CommandLine(this);
-        for (String name : this.names) {
-            commandLine.addSubcommand(name, commandGroup);
-        }
+    protected CommandGroup(NisuiFactory nisuiFactory) {
+        this.nisuiFactory = nisuiFactory;
+    }
+
+    CommandLine register(CommandLine commandLine) {
+        CommandLine commandGroup = super.register(commandLine);
 
         for (Class<?> clazz : this.getClass().getDeclaredClasses()) {
             if (SubCommand.class.isAssignableFrom(clazz)) {
                 Class<? extends SubCommand> subClass = clazz.asSubclass(SubCommand.class); this.registerSubcommand(commandGroup, subClass);
             }
         }
+
+        return commandGroup;
     }
 
     private <T extends SubCommand> void registerSubcommand(CommandLine commandGroup, Class<T> clazz) {

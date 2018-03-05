@@ -17,25 +17,34 @@ import nisui.core.ExperimentValuesHandler;
 import nisui.core.NisuiFactory;
 import nisui.core.ResultsStorage;
 
-@CommandLine.Command
+@CommandLine.Command(
+name = "data-points",
+description = "Commands for dealing with the list of data-points we want to run.")
 public class DataPointSubcommand extends CommandGroup {
     private static Logger logger = LoggerFactory.getLogger(DataPointSubcommand.class);
 
     public DataPointSubcommand(NisuiFactory nisuiFactory) {
-        super(nisuiFactory, "data-points", "dp");
+        super(nisuiFactory);
     }
 
-    @CommandLine.Command
-    class Add implements SubCommand {
+    @Override
+    public String[] getNames() {
+        return new String[]{"data-points", "dp"};
+    }
+
+    @CommandLine.Command(
+    name = "add",
+    description = "Add a data-point to be run later (with the `run` command)")
+    class Add extends SubCommand {
         @Override
         public String[] getNames() {
             return new String[]{"add"};
         }
 
-        @CommandLine.Option(names = {"-n", "--num-planned"}, required = true)
+        @CommandLine.Option(names = {"-n", "--num-planned"}, required = true, description = "The number of experiments to run on this data-point.")
         long numPlanned;
 
-        @CommandLine.Parameters
+        @CommandLine.Parameters(arity = "0..*", paramLabel = "<name>=<value>", description = "Data-point fields.")
         List<String> dataPointValues;
 
         @Override
@@ -57,8 +66,10 @@ public class DataPointSubcommand extends CommandGroup {
         }
     }
 
-    @CommandLine.Command
-    class List_ implements SubCommand {
+    @CommandLine.Command(
+    name = "list",
+    description = "Print the data-points that we want to run.")
+    class List_ extends SubCommand {
         @Override
         public String[] getNames() {
             return new String[]{"list"};

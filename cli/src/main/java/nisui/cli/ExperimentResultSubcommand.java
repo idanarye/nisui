@@ -10,16 +10,25 @@ import nisui.cli.print_formats.PrintCSV;
 import nisui.cli.print_formats.PrintFormat;
 import nisui.core.*;
 
-@CommandLine.Command
+@CommandLine.Command(
+name = "experiment-results",
+description = "Commands for dealing with the results of the experiments we ran.")
 public class ExperimentResultSubcommand extends CommandGroup {
     private static Logger logger = LoggerFactory.getLogger(ExperimentResultSubcommand.class);
 
-    public ExperimentResultSubcommand(NisuiFactory nisuiFactory) {
-        super(nisuiFactory, "experiment-results", "er");
+    @Override
+    public String[] getNames() {
+        return new String[]{"experiment-results", "er"};
     }
 
-    @CommandLine.Command
-    class List_ implements SubCommand {
+    public ExperimentResultSubcommand(NisuiFactory nisuiFactory) {
+        super(nisuiFactory);
+    }
+
+    @CommandLine.Command(
+    name = "list",
+    description = "Print the results of the experiments we ran.")
+    class List_ extends SubCommand {
         @Override
         public String[] getNames() {
             return new String[]{"list"};
