@@ -15,9 +15,14 @@ public class ExperimentFunctionWrapper<D, R, ED, ER> {
         this.experimentFunction = experimentFunction;
     }
 
-    public R runExperiment(D dataPoint, long seed) {
+    public R runExperiment(D dataPoint, long seed) throws ExperimentFailedException {
         ED dp = dpMapper.apply(dataPoint);
-        ER er = experimentFunction.runExperiment(dp, seed);
+        ER er;
+        try {
+            er = experimentFunction.runExperiment(dp, seed);
+        } catch (Throwable e) {
+            throw new ExperimentFailedException(experimentFunction.getDataPointHandler(), dp, seed, e);
+        }
         return erMapper.apply(er);
     }
 

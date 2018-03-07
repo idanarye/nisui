@@ -5,8 +5,7 @@ import java.util.Random;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.util.concurrent.PriorityBlockingQueue;
-
-
+import java.util.function.Consumer;
 import nisui.core.*;
 
 /**
@@ -17,10 +16,12 @@ public class SimpleReactor<D, R> {
 
     private ResultsStorage<D, R> storage;
     private ExperimentFunctionWrapper<D, R, ?, ?> experimentFunctionWrapper;
+    private Consumer<ExperimentFailedException> onException;
 
-    public SimpleReactor(ResultsStorage<D, R> storage, ExperimentFunction<?, ?> experimentFunction) {
+    public SimpleReactor(ResultsStorage<D, R> storage, ExperimentFunction<?, ?> experimentFunction, Consumer<ExperimentFailedException> onException) {
         this.storage = storage;
         this.experimentFunctionWrapper = new ExperimentFunctionWrapper<>(storage.getDataPointHandler(), storage.getExperimentResultHandler(), experimentFunction);
+        this.onException = onException;
     }
 
     private boolean shouldRun(DataPoint<?> dataPoint) {
@@ -49,7 +50,13 @@ public class SimpleReactor<D, R> {
             DataPoint<D> dataPoint = queue.poll();
             long seed = random.nextLong();
             logger.trace("Running {} with seed {}", dataPoint, seed);
-            R result = experimentFunctionWrapper.runExperiment(dataPoint.getValue(), seed);
+            R result;
+            try {
+                result = experimentFunctionWrapper.runExperiment(dataPoint.getValue(), seed);
+            } catch (ExperimentFailedException e) {
+                this.onException.accept(e);
+                return;
+            }
             logger.trace("Got {}", result);
             try (ResultsStorage<D, R>.Connection con = storage.connect()) {
                 try (ExperimentResultInserter<R> inserter = con.insertExperimentResults()) {

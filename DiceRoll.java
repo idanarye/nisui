@@ -15,6 +15,9 @@ public class DiceRoll extends JavaExperimentFunction<DiceRoll.DP, DiceRoll.R> {
 
     @Override
     public R runExperiment(DP dp, long seed) {
+        if (dp.min == 2) {
+            throw new RuntimeException("YUP");
+        }
         R r = new R();
         Random random = new Random(seed);
         r.total = 0;
