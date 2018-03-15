@@ -103,6 +103,8 @@ project(":cli") {
 project(":simple_reactor") {
    dependencies {
        compile project(':core')
+       testCompile project(':java_runner')
+       testCompile project(':h2_store')
    }
 }
 

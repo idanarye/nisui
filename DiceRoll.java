@@ -20,6 +20,7 @@ public class DiceRoll extends JavaExperimentFunction<DiceRoll.DP, DiceRoll.R> {
         }
         R r = new R();
         Random random = new Random(seed);
+        try { Thread.sleep(100); } catch (Exception e) {}
         r.total = 0;
         for (int i = 0; i < dp.num; ++i) {
             r.total += dp.min + random.nextInt(dp.faces);

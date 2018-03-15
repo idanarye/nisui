@@ -29,7 +29,7 @@ public class ExperimentFailedException extends Exception {
     }
 
     public <T> ExperimentFailedException(ExperimentValuesHandler<T> dataPointHandler, T dataPoint, long seed, Throwable cause) {
-        super(formatMessage(dataPointHandler, dataPoint, seed), cause);
+        super(String.format("Experiment failed on data-point %s and seed=%s", dataPointHandler.formatAsString(dataPoint), seed), cause);
         this.dataPointHandler = dataPointHandler;
         this.dataPoint = dataPoint;
         this.seed = seed;

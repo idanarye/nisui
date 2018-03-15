@@ -77,7 +77,7 @@ def the_test_to_run(ctx):
 def test(ctx, *args):
     # gradle_tests() & BANG
     gradle_tests(ctx.dep.the_test_to_run)[args] & ERUN.bang
-test.complete(lambda ctx: {'--info'})
+test.complete(lambda ctx: {'--info', '--debug', '--scan'})
 
 
 @task

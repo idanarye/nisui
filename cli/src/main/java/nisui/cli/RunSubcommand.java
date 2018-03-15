@@ -29,6 +29,9 @@ public class RunSubcommand extends SubCommand {
         return new String[]{"run"};
     }
 
+    @CommandLine.Option(names = {"-t", "--threads"}, required = false, description = "Number of threads to use.")
+    int numThreads = 0;
+
     @Override
     public void run(InputStream in, PrintStream out) {
         ResultsStorage<?, ?> storage = nisuiFactory.createResultsStorage();
@@ -44,7 +47,15 @@ public class RunSubcommand extends SubCommand {
     }
 
     public <D, R> void run(PrintStream out, ResultsStorage<D, R> storage, ExperimentFunction<?, ?> experimentFunction) {
-        SimpleReactor<D, R> reactor = new SimpleReactor<D, R>(storage, experimentFunction, this::onException);
-        reactor.run();
+        if (0 == numThreads) {
+            numThreads = Runtime.getRuntime().availableProcessors();
+            logger.info("Running experiment in {} threads", numThreads);
+        }
+        SimpleReactor<D, R> reactor = new SimpleReactor<D, R>(numThreads, storage, experimentFunction, this::onException);
+        try {
+            reactor.run();
+        } catch (InterruptedException e) {
+            logger.info("Inetrrupted");
+        }
     }
 }
