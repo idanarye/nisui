@@ -35,13 +35,14 @@ def compile(ctx):
 
 @task
 def run(ctx):
+    pass
     # cmd = run_py['experiment', 'info']
     # cmd = run_py['experiment', 'run']['transmittionRadius=10', 'markerRadius=20']
     # cmd = run_py['experiment', 'run']['faces=20']
     # cmd = run_py['dp', 'add']['transmittionRadius=10', 'markerRadius=20']
     # cmd = run_py['dp', 'add']['-n', 21, 'faces=5', 'num=10']
     # cmd = run_py['dp', 'list']
-    cmd = run_py['run']
+    # cmd = run_py['run']
     # cmd = run_py['run', '--help']
 
     cmd & BANG
@@ -63,6 +64,7 @@ def clean(ctx):
 @task.options
 def the_test_to_run(ctx):
     core_BasicExperimentRunningTest = 'nisui.core.BasicExperimentRunningTest'
+    core_QueryParserTest = 'nisui.core.QueryParserTest'
     h2_store_BuildTablesTest = 'nisui.h2_store.BuildTablesTest'
     h2_store_FillAndReadDataTest = 'nisui.h2_store.FillAndReadDataTest'
     core_DynamicValuesTest = 'nisui.core.DynamicValuesTest'

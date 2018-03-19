@@ -14,6 +14,7 @@ mainClassName = 'nisui.app.NisuiApp'
 allprojects {
     repositories {
         jcenter()
+        maven { url 'https://jitpack.io' }
     }
 
     apply plugin: 'java'
@@ -64,6 +65,12 @@ subprojects {
         testCompile group: 'org.apache.logging.log4j', name: 'log4j-core', version: '2.6.2'
         testCompile group: 'org.slf4j', name: 'slf4j-simple', version: '1.7.25'
     }
+}
+
+project(":core") {
+   dependencies {
+      compile 'com.github.petitparser.java-petitparser:petitparser-core:2.1.0'
+   }
 }
 
 project(":java_runner") {
