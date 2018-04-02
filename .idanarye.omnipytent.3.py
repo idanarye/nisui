@@ -65,8 +65,10 @@ def clean(ctx):
 def the_test_to_run(ctx):
     core_BasicExperimentRunningTest = 'nisui.core.BasicExperimentRunningTest'
     core_QueryParserTest = 'nisui.core.QueryParserTest'
+    core_util_QueryChunkTest = 'nisui.core.util.QueryChunkTest'
     h2_store_BuildTablesTest = 'nisui.h2_store.BuildTablesTest'
     h2_store_FillAndReadDataTest = 'nisui.h2_store.FillAndReadDataTest'
+    h2_store_QueriesTest = 'nisui.h2_store.QueriesTest'
     core_DynamicValuesTest = 'nisui.core.DynamicValuesTest'
     java_runner_JavaValuesTest = 'nisui.java_runner.JavaValuesTest'
     java_runner_JavaExperimentTest = 'nisui.java_runner.JavaExperimentTest'

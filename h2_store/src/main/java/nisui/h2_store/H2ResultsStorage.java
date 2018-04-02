@@ -19,6 +19,7 @@ public class H2ResultsStorage<D, R> extends ResultsStorage<D, R> {
     private String filename;
     ExperimentValuesHandler<D> dataPointHandler;
     ExperimentValuesHandler<R> experimentResultHandler;
+    private H2QueryParser queryParser;
 
     public H2ResultsStorage(String filename, ExperimentValuesHandler<D> dataPointHandler, ExperimentValuesHandler<R> experimentResultHandler) {
         this.filename = filename;
@@ -198,5 +199,12 @@ public class H2ResultsStorage<D, R> extends ResultsStorage<D, R> {
         public H2Operations.ReadExperimentResults<D, R> readExperimentResults(Iterable<DataPoint<D>> dataPoints) {
             return new H2Operations.ReadExperimentResults<>(this, dataPoints);
         }
+    }
+
+    public H2Query<D> createQuery(String query) {
+        if (queryParser == null) {
+            queryParser = new H2QueryParser();
+        }
+        return new H2Query<D>(queryParser.parseString(query));
     }
 }

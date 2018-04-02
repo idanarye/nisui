@@ -14,14 +14,14 @@ class SimpleStringParser extends QueryParser<String> {
         return expr;
     }
 
-	@Override
-	public String unaryOperator(UnariOperator op, String value) {
+    @Override
+    public String unaryOperator(UnariOperator op, String value) {
         switch (op) {
             case PLUS: return String.format("PLUS[%s]", value);
             case MINUS: return String.format("MINUS[%s]", value);
         }
         throw new Error("Unknown unary operator " + op);
-	}
+    }
 
     @Override
     public String binaryOperator(BinaryOperator op, String left, String right) {

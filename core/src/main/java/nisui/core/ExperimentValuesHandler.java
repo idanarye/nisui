@@ -4,12 +4,27 @@ package nisui.core;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 
 
 public abstract class ExperimentValuesHandler<T> {
     public abstract T createValue();
+
+    public T createValue(Object... args) {
+        T value = createValue();
+        Iterator<? extends ExperimentValuesHandler<T>.Field> iter = this.fields().iterator();
+        for (Object arg : args) {
+            if (iter.hasNext()) {
+                ExperimentValuesHandler<T>.Field field = iter.next();
+                field.set(value, arg);
+            } else {
+                break;
+            }
+        }
+        return value;
+    }
 
     public abstract class Field {
         public abstract String getName();
