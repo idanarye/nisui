@@ -14,6 +14,15 @@ class SimpleStringParser extends QueryParser<String> {
         return expr;
     }
 
+	@Override
+	public String unaryOperator(UnariOperator op, String value) {
+        switch (op) {
+            case PLUS: return String.format("PLUS[%s]", value);
+            case MINUS: return String.format("MINUS[%s]", value);
+        }
+        throw new Error("Unknown unary operator " + op);
+	}
+
     @Override
     public String binaryOperator(BinaryOperator op, String left, String right) {
         switch (op) {
@@ -38,6 +47,11 @@ class SimpleStringParser extends QueryParser<String> {
     }
 
     @Override
+    public String scalarBiFunction(ScalarBiFunction fn, String value1, String value2) {
+        return String.format("%s[%s,%s]", fn, value1, value2);
+    }
+
+    @Override
     public String aggregationFunction(AggregationFunction fn, String value) {
         return String.format("%s[%s]", fn, value);
     }
@@ -54,11 +68,15 @@ public class QueryParserTest {
     @Test
     public void testQueries() {
         assertParse("12", "NUM[12]");
+        assertParse("1.2", "NUM[1.2]");
+        assertParse("-12", "MINUS[NUM[12]]");
         assertParse("(12)", "NUM[12]");
+        assertParse("+(1.2)", "PLUS[NUM[1.2]]");
         assertParse("1 + 2 * 3 - 4 / 5 ^ 6", "SUB[ADD[NUM[1],MUL[NUM[2],NUM[3]]],DIV[NUM[4],POW[NUM[5],NUM[6]]]]");
         assertParse("1 - 2 - 3", "SUB[SUB[NUM[1],NUM[2]],NUM[3]]");
         assertParse("1 - (2 - 3)", "SUB[NUM[1],SUB[NUM[2],NUM[3]]]");
         assertParse("sqrt(pi)", "SQRT[IDENT[pi]]");
-        assertParse("sum(a)", "SUM[IDENT[a]]");
+        assertParse("sum(a )", "SUM[IDENT[a]]");
+        assertParse("RooT(a, b)", "ROOT[IDENT[a],IDENT[b]]");
     }
 }
