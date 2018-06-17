@@ -13,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import nisui.core.*;
+import nisui.core.util.IterWithSeparator;
 
 public abstract class H2Operations<D, R> implements AutoCloseable {
     private static Logger logger = LoggerFactory.getLogger(H2Operations.class);
@@ -270,9 +271,9 @@ public abstract class H2Operations<D, R> implements AutoCloseable {
     public static class RunQuery<D, R> extends H2Operations<D, R> implements QueryRunner<D> {
         private HashMap<Long, H2DataPoint<D>> dataPoints;
         private String[] queries;
-        private String[] groupBy;
+        private String[] sortBy;
 
-        RunQuery(H2ResultsStorage<D, R>.Connection con, Iterable<DataPoint<D>> dataPoints, String[] queries, String[] groupBy) {
+        RunQuery(H2ResultsStorage<D, R>.Connection con, Iterable<DataPoint<D>> dataPoints, String[] queries, String[] sortBy) {
             super(con);
             this.dataPoints = new HashMap<>();
             for (DataPoint<D> dp : dataPoints) {
@@ -280,7 +281,7 @@ public abstract class H2Operations<D, R> implements AutoCloseable {
                 this.dataPoints.put(h2dp.getId(), h2dp);
             }
             this.queries = queries;
-            this.groupBy = groupBy;
+            this.sortBy = sortBy;
         }
 
         @Override
@@ -288,12 +289,7 @@ public abstract class H2Operations<D, R> implements AutoCloseable {
             LinkedList<Object> parameters = new LinkedList<>();
             if (stmt == null) {
                 StringBuilder sql = new StringBuilder();
-                sql.append("SELECT");
-                if (0 < groupBy.length) {
-                    sql.append(" MIN(data_point_id)");
-                } else {
-                    sql.append(" data_point_id");
-                }
+                sql.append("SELECT MIN(data_point_id)");
                 H2QueryParser queryParser = new H2QueryParser();
                 for (String query : queries) {
                     sql.append(", (");
@@ -301,21 +297,30 @@ public abstract class H2Operations<D, R> implements AutoCloseable {
                     sql.append(")");
                 }
                 sql.append(" FROM ").append(con.EXPERIMENT_RESULTS_TABLE_NAME).append(" AS er");
-                if (0 < groupBy.length) {
-                    sql.append(" INNER JOIN ").append(con.DATA_POINTS_TABLE_NAME).append(" AS dp ON er.data_point_id = dp.id");
-                }
+                sql.append(" INNER JOIN ").append(con.DATA_POINTS_TABLE_NAME).append(" AS dp ON er.data_point_id = dp.id");
                 sql.append(" WHERE data_point_id IN (SELECT * FROM TABLE(id BIGINT = ?))");
-                if (0 < groupBy.length) {
-                    sql.append(" GROUP BY ");
-                    for (int i = 0; i < groupBy.length; ++i) {
-                        if (0 < i) {
-                            sql.append(", ");
-                        }
-                        sql.append(groupBy[i]);
-                    }
-                } else {
-                    sql.append(" GROUP BY data_point_id");
+
+                sql.append(" GROUP BY ");
+                IterWithSeparator.iterWithSep(
+                        con.parent().dataPointHandler.fields(),
+                        field -> sql.append("dp." + field.getName()),
+                        () -> sql.append(", "));
+
+                HashMap<String, Integer> sortByIndex = new HashMap<>();
+                for (int i = 0; i < sortBy.length; ++i) {
+                    sortByIndex.put(sortBy[i], i);
                 }
+
+                sql.append(" ORDER BY ");
+                IterWithSeparator.iterWithSep(
+                        con.parent().dataPointHandler.fields().stream().sorted(
+                            (a, b) -> Integer.compare(
+                                sortByIndex.getOrDefault(b, sortBy.length),
+                                sortByIndex.getOrDefault(a, sortBy.length))),
+                        field -> sql.append("dp." + field.getName()),
+                        () -> sql.append(", "));
+
+
                 sql.append(';');
                 stmt = con.createPreparedStatement(sql.toString());
             }

@@ -200,6 +200,7 @@ public class H2ResultsStorage<D, R> extends ResultsStorage<D, R> {
             return new H2Operations.ReadExperimentResults<D, R>(this, dataPoints);
         }
 
+        @Override
         public H2Operations.RunQuery<D, R> runQuery(Iterable<DataPoint<D>> dataPoints, String[] queries, String[] groupBy) {
             return new H2Operations.RunQuery<D, R>(this, dataPoints, queries, groupBy);
         }

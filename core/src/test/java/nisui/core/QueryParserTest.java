@@ -61,7 +61,7 @@ public class QueryParserTest {
     private static void assertParse(String parsedFrom, String parsedTo) {
         SimpleStringParser parser = new SimpleStringParser();
         String parsed = parser.parseString(parsedFrom);
-        System.out.printf("%s -> %s\n", parsedFrom, parsed);
+        // System.out.printf("%s -> %s\n", parsedFrom, parsed);
         Assertions.assertThat(parsed).isEqualTo(parsedTo);
     }
 
