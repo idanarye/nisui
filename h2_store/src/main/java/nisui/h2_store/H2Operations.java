@@ -6,6 +6,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -254,6 +256,104 @@ public abstract class H2Operations<D, R> implements AutoCloseable {
                             ++i;
                         }
                         next = new H2ExperimentResult<>(rs.getLong(1), dataPoints.get(rs.getLong(2)), rs.getLong(3), value);
+                    } else {
+                        next = null;
+                    }
+                    return currentNext;
+                } catch (SQLException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        }
+    }
+
+    public static class RunQuery<D, R> extends H2Operations<D, R> implements QueryRunner<D> {
+        private HashMap<Long, H2DataPoint<D>> dataPoints;
+        private String[] queries;
+        private String[] groupBy;
+
+        RunQuery(H2ResultsStorage<D, R>.Connection con, Iterable<DataPoint<D>> dataPoints, String[] queries, String[] groupBy) {
+            super(con);
+            this.dataPoints = new HashMap<>();
+            for (DataPoint<D> dp : dataPoints) {
+                H2DataPoint<D> h2dp = (H2DataPoint<D>)dp;
+                this.dataPoints.put(h2dp.getId(), h2dp);
+            }
+            this.queries = queries;
+            this.groupBy = groupBy;
+        }
+
+        @Override
+        public RSIterator iterator() {
+            LinkedList<Object> parameters = new LinkedList<>();
+            if (stmt == null) {
+                StringBuilder sql = new StringBuilder();
+                sql.append("SELECT");
+                if (0 < groupBy.length) {
+                    sql.append(" MIN(data_point_id)");
+                } else {
+                    sql.append(" data_point_id");
+                }
+                H2QueryParser queryParser = new H2QueryParser();
+                for (String query : queries) {
+                    sql.append(", (");
+                    queryParser.parseString(query).scan(sql::append, parameters::add);
+                    sql.append(")");
+                }
+                sql.append(" FROM ").append(con.EXPERIMENT_RESULTS_TABLE_NAME).append(" AS er");
+                if (0 < groupBy.length) {
+                    sql.append(" INNER JOIN ").append(con.DATA_POINTS_TABLE_NAME).append(" AS dp ON er.data_point_id = dp.id");
+                }
+                sql.append(" WHERE data_point_id IN (SELECT * FROM TABLE(id BIGINT = ?))");
+                if (0 < groupBy.length) {
+                    sql.append(" GROUP BY ");
+                    for (int i = 0; i < groupBy.length; ++i) {
+                        if (0 < i) {
+                            sql.append(", ");
+                        }
+                        sql.append(groupBy[i]);
+                    }
+                } else {
+                    sql.append(" GROUP BY data_point_id");
+                }
+                sql.append(';');
+                stmt = con.createPreparedStatement(sql.toString());
+            }
+            try {
+                Array array = stmt.getConnection().createArrayOf("BIGINT", dataPoints.keySet().toArray());
+                stmt.setArray(1, array);
+                return new RSIterator(stmt.executeQuery());
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+        private class RSIterator implements Iterator<RunQuery.Row<D>> {
+            private ResultSet rs;
+            private RunQuery.Row<D> next;
+
+            public RSIterator(ResultSet rs) {
+                this.rs = rs;
+                next = null;
+                next();
+            }
+
+            @Override
+            public boolean hasNext() {
+                return next != null;
+            }
+
+            @Override
+            public RunQuery.Row<D> next() {
+                try {
+                    RunQuery.Row<D> currentNext = next;
+                    if (rs.next()) {
+                        R value = con.parent().experimentResultHandler.createValue();
+                        double[] values = new double[queries.length];
+                        for (int i = 0; i < values.length; ++i) {
+                            values[i] = rs.getDouble(i + 2);
+                        }
+                        next = new RunQuery.Row<>(dataPoints.get(rs.getLong(1)), values);
                     } else {
                         next = null;
                     }

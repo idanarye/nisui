@@ -192,19 +192,16 @@ public class H2ResultsStorage<D, R> extends ResultsStorage<D, R> {
 
         @Override
         public H2Operations.InsertExperimentResult<D, R> insertExperimentResults() {
-            return new H2Operations.InsertExperimentResult<>(this);
+            return new H2Operations.InsertExperimentResult<D, R>(this);
         }
 
         @Override
         public H2Operations.ReadExperimentResults<D, R> readExperimentResults(Iterable<DataPoint<D>> dataPoints) {
-            return new H2Operations.ReadExperimentResults<>(this, dataPoints);
+            return new H2Operations.ReadExperimentResults<D, R>(this, dataPoints);
         }
-    }
 
-    public H2Query<D> createQuery(String query) {
-        if (queryParser == null) {
-            queryParser = new H2QueryParser();
+        public H2Operations.RunQuery<D, R> runQuery(Iterable<DataPoint<D>> dataPoints, String[] queries, String[] groupBy) {
+            return new H2Operations.RunQuery<D, R>(this, dataPoints, queries, groupBy);
         }
-        return new H2Query<D>(queryParser.parseString(query));
     }
 }
