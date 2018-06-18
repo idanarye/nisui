@@ -358,7 +358,7 @@ public abstract class H2Operations<D, R> implements AutoCloseable {
                         for (int i = 0; i < values.length; ++i) {
                             values[i] = rs.getDouble(i + 2);
                         }
-                        next = new RunQuery.Row<>(dataPoints.get(rs.getLong(1)), values);
+                        next = new RunQuery.Row<>(dataPoints.get(rs.getLong(1)).getValue(), values);
                     } else {
                         next = null;
                     }

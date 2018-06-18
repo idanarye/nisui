@@ -2,10 +2,10 @@ package nisui.core;
 
 public interface QueryRunner<D> extends AutoCloseable, Iterable<QueryRunner.Row<D>> {
     public static class Row<D> {
-        public final DataPoint<D> dataPoint;
+        public final D dataPoint;
         public double[] values;
 
-        public Row(DataPoint<D> dataPoint, double[] values) {
+        public Row(D dataPoint, double[] values) {
             this.dataPoint = dataPoint;
             this.values = values;
         }

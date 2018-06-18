@@ -32,6 +32,7 @@ public class EntryPoint {
         new DataPointSubcommand(nisuiFactory).register(commandLine);
         new ExperimentResultSubcommand(nisuiFactory).register(commandLine);
         new RunSubcommand(nisuiFactory).register(commandLine);
+        new QueriesSubcommand(nisuiFactory).register(commandLine);
 
         List<CommandLine> subCommands = commandLine.parse(args);
 

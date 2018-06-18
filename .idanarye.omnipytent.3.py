@@ -40,10 +40,11 @@ def run(ctx):
     # cmd = run_py['experiment', 'run']['transmittionRadius=10', 'markerRadius=20']
     # cmd = run_py['experiment', 'run']['faces=20']
     # cmd = run_py['dp', 'add']['transmittionRadius=10', 'markerRadius=20']
-    # cmd = run_py['dp', 'add']['-n', 21, 'faces=5', 'num=10']
+    # cmd = run_py['dp', 'add']['-n', 21, 'faces=5', 'num=20']
     # cmd = run_py['dp', 'list']
     # cmd = run_py['run']
     # cmd = run_py['run', '--help']
+    cmd = run_py['query', 'run', '-bnum', 'avg(total)/num', '(faces+min)/2.0']
 
     cmd & BANG
 

@@ -5,6 +5,9 @@ import java.util.function.Consumer;
 import java.util.stream.Stream;
 
 public final class IterWithSeparator {
+    private IterWithSeparator() {
+    }
+
     public static <T> void iterWithSep(Iterable<T> iterable, Consumer<T> onMember, Runnable onSeparator) {
         Iterator<T> iterator = iterable.iterator();
         if (iterator.hasNext()) {

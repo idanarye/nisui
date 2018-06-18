@@ -41,7 +41,7 @@ public class H2QueryParser extends QueryParser<QueryChunk> {
             case ADD: return QueryChunk.ROOT.sql("(").nest(left).sql(") + (").nest(right).sql(")");
             case SUB: return QueryChunk.ROOT.sql("(").nest(left).sql(") - (").nest(right).sql(")");
             case MUL: return QueryChunk.ROOT.sql("(").nest(left).sql(") * (").nest(right).sql(")");
-            case DIV: return QueryChunk.ROOT.sql("(").nest(left).sql(") / (").nest(right).sql(")");
+            case DIV: return QueryChunk.ROOT.sql("(").nest(left).sql(") * 1.0 / (").nest(right).sql(")");
             case POW: return QueryChunk.ROOT.sql("POWER(").nest(left).sql(", ").nest(right).sql(")");
         }
         throw new Error("Unknown binary operator " + op);
@@ -63,7 +63,7 @@ public class H2QueryParser extends QueryParser<QueryChunk> {
     @Override
     public QueryChunk scalarBiFunction(ScalarBiFunction fn, QueryChunk value1, QueryChunk value2) {
         switch (fn) {
-            case ROOT: return QueryChunk.ROOT.sql("POWER(").nest(value1).sql(", 1 / (").nest(value2).sql("))");
+            case ROOT: return QueryChunk.ROOT.sql("POWER(").nest(value1).sql(", 1.0 / (").nest(value2).sql("))");
             case LOG: return QueryChunk.ROOT.sql("(LOG(").nest(value1).sql(") / LOG(").nest(value2).sql("))");
         }
         throw new Error("Unknown scalar bi-function " + fn);
@@ -76,12 +76,13 @@ public class H2QueryParser extends QueryParser<QueryChunk> {
             case MAX:
             case MIN:
             case SUM:
-            case AVG:
                 return QueryChunk.ROOT.sql(fn.toString()).sql("(").nest(value).sql(")");
+            case AVG:
+                return QueryChunk.ROOT.sql("AVG(1.0 * (").nest(value).sql("))");
             case SD:
                 return QueryChunk.ROOT.sql("STDDEV_SAMP(").nest(value).sql(")");
             case COEFF:
-                return QueryChunk.ROOT.sql("(STDDEV_SAMP(").nest(value).sql(") / AVG(").nest(value).sql("))");
+                return QueryChunk.ROOT.sql("(STDDEV_SAMP(").nest(value).sql(") / AVG(1.0 * (").nest(value).sql(")))");
         }
         throw new Error("Unknown aggregation function " + fn);
     }

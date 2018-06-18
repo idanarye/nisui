@@ -13,7 +13,6 @@ import nisui.core.DynamicExperimentValue;
 import nisui.core.DynamicExperimentValueHandler;
 
 public class QueriesTest extends TestsBase {
-
     @Test
     public void queries() throws SQLException {
         DynamicExperimentValueHandler dph = new DynamicExperimentValueHandler()
@@ -50,7 +49,8 @@ public class QueriesTest extends TestsBase {
                 "MIN(x) + SUM(x)",
             }, new String[]{"a"})) {
                 for (H2Operations.RunQuery.Row<DynamicExperimentValue> row : query) {
-                    results.put((int)row.dataPoint.getValue().get("a"), row.values);
+                    System.out.println(row);
+                    results.put((int)row.dataPoint.get("a"), row.values);
                 }
             }
 
