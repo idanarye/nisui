@@ -34,6 +34,11 @@ def compile(ctx):
 
 
 @task
+def build(ctx):
+    gradle[':core:build']['-x', 'test'] & ERUN.bang
+
+
+@task
 def run(ctx):
     pass
     # cmd = run_py['experiment', 'info']
@@ -44,7 +49,8 @@ def run(ctx):
     # cmd = run_py['dp', 'list']
     # cmd = run_py['run']
     # cmd = run_py['run', '--help']
-    cmd = run_py['query', 'run', '-bnum', 'avg(total)/num', '(faces+min)/2.0']
+    cmd = run_py['query', 'run', '-bnum', '-ffaces=6', 'avg(total)/num', '(faces+min)/2.0']
+    # cmd = run_py['query', 'run', '-bnum', 'avg(total)/num', '(faces+min)/2.0']
 
     cmd & BANG
 
@@ -76,6 +82,7 @@ def the_test_to_run(ctx):
     cli_ExperimentCommandsTests = 'nisui.cli.ExperimentCommandsTests'
     cli_DataPointCommandsTests = 'nisui.cli.DataPointCommandsTests'
     cli_ExperimentResultCommandsTests = 'nisui.cli.ExperimentResultCommandsTests'
+    cli_QueriesCommandsTests = 'nisui.cli.QueriesCommandsTests'
 
 
 @task(the_test_to_run)

@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 
 import nisui.core.*;
 import nisui.core.util.IterWithSeparator;
+import nisui.core.util.QueryChunk;
 
 public abstract class H2Operations<D, R> implements AutoCloseable {
     private static Logger logger = LoggerFactory.getLogger(H2Operations.class);
@@ -45,6 +46,13 @@ public abstract class H2Operations<D, R> implements AutoCloseable {
         } else {
             return dbRep;
         }
+    }
+
+    private static void applyQueryChunk(QueryChunk chunk, StringBuilder sql, List<Object> parameters) {
+        chunk.scan(sql::append, (param) -> {
+            sql.append(" ? ");
+            parameters.add(param);
+        });
     }
 
     public static class InsertDataPoint<D, R> extends H2Operations<D, R> implements DataPointInserter<D> {
@@ -83,22 +91,45 @@ public abstract class H2Operations<D, R> implements AutoCloseable {
     }
 
     public static class ReadDataPoints<D, R> extends H2Operations<D, R> implements DataPointsReader<D> {
-        ReadDataPoints(H2ResultsStorage<D, R>.Connection con) {
+        String[] filters;
+
+        ReadDataPoints(H2ResultsStorage<D, R>.Connection con, String... filters) {
             super(con);
+            this.filters = filters;
         }
 
         @Override
         public RSIterator iterator() {
+            LinkedList<Object> parameters = new LinkedList<>();
             if (stmt == null) {
                 StringBuilder sql = new StringBuilder();
                 sql.append("SELECT id, num_planned, num_performed");
                 for (ExperimentValuesHandler<D>.Field field : con.parent().dataPointHandler.fields()) {
                     sql.append(", ").append(field.getName());
                 }
-                sql.append(" FROM ").append(con.DATA_POINTS_TABLE_NAME).append(';');
+                sql.append(" FROM ").append(con.DATA_POINTS_TABLE_NAME);
+                if (0 < filters.length) {
+                    H2QueryParser queryParser = new H2QueryParser();
+                    for (int i = 0; i < filters.length; ++i) {
+                        if (0 == i) {
+                            sql.append(" WHERE ");
+                        } else {
+                            sql.append(" AND ");
+                        }
+                        sql.append("(");
+                        applyQueryChunk(queryParser.parseBoolean(filters[i]), sql, parameters);
+                        sql.append(")");
+                    }
+                }
+                sql.append(';');
                 stmt = con.createPreparedStatement(sql.toString());
             }
             try {
+                int i = 1;
+                for (Object parameter : parameters) {
+                    stmt.setObject(i, parameter);
+                    i += 1;
+                }
                 return new RSIterator(stmt.executeQuery());
             } catch (SQLException e) {
                 throw new RuntimeException(e);
@@ -293,7 +324,7 @@ public abstract class H2Operations<D, R> implements AutoCloseable {
                 H2QueryParser queryParser = new H2QueryParser();
                 for (String query : queries) {
                     sql.append(", (");
-                    queryParser.parseString(query).scan(sql::append, parameters::add);
+                    applyQueryChunk(queryParser.parseValue(query), sql, parameters);
                     sql.append(")");
                 }
                 sql.append(" FROM ").append(con.EXPERIMENT_RESULTS_TABLE_NAME).append(" AS er");
@@ -325,8 +356,13 @@ public abstract class H2Operations<D, R> implements AutoCloseable {
                 stmt = con.createPreparedStatement(sql.toString());
             }
             try {
+                int i = 1;
+                for (Object parameter : parameters) {
+                    stmt.setObject(i, parameter);
+                    i += 1;
+                }
                 Array array = stmt.getConnection().createArrayOf("BIGINT", dataPoints.keySet().toArray());
-                stmt.setArray(1, array);
+                stmt.setArray(i, array);
                 return new RSIterator(stmt.executeQuery());
             } catch (SQLException e) {
                 throw new RuntimeException(e);

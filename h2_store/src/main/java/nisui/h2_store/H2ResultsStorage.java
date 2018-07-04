@@ -186,8 +186,8 @@ public class H2ResultsStorage<D, R> extends ResultsStorage<D, R> {
         }
 
         @Override
-        public H2Operations.ReadDataPoints<D, R> readDataPoints() {
-            return new H2Operations.ReadDataPoints<>(this);
+        public H2Operations.ReadDataPoints<D, R> readDataPoints(String... filters) {
+            return new H2Operations.ReadDataPoints<>(this, filters);
         }
 
         @Override

@@ -2,16 +2,22 @@ package nisui.h2_store;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.List;
 
 import nisui.core.QueryParser;
 import nisui.core.util.QueryChunk;
 
-public class H2QueryParser extends QueryParser<QueryChunk> {
+public class H2QueryParser extends QueryParser<QueryChunk, QueryChunk> {
 
     @Override
     public QueryChunk numberLiteral(String literal) {
-        return QueryChunk.ROOT.sql(literal);
+        if (literal.indexOf('.') < 0) {
+            return QueryChunk.ROOT.param(Long.parseLong(literal));
+        } else {
+            return QueryChunk.ROOT.param(Double.parseDouble(literal));
+        }
     }
 
     @Override
@@ -20,7 +26,7 @@ public class H2QueryParser extends QueryParser<QueryChunk> {
     }
 
     @Override
-    public QueryChunk parenthesis(QueryChunk expr) {
+    public QueryChunk parenthesisValue(QueryChunk expr) {
         return QueryChunk.ROOT.sql("(").nest(expr).sql(")");
     }
 
@@ -85,5 +91,61 @@ public class H2QueryParser extends QueryParser<QueryChunk> {
                 return QueryChunk.ROOT.sql("(STDDEV_SAMP(").nest(value).sql(") / AVG(1.0 * (").nest(value).sql(")))");
         }
         throw new Error("Unknown aggregation function " + fn);
+    }
+
+    @Override
+    public QueryChunk comparisonChain(List<QueryChunk> values, List<ComparisonOperator> ops) {
+        QueryChunk result = QueryChunk.ROOT.sql("(");
+
+        Iterator<QueryChunk> vIt = values.iterator();
+        Iterator<ComparisonOperator> oIt = ops.iterator();
+
+        QueryChunk prevValue = vIt.next();
+        boolean firstIteration = true;
+
+        while (vIt.hasNext()) {
+            if (firstIteration) {
+                firstIteration = false;
+            } else {
+                result = result.sql(" AND ");
+            }
+
+            QueryChunk value = vIt.next();
+            ComparisonOperator op = oIt.next();
+
+            result = result.sql("(").nest(prevValue);
+            switch (op) {
+                case EQ: result = result.sql(") = ("); break;
+                case NE: result = result.sql(") != ("); break;
+                case L: result = result.sql(") < ("); break;
+                case LE: result = result.sql(") <= ("); break;
+                case G: result = result.sql(") > ("); break;
+                case GE: result = result.sql(") >= ("); break;
+            }
+            result = result.nest(value).sql(")");
+
+            prevValue = value;
+        }
+        return result.sql(")");
+    }
+
+    @Override
+    public QueryChunk parenthesisBoolean(QueryChunk pred) {
+        return QueryChunk.ROOT.sql("(").nest(pred).sql(")");
+    }
+
+    @Override
+    public QueryChunk logicalNot(QueryChunk pred) {
+        return QueryChunk.ROOT.sql("NOT (").nest(pred).sql(")");
+    }
+
+    @Override
+    public QueryChunk logicalAnd(QueryChunk left, QueryChunk right) {
+        return QueryChunk.ROOT.sql("(").nest(left).sql(") AND (").nest(right).sql(")");
+    }
+
+    @Override
+    public QueryChunk logicalOr(QueryChunk left, QueryChunk right) {
+        return QueryChunk.ROOT.sql("(").nest(left).sql(") OR (").nest(right).sql(")");
     }
 }

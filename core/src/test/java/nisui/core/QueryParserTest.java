@@ -1,17 +1,16 @@
 package nisui.core;
 
 import org.junit.*;
+
+import java.util.Iterator;
+import java.util.List;
+
 import org.assertj.core.api.Assertions;
 
-class SimpleStringParser extends QueryParser<String> {
+class SimpleStringParser extends QueryParser<String, String> {
     @Override
     public String numberLiteral(String literal) {
         return String.format("NUM[%s]", literal);
-    }
-
-    @Override
-    public String parenthesis(String expr) {
-        return expr;
     }
 
     @Override
@@ -55,28 +54,61 @@ class SimpleStringParser extends QueryParser<String> {
     public String aggregationFunction(AggregationFunction fn, String value) {
         return String.format("%s[%s]", fn, value);
     }
+
+    public String comparisonChain(List<String> values, List<ComparisonOperator> ops) {
+        StringBuilder builder = new StringBuilder();
+        Iterator<String> vIt = values.iterator();
+        Iterator<ComparisonOperator> oIt = ops.iterator();
+
+        builder.append(vIt.next());
+        while (vIt.hasNext()) {
+            builder.append(' ').append(oIt.next()).append(' ');
+            builder.append(vIt.next());
+        }
+        return String.format("CMP[%s]", builder);
+    }
+
+    public String logicalNot(String pred) {
+        return String.format("NOT[%s]", pred);
+    }
+    public String logicalAnd(String left, String right) {
+        return String.format("AND[%s,%s]", left, right);
+    }
+    public String logicalOr(String left, String right) {
+        return String.format("OR[%s,%s]", left, right);
+    }
 }
 
 public class QueryParserTest {
-    private static void assertParse(String parsedFrom, String parsedTo) {
+    private static void assertParseValue(String parsedFrom, String parsedTo) {
         SimpleStringParser parser = new SimpleStringParser();
-        String parsed = parser.parseString(parsedFrom);
+        String parsed = parser.parseValue(parsedFrom);
+        // System.out.printf("%s -> %s\n", parsedFrom, parsed);
+        Assertions.assertThat(parsed).isEqualTo(parsedTo);
+    }
+
+    private static void assertParseBoolean(String parsedFrom, String parsedTo) {
+        SimpleStringParser parser = new SimpleStringParser();
+        String parsed = parser.parseBoolean(parsedFrom);
         // System.out.printf("%s -> %s\n", parsedFrom, parsed);
         Assertions.assertThat(parsed).isEqualTo(parsedTo);
     }
 
     @Test
     public void testQueries() {
-        assertParse("12", "NUM[12]");
-        assertParse("1.2", "NUM[1.2]");
-        assertParse("-12", "MINUS[NUM[12]]");
-        assertParse("(12)", "NUM[12]");
-        assertParse("+(1.2)", "PLUS[NUM[1.2]]");
-        assertParse("1 + 2 * 3 - 4 / 5 ^ 6", "SUB[ADD[NUM[1],MUL[NUM[2],NUM[3]]],DIV[NUM[4],POW[NUM[5],NUM[6]]]]");
-        assertParse("1 - 2 - 3", "SUB[SUB[NUM[1],NUM[2]],NUM[3]]");
-        assertParse("1 - (2 - 3)", "SUB[NUM[1],SUB[NUM[2],NUM[3]]]");
-        assertParse("sqrt(pi)", "SQRT[IDENT[pi]]");
-        assertParse("sum(a )", "SUM[IDENT[a]]");
-        assertParse("RooT(a, b)", "ROOT[IDENT[a],IDENT[b]]");
+        assertParseValue("12", "NUM[12]");
+        assertParseValue("1.2", "NUM[1.2]");
+        assertParseValue("-12", "MINUS[NUM[12]]");
+        assertParseValue("(12)", "NUM[12]");
+        assertParseValue("+(1.2)", "PLUS[NUM[1.2]]");
+        assertParseValue("1 + 2 * 3 - 4 / 5 ^ 6", "SUB[ADD[NUM[1],MUL[NUM[2],NUM[3]]],DIV[NUM[4],POW[NUM[5],NUM[6]]]]");
+        assertParseValue("1 - 2 - 3", "SUB[SUB[NUM[1],NUM[2]],NUM[3]]");
+        assertParseValue("1 - (2 - 3)", "SUB[NUM[1],SUB[NUM[2],NUM[3]]]");
+        assertParseValue("sqrt(pi)", "SQRT[IDENT[pi]]");
+        assertParseValue("sum(a )", "SUM[IDENT[a]]");
+        assertParseValue("RooT(a, b)", "ROOT[IDENT[a],IDENT[b]]");
+
+        assertParseBoolean("1 <= a + b < 2", "CMP[NUM[1] LE ADD[IDENT[a],IDENT[b]] L NUM[2]]");
+        assertParseBoolean("NOT 1 >= a AND 2 != b OR c = 3", "OR[AND[NOT[CMP[NUM[1] GE IDENT[a]]],CMP[NUM[2] NE IDENT[b]]],CMP[IDENT[c] EQ NUM[3]]]");
     }
 }

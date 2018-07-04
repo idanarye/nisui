@@ -44,8 +44,11 @@ public class QueriesSubcommand extends CommandGroup {
         @CommandLine.Parameters(arity = "1..*", paramLabel = "<expr>", description = "Query Expressions")
         String[] queries;
 
-        @CommandLine.Option(names = {"-b", "--by"}, required = false, description = "Data Point fields to group-sort by")
+        @CommandLine.Option(names = {"-b", "--by"}, paramLabel = "<field>", required = false, description = "Data Point fields to group-sort by")
         String[] by;
+
+        @CommandLine.Option(names = {"-f", "--filter"}, paramLabel = "<pred>", required = false, description = "Filter Expressions")
+        String[] filters;
 
         @Override
         public void run(InputStream in, PrintStream out) {
@@ -54,7 +57,10 @@ public class QueriesSubcommand extends CommandGroup {
         }
 
         private <D, R> QueryRunner<D> createRunner(ResultsStorage<D, R>.Connection con) throws Exception {
-            try (DataPointsReader<D> dpReader = con.readDataPoints()) {
+            if (filters == null) {
+                filters = new String[0];
+            }
+            try (DataPointsReader<D> dpReader = con.readDataPoints(filters)) {
                 return con.runQuery(dpReader, queries, by);
             }
         }

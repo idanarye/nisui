@@ -34,7 +34,7 @@ public class ExperimentResultCommandsTests extends TestsBase {
     }
 
     @Test
-    public void dataPointsAddAndList() {
+    public void runExperimentAndListResults() {
         EntryPoint entryPoint = getEntryPoint(new Experiment());
         entryPoint.run("data-points", "add", "-n", "10", "a=1", "b=2");
         entryPoint.run("data-points", "add", "--num-planned", "20", "a=3", "b=4");
