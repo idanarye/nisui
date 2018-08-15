@@ -36,6 +36,11 @@ public class H2ResultsStorage<D, R> extends ResultsStorage<D, R> {
             con.prepareTable(con.EXPERIMENT_RESULTS_TABLE_NAME, experimentResultHandler,
                     new H2FieldDefinition("data_point_id", long.class),
                     new H2FieldDefinition("seed", long.class));
+            con.prepareTable(con.STORED_PLOTS_TABLE_NAME,
+                    new H2FieldDefinition("name", String.class),
+                    new H2FieldDefinition("axes", Object[].class),
+                    new H2FieldDefinition("filters", Object[].class),
+                    new H2FieldDefinition("formulas", Object[].class));
         }
     }
 
@@ -59,6 +64,7 @@ public class H2ResultsStorage<D, R> extends ResultsStorage<D, R> {
 
         final static String DATA_POINTS_TABLE_NAME = "data_points";
         final static String EXPERIMENT_RESULTS_TABLE_NAME = "experiment_results";
+        final static String STORED_PLOTS_TABLE_NAME = "stored_plots";
 
         H2ResultsStorage<D, R> parent() {
             return H2ResultsStorage.this;
@@ -104,6 +110,15 @@ public class H2ResultsStorage<D, R> extends ResultsStorage<D, R> {
                 buildTable(tableName, fields);
             } else {
                 fixTable(tableName, existingFields, fields);
+            }
+        }
+
+        public void prepareTable(String tableName, H2FieldDefinition... fields) {
+            HashMap<String, H2FieldDefinition> existingFields = getTableColumns(tableName);
+            if (existingFields == null) {
+                buildTable(tableName, Arrays.stream(fields)::iterator);
+            } else {
+                fixTable(tableName, existingFields, Arrays.stream(fields)::iterator);
             }
         }
 
@@ -203,6 +218,16 @@ public class H2ResultsStorage<D, R> extends ResultsStorage<D, R> {
         @Override
         public H2Operations.RunQuery<D, R> runQuery(Iterable<DataPoint<D>> dataPoints, String[] queries, String[] groupBy) {
             return new H2Operations.RunQuery<D, R>(this, dataPoints, queries, groupBy);
+        }
+
+        @Override
+        public H2SaveStoredPlot<D, R> saveStoredPlots() {
+            return new H2SaveStoredPlot<D, R>(this);
+        }
+
+        @Override
+        public H2ReadStoredPlots<D, R> readStoredPlots() {
+            return new H2ReadStoredPlots<D, R>(this);
         }
     }
 }

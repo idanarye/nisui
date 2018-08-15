@@ -75,6 +75,7 @@ def the_test_to_run(ctx):
     core_util_QueryChunkTest = 'nisui.core.util.QueryChunkTest'
     h2_store_BuildTablesTest = 'nisui.h2_store.BuildTablesTest'
     h2_store_FillAndReadDataTest = 'nisui.h2_store.FillAndReadDataTest'
+    h2_store_StoredPlotsTest = 'nisui.h2_store.StoredPlotsTest'
     h2_store_QueriesTest = 'nisui.h2_store.QueriesTest'
     core_DynamicValuesTest = 'nisui.core.DynamicValuesTest'
     java_runner_JavaValuesTest = 'nisui.java_runner.JavaValuesTest'

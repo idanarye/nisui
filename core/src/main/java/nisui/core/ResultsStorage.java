@@ -12,6 +12,9 @@ public abstract class ResultsStorage<D, R> {
         public abstract ExperimentResultsReader<D, R> readExperimentResults(Iterable<DataPoint<D>> dataPoints);
 
         public abstract QueryRunner<D> runQuery(Iterable<DataPoint<D>> dataPoints, String[] queries, String[] groupBy);
+
+        public abstract StoredPlotSaver saveStoredPlots();
+        public abstract StoredPlotsReader readStoredPlots();
     }
 
     public abstract ExperimentValuesHandler<D> getDataPointHandler();

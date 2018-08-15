@@ -5,16 +5,12 @@ public class PlotAxis {
 	private ScaleType scaleType;
 	private String unitName;
 	private String expression;
-	private Double min;
-	private Double max;
 
-	public PlotAxis(String caption, ScaleType scaleType, String unitName, String expression, Double min, Double max) {
+	public PlotAxis(String caption, ScaleType scaleType, String unitName, String expression) {
 		this.caption = caption;
 		this.scaleType = scaleType;
 		this.unitName = unitName;
 		this.expression = expression;
-		this.min = min;
-		this.max = max;
 	}
 
 	/**
@@ -22,30 +18,6 @@ public class PlotAxis {
 	 */
 	public String getCaption() {
 		return caption;
-	}
-	/**
-	 * @return the max
-	 */
-	public Double getMax() {
-		return max;
-	}
-	/**
-	 * @param max the max to set
-	 */
-	public void setMax(Double max) {
-		this.max = max;
-	}
-	/**
-	 * @return the min
-	 */
-	public Double getMin() {
-		return min;
-	}
-	/**
-	 * @param min the min to set
-	 */
-	public void setMin(Double min) {
-		this.min = min;
 	}
 	/**
 	 * @return the expression
@@ -88,5 +60,13 @@ public class PlotAxis {
 	 */
 	public void setCaption(String caption) {
 		this.caption = caption;
+	}
+
+	@Override
+	public String toString() {
+		return String.format(
+				"%s(%s, scale=%s, unit=%s, expression=%s)",
+				getClass().getSimpleName(),
+				caption, scaleType, unitName, expression);
 	}
 }

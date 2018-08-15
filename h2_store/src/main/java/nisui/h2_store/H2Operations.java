@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 import nisui.core.*;
 import nisui.core.util.IterWithSeparator;
 import nisui.core.util.QueryChunk;
+import nisui.core.util.ResultSetIterator;
 
 public abstract class H2Operations<D, R> implements AutoCloseable {
     private static Logger logger = LoggerFactory.getLogger(H2Operations.class);
@@ -99,7 +100,7 @@ public abstract class H2Operations<D, R> implements AutoCloseable {
         }
 
         @Override
-        public RSIterator iterator() {
+        public Iterator<DataPoint<D>> iterator() {
             LinkedList<Object> parameters = new LinkedList<>();
             if (stmt == null) {
                 StringBuilder sql = new StringBuilder();
@@ -125,51 +126,24 @@ public abstract class H2Operations<D, R> implements AutoCloseable {
                 stmt = con.createPreparedStatement(sql.toString());
             }
             try {
-                int i = 1;
-                for (Object parameter : parameters) {
-                    stmt.setObject(i, parameter);
-                    i += 1;
+                {
+                    int i = 1;
+                    for (Object parameter : parameters) {
+                        stmt.setObject(i, parameter);
+                        i += 1;
+                    }
                 }
-                return new RSIterator(stmt.executeQuery());
+                return new ResultSetIterator<>(stmt.executeQuery(), rs -> {
+                    D value = con.parent().dataPointHandler.createValue();
+                    int i = 4;
+                    for (ExperimentValuesHandler<D>.Field field : con.parent().dataPointHandler.fields()) {
+                        field.set(value, fromDbRep(field, rs.getObject(i)));
+                        ++i;
+                    }
+                    return new H2DataPoint<>(rs.getLong(1), rs.getLong(2), rs.getLong(3), value);
+                });
             } catch (SQLException e) {
                 throw new RuntimeException(e);
-            }
-        }
-
-        private class RSIterator implements Iterator<DataPoint<D>> {
-            private ResultSet rs;
-            private H2DataPoint<D> next;
-
-            public RSIterator(ResultSet rs) {
-                this.rs = rs;
-                next = null;
-                next();
-            }
-
-            @Override
-            public boolean hasNext() {
-                return next != null;
-            }
-
-            @Override
-            public H2DataPoint<D> next() {
-                try {
-                    H2DataPoint<D> currentNext = next;
-                    if (rs.next()) {
-                        D value = con.parent().dataPointHandler.createValue();
-                        int i = 4;
-                        for (ExperimentValuesHandler<D>.Field field : con.parent().dataPointHandler.fields()) {
-                            field.set(value, fromDbRep(field, rs.getObject(i)));
-                            ++i;
-                        }
-                        next = new H2DataPoint<>(rs.getLong(1), rs.getLong(2), rs.getLong(3), value);
-                    } else {
-                        next = null;
-                    }
-                    return currentNext;
-                } catch (SQLException e) {
-                    throw new RuntimeException(e);
-                }
             }
         }
     }
@@ -238,7 +212,7 @@ public abstract class H2Operations<D, R> implements AutoCloseable {
         }
 
         @Override
-        public RSIterator iterator() {
+        public Iterator<ExperimentResult<D, R>> iterator() {
             if (stmt == null) {
                 StringBuilder sql = new StringBuilder();
                 sql.append("SELECT id");
@@ -255,46 +229,17 @@ public abstract class H2Operations<D, R> implements AutoCloseable {
             try {
                 Array array = stmt.getConnection().createArrayOf("BIGINT", dataPoints.keySet().toArray());
                 stmt.setArray(1, array);
-                return new RSIterator(stmt.executeQuery());
+                return new ResultSetIterator<>(stmt.executeQuery(), rs -> {
+                    R value = con.parent().experimentResultHandler.createValue();
+                    int i = 4;
+                    for (ExperimentValuesHandler<R>.Field field : con.parent().experimentResultHandler.fields()) {
+                        field.set(value, fromDbRep(field, rs.getObject(i)));
+                        ++i;
+                    }
+                    return new H2ExperimentResult<>(rs.getLong(1), dataPoints.get(rs.getLong(2)), rs.getLong(3), value);
+                });
             } catch (SQLException e) {
                 throw new RuntimeException(e);
-            }
-        }
-
-        private class RSIterator implements Iterator<ExperimentResult<D, R>> {
-            private ResultSet rs;
-            private H2ExperimentResult<D, R> next;
-
-            public RSIterator(ResultSet rs) {
-                this.rs = rs;
-                next = null;
-                next();
-            }
-
-            @Override
-            public boolean hasNext() {
-                return next != null;
-            }
-
-            @Override
-            public H2ExperimentResult<D, R> next() {
-                try {
-                    H2ExperimentResult<D, R> currentNext = next;
-                    if (rs.next()) {
-                        R value = con.parent().experimentResultHandler.createValue();
-                        int i = 4;
-                        for (ExperimentValuesHandler<R>.Field field : con.parent().experimentResultHandler.fields()) {
-                            field.set(value, fromDbRep(field, rs.getObject(i)));
-                            ++i;
-                        }
-                        next = new H2ExperimentResult<>(rs.getLong(1), dataPoints.get(rs.getLong(2)), rs.getLong(3), value);
-                    } else {
-                        next = null;
-                    }
-                    return currentNext;
-                } catch (SQLException e) {
-                    throw new RuntimeException(e);
-                }
             }
         }
     }
@@ -316,7 +261,7 @@ public abstract class H2Operations<D, R> implements AutoCloseable {
         }
 
         @Override
-        public RSIterator iterator() {
+        public Iterator<RunQuery.Row<D>> iterator() {
             LinkedList<Object> parameters = new LinkedList<>();
             if (stmt == null) {
                 StringBuilder sql = new StringBuilder();
@@ -356,52 +301,25 @@ public abstract class H2Operations<D, R> implements AutoCloseable {
                 stmt = con.createPreparedStatement(sql.toString());
             }
             try {
-                int i = 1;
-                for (Object parameter : parameters) {
-                    stmt.setObject(i, parameter);
-                    i += 1;
+                {
+                    int i = 1;
+                    for (Object parameter : parameters) {
+                        stmt.setObject(i, parameter);
+                        i += 1;
+                    }
+                    Array array = stmt.getConnection().createArrayOf("BIGINT", dataPoints.keySet().toArray());
+                    stmt.setArray(i, array);
                 }
-                Array array = stmt.getConnection().createArrayOf("BIGINT", dataPoints.keySet().toArray());
-                stmt.setArray(i, array);
-                return new RSIterator(stmt.executeQuery());
+                return new ResultSetIterator<>(stmt.executeQuery(), rs -> {
+                    R value = con.parent().experimentResultHandler.createValue();
+                    double[] values = new double[queries.length];
+                    for (int i = 0; i < values.length; ++i) {
+                        values[i] = rs.getDouble(i + 2);
+                    }
+                    return new RunQuery.Row<>(dataPoints.get(rs.getLong(1)).getValue(), values);
+                });
             } catch (SQLException e) {
                 throw new RuntimeException(e);
-            }
-        }
-
-        private class RSIterator implements Iterator<RunQuery.Row<D>> {
-            private ResultSet rs;
-            private RunQuery.Row<D> next;
-
-            public RSIterator(ResultSet rs) {
-                this.rs = rs;
-                next = null;
-                next();
-            }
-
-            @Override
-            public boolean hasNext() {
-                return next != null;
-            }
-
-            @Override
-            public RunQuery.Row<D> next() {
-                try {
-                    RunQuery.Row<D> currentNext = next;
-                    if (rs.next()) {
-                        R value = con.parent().experimentResultHandler.createValue();
-                        double[] values = new double[queries.length];
-                        for (int i = 0; i < values.length; ++i) {
-                            values[i] = rs.getDouble(i + 2);
-                        }
-                        next = new RunQuery.Row<>(dataPoints.get(rs.getLong(1)).getValue(), values);
-                    } else {
-                        next = null;
-                    }
-                    return currentNext;
-                } catch (SQLException e) {
-                    throw new RuntimeException(e);
-                }
             }
         }
     }

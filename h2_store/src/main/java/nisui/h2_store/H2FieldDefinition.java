@@ -35,6 +35,9 @@ public class H2FieldDefinition {
         if (type.isEnum()) {
             return "VARCHAR";
         }
+        if (type.isArray()) {
+            return "ARRAY";
+        }
         return null;
     }
 
@@ -60,6 +63,8 @@ public class H2FieldDefinition {
                 return float.class;
             case "VARCHAR":
                 return String.class;
+            case "ARRAY":
+                return Object[].class;
             default:
                 return null;
         }

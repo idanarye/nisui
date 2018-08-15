@@ -85,4 +85,11 @@ public class PlotFormula {
 		this.caption = caption;
 	}
 
+	@Override
+	public String toString() {
+		return String.format(
+				"%s(%s, symbol=%s, scaleType=%s, unit=%s, expression=%s)",
+				getClass().getSimpleName(),
+				caption, symbol, scaleType, unitName, expression);
+	}
 }

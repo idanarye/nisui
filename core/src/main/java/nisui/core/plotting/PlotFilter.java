@@ -69,4 +69,11 @@ public class PlotFilter {
 		this.caption = caption;
 	}
 
+	@Override
+	public String toString() {
+		return String.format(
+				"%s(%s, filterType=%s, unit=%s, expression=%s)",
+				getClass().getSimpleName(),
+				caption, filterType, unitName, expression);
+	}
 }
