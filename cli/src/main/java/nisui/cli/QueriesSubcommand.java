@@ -16,6 +16,7 @@ import nisui.core.NisuiFactory;
 import nisui.core.ResultsStorage;
 import nisui.core.util.SortedByAppereanceIn;
 import nisui.core.QueryRunner;
+import nisui.core.ExperimentFunctionCreationException;
 
 @CommandLine.Command(
 name = "experiment",
@@ -52,7 +53,12 @@ public class QueriesSubcommand extends CommandGroup {
 
         @Override
         public void run(InputStream in, PrintStream out) {
-            ResultsStorage<?, ?> storage = nisuiFactory.createResultsStorage();
+            ResultsStorage<?, ?> storage;
+            try {
+                storage = nisuiFactory.createResultsStorage();
+            } catch (ExperimentFunctionCreationException e) {
+                throw new ExitException(e.getMessage());
+            }
             run(out, storage);
         }
 

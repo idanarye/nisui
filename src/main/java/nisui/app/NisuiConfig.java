@@ -35,7 +35,7 @@ public class NisuiConfig implements NisuiFactory {
     private ExperimentFunction<?, ?> experimentFunction = null;
 
     @Override
-    public ExperimentFunction<?, ?> createExperimentFunction() {
+    public ExperimentFunction<?, ?> createExperimentFunction() throws ExperimentFunctionCreationException {
         if (experimentFunction == null) {
             URI entry = null;
             URI[] dependencies = new URI[experiment.dependencies == null ? 0 : experiment.dependencies.length];
@@ -53,7 +53,7 @@ public class NisuiConfig implements NisuiFactory {
     }
 
     @Override
-    public ResultsStorage<?, ?> createResultsStorage() {
+    public ResultsStorage<?, ?> createResultsStorage() throws ExperimentFunctionCreationException {
         ExperimentFunction<?, ?> experimentFunction = createExperimentFunction();
         String databasePath;
         try {

@@ -25,6 +25,7 @@ public abstract class CommandGroup extends SubCommand {
 
     @Override
     public void run(InputStream in, PrintStream out) {
+        return;
     }
 
     protected CommandGroup(NisuiFactory nisuiFactory) {

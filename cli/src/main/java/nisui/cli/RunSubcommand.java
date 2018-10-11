@@ -34,8 +34,14 @@ public class RunSubcommand extends SubCommand {
 
     @Override
     public void run(InputStream in, PrintStream out) {
-        ResultsStorage<?, ?> storage = nisuiFactory.createResultsStorage();
-        ExperimentFunction<?, ?> experimentFunction = nisuiFactory.createExperimentFunction();
+        ResultsStorage<?, ?> storage;
+        ExperimentFunction<?, ?> experimentFunction;
+        try {
+            storage = nisuiFactory.createResultsStorage();
+            experimentFunction = nisuiFactory.createExperimentFunction();
+        } catch (ExperimentFunctionCreationException e) {
+            throw new ExitException(e.getMessage());
+        }
         run(out, storage, experimentFunction);
     }
 

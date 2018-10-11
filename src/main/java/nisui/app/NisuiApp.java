@@ -20,6 +20,7 @@ import nisui.core.*;
 import nisui.java_runner.JavaExperimentFunction;
 import nisui.java_runner.JavaExperimentValuesHandler;
 import nisui.cli.EntryPoint;
+import nisui.cli.ExitException;
 
 public class NisuiApp {
     private static Logger logger = LoggerFactory.getLogger(NisuiApp.class);
@@ -29,7 +30,12 @@ public class NisuiApp {
         YamlReader yamlReader = new YamlReader(new FileReader("nisui.yaml"));
         NisuiConfig config = yamlReader.read(NisuiConfig.class);
         EntryPoint entryPoint = new EntryPoint(config);
-        entryPoint.run(System.in, System.out, args);
+        try {
+            entryPoint.run(System.in, System.out, args);
+        } catch (ExitException e) {
+            System.err.println(e.getMessage());
+            System.exit(1);
+        }
         /*
         JavaExperimentFunction<Object, ?> runner = JavaExperimentFunction.load(new URI(args[0]), Arrays.stream(args).skip(1).map(arg -> {
             try {

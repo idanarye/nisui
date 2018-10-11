@@ -33,7 +33,7 @@ public class JavaExperimentValuesHandler<T> extends ExperimentValuesHandler<T> {
 	@Override
 	public T createValue() {
 		try {
-			return clazz.newInstance();
+			return clazz.getDeclaredConstructor().newInstance();
 		} catch (RuntimeException e) {
 			throw e;
 		} catch (Exception e) {

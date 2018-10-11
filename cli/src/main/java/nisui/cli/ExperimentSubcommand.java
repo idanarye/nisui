@@ -9,6 +9,7 @@ import java.util.List;
 import nisui.core.ExperimentFunction;
 import nisui.core.ExperimentValuesHandler;
 import nisui.core.NisuiFactory;
+import nisui.core.ExperimentFunctionCreationException;
 
 @CommandLine.Command(
 name = "experiment",
@@ -36,7 +37,12 @@ public class ExperimentSubcommand extends CommandGroup {
 
         @Override
         public void run(InputStream in, PrintStream out) {
-            ExperimentFunction<?, ?> experimentFunction = nisuiFactory.createExperimentFunction();
+            ExperimentFunction<?, ?> experimentFunction;
+            try {
+                experimentFunction = nisuiFactory.createExperimentFunction();
+            } catch (ExperimentFunctionCreationException e) {
+                throw new ExitException(e.getMessage());
+            }
             printHandler("Data Points", experimentFunction.getDataPointHandler(), out);
             printHandler("Experiment Results", experimentFunction.getExperimentResultHandler(), out);
         }
@@ -78,7 +84,12 @@ public class ExperimentSubcommand extends CommandGroup {
 
         @Override
         public void run(InputStream in, PrintStream out) {
-            ExperimentFunction<?, ?> experimentFunction = nisuiFactory.createExperimentFunction();
+            ExperimentFunction<?, ?> experimentFunction;
+            try {
+                experimentFunction = nisuiFactory.createExperimentFunction();
+            } catch (ExperimentFunctionCreationException e) {
+                throw new ExitException(e.getMessage());
+            }
             run(out, experimentFunction);
         }
 

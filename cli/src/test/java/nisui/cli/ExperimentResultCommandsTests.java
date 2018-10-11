@@ -11,7 +11,7 @@ import org.assertj.core.api.Assertions;
 import nisui.java_runner.JavaExperimentFunction;
 
 public class ExperimentResultCommandsTests extends TestsBase {
-    static class Experiment extends JavaExperimentFunction<Experiment.DP, Experiment.R> {
+    public static class Experiment {
         public static class DP {
             public int a;
             public int b;
@@ -23,7 +23,6 @@ public class ExperimentResultCommandsTests extends TestsBase {
             public long origSeed;
         }
 
-        @Override
         public R runExperiment(DP dp, long seed) {
             R r = new R();
             r.sum = dp.a + dp.b;

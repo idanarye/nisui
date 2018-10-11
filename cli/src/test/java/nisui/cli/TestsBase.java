@@ -19,8 +19,8 @@ public abstract class TestsBase {
 		return new File(dbFolder.getRoot(), "test-db").getAbsolutePath();
 	}
 
-	public EntryPoint getEntryPoint(JavaExperimentFunction experimentFunction) {
-		return new EntryPoint(new TestsFactory(experimentFunction));
+	public EntryPoint getEntryPoint(Object experimentFunction) {
+		return new EntryPoint(new TestsFactory(new JavaExperimentFunction(experimentFunction)));
 	}
 
 	private class TestsFactory implements NisuiFactory {

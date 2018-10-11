@@ -16,6 +16,7 @@ import nisui.core.ExperimentResultInserter;
 import nisui.core.ExperimentValuesHandler;
 import nisui.core.NisuiFactory;
 import nisui.core.ResultsStorage;
+import nisui.core.ExperimentFunctionCreationException;
 
 @CommandLine.Command(
 name = "data-points",
@@ -49,7 +50,12 @@ public class DataPointSubcommand extends CommandGroup {
 
         @Override
         public void run(InputStream in, PrintStream out) {
-            ResultsStorage<?, ?> storage = nisuiFactory.createResultsStorage();
+            ResultsStorage<?, ?> storage;
+            try {
+                storage = nisuiFactory.createResultsStorage();
+            } catch (ExperimentFunctionCreationException e) {
+                throw new ExitException(e.getMessage());
+            }
             run(out, storage);
         }
 
@@ -77,7 +83,12 @@ public class DataPointSubcommand extends CommandGroup {
 
         @Override
         public void run(InputStream in, PrintStream out) {
-            ResultsStorage<?, ?> storage = nisuiFactory.createResultsStorage();
+            ResultsStorage<?, ?> storage;
+            try {
+                storage = nisuiFactory.createResultsStorage();
+            } catch (ExperimentFunctionCreationException e) {
+                throw new ExitException(e.getMessage());
+            }
             run(out, storage);
         }
 

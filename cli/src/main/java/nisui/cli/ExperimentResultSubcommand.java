@@ -36,7 +36,12 @@ public class ExperimentResultSubcommand extends CommandGroup {
 
         @Override
         public void run(InputStream in, PrintStream out) {
-            ResultsStorage<?, ?> storage = nisuiFactory.createResultsStorage();
+            ResultsStorage<?, ?> storage;
+            try {
+                storage = nisuiFactory.createResultsStorage();
+            } catch (ExperimentFunctionCreationException e) {
+                throw new ExitException(e.getMessage());
+            }
             run(out, storage);
         }
 

@@ -1,8 +1,6 @@
 import java.util.Random;
 
-import nisui.java_runner.JavaExperimentFunction;
-
-public class DiceRoll extends JavaExperimentFunction<DiceRoll.DP, DiceRoll.R> {
+public class DiceRoll {
     public static class DP {
         public int min = 1;
         public int faces = 6;
@@ -13,7 +11,6 @@ public class DiceRoll extends JavaExperimentFunction<DiceRoll.DP, DiceRoll.R> {
         public int total;
     }
 
-    @Override
     public R runExperiment(DP dp, long seed) {
         if (dp.min == 2) {
             throw new RuntimeException("YUP");

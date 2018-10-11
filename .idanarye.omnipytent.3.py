@@ -49,8 +49,8 @@ def run(ctx):
     # cmd = run_py['dp', 'list']
     # cmd = run_py['run']
     # cmd = run_py['run', '--help']
-    cmd = run_py['query', 'run', '-bnum', '-ffaces=6', 'avg(total)/num', '(faces+min)/2.0']
-    # cmd = run_py['query', 'run', '-bnum', 'avg(total)/num', '(faces+min)/2.0']
+    # cmd = run_py['query', 'run', '-bnum', '-ffaces=6', 'avg(total)/num', '(faces+min)/2.0']
+    cmd = run_py['query', 'run', '-bnum', 'avg(total)/num', '(faces+min)/2.0']
 
     cmd & BANG
 
