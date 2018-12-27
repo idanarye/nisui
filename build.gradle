@@ -116,6 +116,12 @@ project(":simple_reactor") {
    }
 }
 
+project(":gui") {
+   dependencies {
+      compile project(':core')
+   }
+}
+
 
 // App project's settings
 

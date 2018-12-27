@@ -19,7 +19,7 @@ import nisui.core.QueryRunner;
 import nisui.core.ExperimentFunctionCreationException;
 
 @CommandLine.Command(
-name = "experiment",
+name = "queries",
 description = "Commands for running queries on experiment results.")
 public class QueriesSubcommand extends CommandGroup {
     private static Logger logger = LoggerFactory.getLogger(QueriesSubcommand.class);

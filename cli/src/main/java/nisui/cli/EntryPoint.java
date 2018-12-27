@@ -28,6 +28,9 @@ public class EntryPoint {
     public void run(InputStream in, PrintStream out, String... args) {
         CommandLine commandLine = new CommandLine(this);
 
+        StartGuiSubcommand mainCommand = new StartGuiSubcommand(nisuiFactory);
+        mainCommand.register(commandLine);
+
         new ExperimentSubcommand(nisuiFactory).register(commandLine);
         new DataPointSubcommand(nisuiFactory).register(commandLine);
         new ExperimentResultSubcommand(nisuiFactory).register(commandLine);
@@ -77,7 +80,7 @@ public class EntryPoint {
         }
 
         if (!ranSomething) {
-            commandLine.usage(out);
+            mainCommand.run(in, out);
         }
     }
 
