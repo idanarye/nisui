@@ -10,6 +10,7 @@ if args:
     # print(args, flush=True)
     # print(list(map(json.dumps, args)), flush=True)
     # exec_args.append('-Pargs=%s' % ' '.join(map(json.dumps, args)))
-    exec_args.append('-Pargs=%s' % ' '.join(args))
+    # exec_args.append('-Pargs=%s' % ' '.join(args))
+    exec_args.append('--args=%s' % ' '.join(args))
 
 os.execlp(*exec_args)
