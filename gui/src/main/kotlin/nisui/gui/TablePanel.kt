@@ -1,6 +1,7 @@
 package nisui.gui
 
 import kotlin.reflect.*
+import kotlin.reflect.jvm.*
 
 import javax.swing.*
 import javax.swing.table.*
@@ -38,6 +39,10 @@ abstract class TablePanel<T>: JScrollPane() {
                 columns[col].invokeSetter(item, value)
                 fireTableCellUpdated(row, col)
             }
+
+            override fun getColumnClass(col: Int): Class<*> {
+                return columns[col].returnType() as Class<*>
+            }
         })
 
     }
@@ -46,5 +51,10 @@ abstract class TablePanel<T>: JScrollPane() {
 class Column<T, V>(val caption: String, val getter: T.() -> V, val setter: T.(V) -> Unit) {
     fun invokeSetter(item: T, value: Any?) {
         item.setter(value as V)
+    }
+
+    fun returnType(): Class<V> {
+        val getter = getter as KCallable<V>
+        return getter.returnType.javaType as Class<V>
     }
 }
