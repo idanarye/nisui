@@ -1,5 +1,7 @@
 language: java
 
+script: xvfb-run ./gradlew check
+
 # Shamelessly copied from https://www.hoverbear.org/2015/03/07/rust-travis-github-pages/#givingtravispermissions and modified for Java
 after_success: |
   [ $TRAVIS_BRANCH = master ] &&
