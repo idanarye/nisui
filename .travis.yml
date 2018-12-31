@@ -4,7 +4,7 @@ language: java
 after_success: |
   [ $TRAVIS_BRANCH = master ] &&
   [ $TRAVIS_PULL_REQUEST = false ] &&
-  gradle javadoc_all &&
+  gradle javadocAll &&
   pip install ghp-import --user && export PATH=$HOME/.local/bin:$PATH &&
   ghp-import -n build/javadoc &&
   git push -fq https://${GH_TOKEN}@github.com/${TRAVIS_REPO_SLUG}.git gh-pages

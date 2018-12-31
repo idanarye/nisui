@@ -92,7 +92,6 @@ project(":cli") {
        implementation(project(":simple_reactor"))
 
        testImplementation("org.assertj:assertj-core:3.8.0")
-       testImplementation("org.assertj:assertj-swing-junit:3.8.0")
 
        testImplementation(project(":java_runner"))
        testImplementation(project(":h2_store"))
@@ -112,6 +111,10 @@ project(":gui") {
    dependencies {
       implementation(project(":core"))
       implementation(kotlin("reflect"))
+      testImplementation("org.assertj:assertj-swing-junit:3.8.0")
+
+      testImplementation(project(":h2_store"))
+      testImplementation(project(":java_runner"))
    }
 }
 

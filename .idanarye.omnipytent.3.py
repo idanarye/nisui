@@ -35,6 +35,7 @@ def class_exec_cmd(class_name):
 @task
 def compile(ctx):
     gradle['build']['-x', 'test'] & ERUN.bang
+    # gradle['build'] & ERUN.bang
 
 
 @task

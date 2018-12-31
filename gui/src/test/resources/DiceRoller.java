@@ -1,35 +1,25 @@
-import nisui.java_runner.JavaExperimentFunction;
-
 import java.util.Random;
 
-import lombok.*;
+public class DiceRoller {
+    public static class DataPoint {
+        public int minValue;
+        public int maxValue;
+        public int numDice;
+    }
 
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-class DataPoint {
-	private int minValue;
-	private int maxValue;
-	private int numDice;
-}
+    public static class ExperimentResult {
+        public int totalResult;
+    }
 
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-class ExperimentResult {
-	private int totalResult;
-}
-
-public class DiceRoller extends JavaExperimentFunction<DataPoint, ExperimentResult> {
-	@Override
-	public ExperimentResult runExperiment(DataPoint dataPoint, long seed) {
-		Random random = new Random(seed);
-		int offset = dataPoint.getMinValue();
-		int rangeSize = dataPoint.getMaxValue();
-		int total = 0;
-		for (int i = 0; i < dataPoint.getNumDice; ++ i) {
-			total += offset + random.nextInt(rangeSize);
-		}
-		return new ExperimentResult(total);
-	}
+    public ExperimentResult runExperiment(DataPoint dataPoint, long seed) {
+        Random random = new Random(seed);
+        final int rangeSize = dataPoint.maxValue - dataPoint.minValue;
+        int total = 0;
+        for (int i = 0; i < dataPoint.numDice; ++ i) {
+            total += dataPoint.minValue + random.nextInt(rangeSize);
+        }
+        ExperimentResult result = new ExperimentResult();
+        result.totalResult = total;
+        return result;
+    }
 }
