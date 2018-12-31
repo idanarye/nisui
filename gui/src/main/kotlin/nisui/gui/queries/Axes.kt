@@ -1,14 +1,43 @@
 package nisui.gui.queries
 
 import javax.swing.*
+import javax.swing.table.*
 import java.awt.GridBagLayout
 import java.awt.GridBagConstraints
 import java.awt.FlowLayout
 
+import nisui.core.plotting.*
+
 import nisui.gui.*
 
-/* class AxesPanel(val parent: PlotSettingPanel): JPanel(GridBagLayout()) { */
-class AxesPanel(val parent: PlotSettingPanel): TablePanel<AxisRow>(AxisRow::class) {
+class AxesPanel(val parent: PlotSettingPanel): TablePanel<PlotAxis>() {
+    init {
+        parent.entry.getAxes().add(PlotAxis("X", ScaleType.LINEAR, "things", "1 + 2"))
+        parent.entry.getAxes().add(PlotAxis("Y", ScaleType.LOGARITHMIC, "stuff", "3 * 4"))
+        /* setModel(AxisModel()) */
+        /* with(getColumnModel()) { */
+            /* getColumn(0).setHeaderValue("hi") */
+            /* getColumn(1).setHeaderValue("hi") */
+            /* getColumn(2).setHeaderValue("hi") */
+            /* getColumn(3).setHeaderValue("hi") */
+        /* } */
+        table.getModel().addTableModelListener {
+            println("Need to update: ${parent.entry}")
+        }
+    }
+
+    override protected fun getRowsSource(): List<PlotAxis> {
+        return parent.entry.getAxes()
+    }
+
+    override protected fun populateColumns() {
+        columns.add(Column("Caption", PlotAxis::getCaption, PlotAxis::setCaption))
+        columns.add(Column("Scale Type", PlotAxis::getScaleType, PlotAxis::setScaleType))
+        columns.add(Column("Unit Name", PlotAxis::getUnitName, PlotAxis::setUnitName))
+        columns.add(Column("Expression", PlotAxis::getExpression, PlotAxis::setExpression))
+    }
+
+/* class AxesPanel(val parent: PlotSettingPanel): TablePanel<AxisRow>(AxisRow::class) { */
     /* init { */
         /* add(JLabel("AXES"), constraints { */
             /* gridx = 0 */
@@ -41,14 +70,20 @@ class AxesPanel(val parent: PlotSettingPanel): TablePanel<AxisRow>(AxisRow::clas
         /* }) */
     /* } */
 
-    override fun createNewRow(): AxisRow {
-        return AxisRow()
-    }
+    /* override fun createNewRow(): AxisRow { */
+        /* return AxisRow() */
+    /* } */
 }
 
-class AxisRow {
-    @Column("Caption") val caption = JTextField()
-    @Column("Scale Type") val scaleType = JTextField()
-    @Column("Unit Name") val unitName = JTextField()
-    @Column("Expression") val expression = JTextField()
-}
+/* class AxisModel: AbstractTableModel() { */
+    /* override fun getColumnCount(): Int = 4 */
+    /* override fun getRowCount(): Int = 1 */
+    /* override fun getValueAt(row: Int, col: Int) = 12 */
+/* } */
+
+/* class AxisRow { */
+    /* @Column("Caption") val caption = JTextField() */
+    /* @Column("Scale Type") val scaleType = JTextField() */
+    /* @Column("Unit Name") val unitName = JTextField() */
+    /* @Column("Expression") val expression = JTextField() */
+/* } */

@@ -3,62 +3,48 @@ package nisui.gui
 import kotlin.reflect.*
 
 import javax.swing.*
-import java.awt.GridBagLayout
-import java.awt.GridBagConstraints
+import javax.swing.table.*
+import java.awt.BorderLayout
 import java.awt.Color
 
-abstract class TablePanel<Row: Any>(val cls: KClass<Row>): JPanel(GridBagLayout()) {
-    val columns = cls.members.asSequence().map {member ->
-        if (member is KCallable<*>) {
-            (member.annotations.find({it is Column}))?.let {ann ->
-                ann as Column to member as KCallable<JComponent>
-            }
-        } else {
-            null
-        }
-    }.filterNotNull().withIndex().map {(index, item) ->
-        val (ann, field) = item
-        Triple(index, ann, field)
-    }.toList()
+/* abstract class TablePanel: JPanel(BorderLayout()) { */
+abstract class TablePanel<T>: JScrollPane() {
+    val table = JTable()
+    val columns = mutableListOf<Column<T, *>>()
 
-    val rows = mutableListOf<Row>()
-
-    val addRowButton = JButton("+")
+    protected abstract fun getRowsSource(): List<T>;
+    protected abstract fun populateColumns();
 
     init {
-        for ((index, ann, _) in columns) {
-            val label = JLabel(ann.caption)
-            add(label, constraints {
-                gridx = index
-                gridy = 0
-            })
-            label.setBorder(BorderFactory.createLineBorder(Color.black))
-        }
-        add(addRowButton, constraints {
-            gridx = 0
-            /* gridwidth = columns.size */
-            gridy = 1
+        /* add(table.getTableHeader(), BorderLayout.NORTH); */
+        /* add(table, BorderLayout.CENTER) */
+        setViewportView(table)
+        table.setFillsViewportHeight(true)
+        populateColumns()
+        table.setModel(object: AbstractTableModel() {
+            override fun getColumnCount(): Int {
+                return columns.size
+            }
+            override fun getColumnName(col: Int): String = columns[col].caption
+            override fun getRowCount(): Int = getRowsSource().size
+            override fun getValueAt(row: Int, col: Int): Any? {
+                val item = getRowsSource()[row]
+                return columns[col].getter(item)
+            }
+
+            override fun isCellEditable(row: Int, col: Int) = true
+            override fun setValueAt(value: Any, row: Int, col: Int) {
+                val item = getRowsSource()[row]
+                columns[col].invokeSetter(item, value)
+                fireTableCellUpdated(row, col)
+            }
         })
-        addRowButton.addActionListener {
-            addRow(createNewRow())
-        }
-    }
 
-    fun addRow(row: Row) {
-        rows.add(row)
-        for ((index, _, field) in columns) {
-            val field = field.call(row)
-            add(field, constraints {
-                gridx = index
-                gridy = rows.size
-                println("$gridx $gridy")
-            })
-        }
-        repaint()
     }
-
-    abstract fun createNewRow(): Row
 }
 
-annotation class Column(val caption: String) {
+class Column<T, V>(val caption: String, val getter: T.() -> V, val setter: T.(V) -> Unit) {
+    fun invokeSetter(item: T, value: Any?) {
+        item.setter(value as V)
+    }
 }

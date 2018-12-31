@@ -5,9 +5,12 @@ import java.awt.GridBagLayout
 import java.awt.GridBagConstraints
 import java.awt.FlowLayout
 
+import nisui.core.plotting.*
+
 import nisui.gui.*
 
 public class PlotSettingPanel(val parent: PlotsPanel): JPanel(GridBagLayout()) {
+    var entry = PlotEntry.buildNew("")!!
     val axesPanel = AxesPanel(this)
 
     init {
