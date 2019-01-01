@@ -12,24 +12,23 @@ import nisui.gui.*
 
 class FiltersTable(val parent: PlotSettingPanel): TablePanel<PlotFilter>() {
     init {
-        parent.entry.getFilters().add(PlotFilter("X", FilterType.NUMERIC_SINGLE, "things", "1 + 2"))
         table.getModel().addTableModelListener {
             parent.plotUpdated()
         }
     }
 
     override protected fun getRowsSource(): List<PlotFilter> {
-        return parent.entry.getFilters()
+        return parent.focusedPlot.getFilters()
     }
 
     override protected fun addNewEntry(): PlotFilter {
         val entry = PlotFilter("", FilterType.NUMERIC_SINGLE, "", "")
-        parent.entry.getFilters().add(entry)
+        parent.focusedPlot.getFilters().add(entry)
         return entry
     }
 
     override protected fun deleteEntry(index: Int) {
-        parent.entry.getFilters().removeAt(index)
+        parent.focusedPlot.getFilters().removeAt(index)
     }
 
     override protected fun populateColumns() {

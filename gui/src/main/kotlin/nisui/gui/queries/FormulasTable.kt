@@ -12,24 +12,23 @@ import nisui.gui.*
 
 class FormulasTable(val parent: PlotSettingPanel): TablePanel<PlotFormula>() {
     init {
-        parent.entry.getFormulas().add(PlotFormula("X", "\\alpha", ScaleType.LINEAR, "things", "1 + 2"))
         table.getModel().addTableModelListener {
             parent.plotUpdated()
         }
     }
 
     override protected fun getRowsSource(): List<PlotFormula> {
-        return parent.entry.getFormulas()
+        return parent.focusedPlot.getFormulas()
     }
 
     override protected fun addNewEntry(): PlotFormula {
         val entry = PlotFormula("", "", ScaleType.LINEAR, "", "")
-        parent.entry.getFormulas().add(entry)
+        parent.focusedPlot.getFormulas().add(entry)
         return entry
     }
 
     override protected fun deleteEntry(index: Int) {
-        parent.entry.getFormulas().removeAt(index)
+        parent.focusedPlot.getFormulas().removeAt(index)
     }
 
     override protected fun populateColumns() {

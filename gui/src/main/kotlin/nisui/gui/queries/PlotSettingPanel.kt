@@ -11,51 +11,54 @@ import nisui.core.plotting.*
 import nisui.gui.*
 
 public class PlotSettingPanel(val parent: PlotsPanel): JPanel(GridBagLayout()) {
-    var entry = PlotEntry.buildNew("")!!
+    var focusedPlot = PlotEntry.buildNew("")!!
+
+    val tablePanels: List<TablePanel<*>>
 
     init {
         add(PlotsList(this), constraints {
             gridx = 0
-            gridy = 0
-        })
-        add(gridBagJPanel {
-            add(JLabel("Name:"))
-            val nameField = JTextField()
-            nameField.getDocument().addDocumentListener(object: DocumentListener {
-                fun update() {
-                    entry.setName(nameField.getText())
-                    plotUpdated()
-                }
-
-                override fun changedUpdate(e: DocumentEvent) {
-                    update()
-                }
-                override fun insertUpdate(e: DocumentEvent) {
-                    update()
-                }
-                override fun removeUpdate(e: DocumentEvent) {
-                    update()
-                }
-            })
-            add(nameField)
-        }, constraints {
-            gridx = 0
             gridy = 1
         })
-        add(FiltersTable(this), constraints {
+        add(gridBagJPanel {
+            add(JButton("SAVE"))
+        }, constraints {
+            gridx = 0
+            gridy = 0
+        })
+        val tablePanels = mutableListOf<TablePanel<*>>()
+        fun addTablePanel(tablePanel: TablePanel<*>): TablePanel<*> {
+            tablePanels.add(tablePanel)
+            return tablePanel
+        }
+
+        add(addTablePanel(FiltersTable(this)), constraints {
             gridx = 1
             gridy = 0
             gridheight = 2
         })
-        add(AxesTable(this), constraints {
+        add(addTablePanel(AxesTable(this)), constraints {
             gridx = 0
             gridy = 2
         })
-        add(FormulasTable(this), constraints {
+        add(addTablePanel(FormulasTable(this)), constraints {
             gridx = 1
             gridy = 2
         })
+
+        this.tablePanels = tablePanels
+
         plotUpdated()
+    }
+
+    fun changeFocusedPlot(plot: PlotEntry) {
+        if (plot == focusedPlot) {
+            return
+        }
+        focusedPlot = plot
+        for (tablePanel in tablePanels) {
+            tablePanel.tableModel.fireTableDataChanged()
+        }
     }
 
     fun plotUpdated() {
