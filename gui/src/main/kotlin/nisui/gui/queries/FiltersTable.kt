@@ -11,6 +11,8 @@ import nisui.core.plotting.*
 import nisui.gui.*
 
 class FiltersTable(val parent: PlotSettingPanel): TablePanel<PlotFilter>() {
+    override fun makeBorder() = BorderFactory.createTitledBorder("Filters")
+
     init {
         table.getModel().addTableModelListener {
             parent.plotUpdated()

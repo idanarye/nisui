@@ -11,6 +11,8 @@ import nisui.core.plotting.*
 import nisui.gui.*
 
 class FormulasTable(val parent: PlotSettingPanel): TablePanel<PlotFormula>() {
+    override fun makeBorder() = BorderFactory.createTitledBorder("Formulas")
+
     init {
         table.getModel().addTableModelListener {
             parent.plotUpdated()

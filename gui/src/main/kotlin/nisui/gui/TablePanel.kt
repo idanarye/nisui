@@ -6,6 +6,7 @@ import kotlin.reflect.jvm.*
 import javax.swing.*
 import javax.swing.event.*
 import javax.swing.table.*
+import javax.swing.border.Border
 import java.awt.BorderLayout
 import java.awt.Color
 import java.awt.event.KeyEvent
@@ -16,6 +17,7 @@ abstract class TablePanel<T>: JScrollPane() {
     val tableModel: AbstractTableModel
 
     val columns = mutableListOf<Column<T, *>>()
+    open fun makeBorder(): Border? = null
 
     protected abstract fun getRowsSource(): List<T>;
     protected abstract fun addNewEntry(): T;
@@ -24,6 +26,7 @@ abstract class TablePanel<T>: JScrollPane() {
 
     init {
         setViewportView(table)
+        makeBorder()?.let(::setBorder)
         table.setFillsViewportHeight(true)
         populateColumns()
         tableModel = object: AbstractTableModel() {

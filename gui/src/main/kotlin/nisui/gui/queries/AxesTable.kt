@@ -11,6 +11,8 @@ import nisui.core.plotting.*
 import nisui.gui.*
 
 class AxesTable(val parent: PlotSettingPanel): TablePanel<PlotAxis>() {
+    override fun makeBorder() = BorderFactory.createTitledBorder("Axes")
+
     init {
         table.getModel().addTableModelListener {
             parent.plotUpdated()
