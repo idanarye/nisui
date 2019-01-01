@@ -13,12 +13,6 @@ import nisui.gui.*
 class AxesTable(val parent: PlotSettingPanel): TablePanel<PlotAxis>() {
     override fun makeBorder() = BorderFactory.createTitledBorder("Axes")
 
-    init {
-        table.getModel().addTableModelListener {
-            parent.plotUpdated()
-        }
-    }
-
     override protected fun getRowsSource(): List<PlotAxis> {
         return parent.focusedPlot.getAxes()
     }

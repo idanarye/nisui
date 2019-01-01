@@ -13,12 +13,6 @@ import nisui.gui.*
 class FormulasTable(val parent: PlotSettingPanel): TablePanel<PlotFormula>() {
     override fun makeBorder() = BorderFactory.createTitledBorder("Formulas")
 
-    init {
-        table.getModel().addTableModelListener {
-            parent.plotUpdated()
-        }
-    }
-
     override protected fun getRowsSource(): List<PlotFormula> {
         return parent.focusedPlot.getFormulas()
     }

@@ -13,12 +13,6 @@ import nisui.gui.*
 class FiltersTable(val parent: PlotSettingPanel): TablePanel<PlotFilter>() {
     override fun makeBorder() = BorderFactory.createTitledBorder("Filters")
 
-    init {
-        table.getModel().addTableModelListener {
-            parent.plotUpdated()
-        }
-    }
-
     override protected fun getRowsSource(): List<PlotFilter> {
         return parent.focusedPlot.getFilters()
     }

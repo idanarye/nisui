@@ -8,14 +8,9 @@ import nisui.core.plotting.*
 
 import nisui.gui.*
 
-class PlotsList(val parent: PlotSettingPanel): TablePanel<PlotsList.ListEntry>() {
-    enum class EntryStatus { SYNCED, UNSYNCED, TO_DELETE }
-    class ListEntry(var plot: PlotEntry, var status: EntryStatus) {
-        fun getName() = plot.getName()
-        fun setName(name: String) = plot.setName(name)
-    }
+class PlotsList(val parent: PlotSettingPanel): TablePanel<PlotListEntry>() {
 
-    val plots = mutableListOf<ListEntry>()
+    val plots = mutableListOf<PlotListEntry>()
 
     init {
         with (addNewEntry().plot) {
@@ -30,23 +25,25 @@ class PlotsList(val parent: PlotSettingPanel): TablePanel<PlotsList.ListEntry>()
             setName("Three")
             getAxes().add(PlotAxis("Z", ScaleType.LOGARITHMIC, "stuff", "3 * 4"))
         }
+        plots.forEach {it.status = PlotListEntry.Status.SYNCED}
         table.getModel().addTableModelListener {
         }
         table.getSelectionModel().addListSelectionListener {
             val row = table.getSelectedRow()
-            if (row == plots.size) {
+            if (row < 0) {
+            } else if (row == plots.size) {
             } else {
-                parent.changeFocusedPlot(plots[row].plot)
+                parent.changeFocusedPlot(plots[row])
             }
         }
     }
 
-    override protected fun getRowsSource(): List<ListEntry> {
+    override protected fun getRowsSource(): List<PlotListEntry> {
         return plots
     }
 
-    override protected fun addNewEntry(): ListEntry {
-        val entry = ListEntry(PlotEntry.buildNew(""), EntryStatus.UNSYNCED)
+    override protected fun addNewEntry(): PlotListEntry {
+        val entry = PlotListEntry(PlotEntry.buildNew(""), PlotListEntry.Status.UNSYNCED)
         plots.add(entry)
         return entry
     }
@@ -56,6 +53,7 @@ class PlotsList(val parent: PlotSettingPanel): TablePanel<PlotsList.ListEntry>()
     }
 
     override protected fun populateColumns() {
-        columns.add(Column("Name", ListEntry::getName, ListEntry::setName))
+        columns.add(Column("Name", PlotListEntry::getName, PlotListEntry::setName))
+        columns.add(Column("Status", PlotListEntry::status))
     }
 }

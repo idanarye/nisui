@@ -11,12 +11,17 @@ import nisui.core.plotting.*
 import nisui.gui.*
 
 public class PlotSettingPanel(val parent: PlotsPanel): JPanel(GridBagLayout()) {
-    var focusedPlot = PlotEntry.buildNew("")!!
+    var focusedPlotListEntry = PlotListEntry(PlotEntry.buildNew("")!!, PlotListEntry.Status.UNSYNCED)
+    val focusedPlot get() = focusedPlotListEntry.plot
 
     val tablePanels: List<TablePanel<*>>
 
+    val plotsListPanel: PlotsList
+
     init {
-        add(PlotsList(this), constraints {
+        plotsListPanel = PlotsList(this)
+
+        add(plotsListPanel, constraints {
             gridx = 0
             gridy = 1
         })
@@ -48,19 +53,29 @@ public class PlotSettingPanel(val parent: PlotsPanel): JPanel(GridBagLayout()) {
 
         this.tablePanels = tablePanels
 
-        plotUpdated()
+        for (tablePanel in tablePanels) {
+            tablePanel.table.getModel().addTableModelListener {
+                plotUpdated()
+            }
+        }
     }
 
-    fun changeFocusedPlot(plot: PlotEntry) {
-        if (plot == focusedPlot) {
+    fun changeFocusedPlot(plotListEntry: PlotListEntry) {
+        if (plotListEntry == focusedPlotListEntry) {
             return
         }
-        focusedPlot = plot
+        focusedPlotListEntry = plotListEntry
+        val oldStatus = plotListEntry.status
         for (tablePanel in tablePanels) {
             tablePanel.tableModel.fireTableDataChanged()
         }
+        plotListEntry.status = oldStatus
     }
 
     fun plotUpdated() {
+        if (focusedPlotListEntry.status == PlotListEntry.Status.SYNCED) {
+            focusedPlotListEntry.status = PlotListEntry.Status.UNSYNCED
+            plotsListPanel.tableModel.fireTableDataChanged()
+        }
     }
 }

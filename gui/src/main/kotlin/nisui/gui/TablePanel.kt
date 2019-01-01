@@ -43,7 +43,7 @@ abstract class TablePanel<T>: JScrollPane() {
                 return columns[col].getter(item)
             }
 
-            override fun isCellEditable(row: Int, col: Int) = true
+            override fun isCellEditable(row: Int, col: Int) = columns[col].setter != null
             override fun setValueAt(value: Any, row: Int, col: Int) {
                 val item = if (row == getRowsSource().size) {
                     val newEntry = addNewEntry()
@@ -79,8 +79,9 @@ abstract class TablePanel<T>: JScrollPane() {
     }
 }
 
-class Column<T, V>(val caption: String, val getter: T.() -> V, val setter: T.(V) -> Unit) {
+class Column<T, V>(val caption: String, val getter: T.() -> V, val setter: (T.(V) -> Unit)? = null) {
     fun invokeSetter(item: T, value: Any?) {
+        val setter = setter!!
         item.setter(value as V)
     }
 
