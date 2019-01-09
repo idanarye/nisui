@@ -5,12 +5,16 @@ import javax.swing.event.*
 import java.awt.GridBagLayout
 import java.awt.GridBagConstraints
 import java.awt.FlowLayout
+import javax.swing.KeyStroke;
+import java.awt.event.ActionEvent;
 
 import nisui.core.plotting.*
 
 import nisui.gui.*
 
 public class PlotSettingPanel(val parent: PlotsPanel): JPanel(GridBagLayout()) {
+    fun createResultsStorage() = parent.createResultsStorage()
+
     var focusedPlotListEntry = PlotListEntry(PlotEntry.buildNew("")!!, PlotListEntry.Status.UNSYNCED)
     val focusedPlot get() = focusedPlotListEntry.plot
 
@@ -26,7 +30,10 @@ public class PlotSettingPanel(val parent: PlotsPanel): JPanel(GridBagLayout()) {
             gridy = 1
         })
         add(gridBagJPanel {
-            add(JButton("SAVE"))
+            val button = JButton("SAVE")
+            add(button)
+            button.setMnemonic('S')
+            button.addActionListener({savePlots()})
         }, constraints {
             gridx = 0
             gridy = 0
@@ -77,5 +84,23 @@ public class PlotSettingPanel(val parent: PlotsPanel): JPanel(GridBagLayout()) {
             focusedPlotListEntry.status = PlotListEntry.Status.UNSYNCED
             plotsListPanel.tableModel.fireTableDataChanged()
         }
+    }
+
+    fun savePlots() {
+        val postActions = mutableListOf<() -> Unit>()
+        createResultsStorage().connect().use {con ->
+            con.saveStoredPlots().use {saver ->
+                for (plot in plotsListPanel.plots) {
+                    when (plot.status) {
+                        PlotListEntry.Status.UNSYNCED -> {
+                            saver.save(plot.plot)
+                            postActions.add({plot.status = PlotListEntry.Status.SYNCED})
+                        }
+                    }
+                }
+            }
+        }
+        postActions.forEach({it()})
+        plotsListPanel.tableModel.fireTableDataChanged()
     }
 }

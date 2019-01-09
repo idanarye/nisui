@@ -22,6 +22,7 @@ public class MainFrame(val nisuiFactory: NisuiFactory, val sin: InputStream, val
     val tabbedPane = JTabbedPane();
 
     init {
+        nisuiFactory.createResultsStorage().prepareStorage()
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setJMenuBar(menuBar);
 

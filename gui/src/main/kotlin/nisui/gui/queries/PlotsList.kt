@@ -9,23 +9,14 @@ import nisui.core.plotting.*
 import nisui.gui.*
 
 class PlotsList(val parent: PlotSettingPanel): TablePanel<PlotListEntry>() {
+    fun createResultsStorage() = parent.createResultsStorage()
 
-    val plots = mutableListOf<PlotListEntry>()
+    val plots: MutableList<PlotListEntry>
 
     init {
-        with (addNewEntry().plot) {
-            setName("One")
-            getAxes().add(PlotAxis("X", ScaleType.LINEAR, "things", "1 + 2"))
+        plots = createResultsStorage().connect().readStoredPlots().use {
+            it.map({PlotListEntry(it, PlotListEntry.Status.SYNCED)}).toMutableList()
         }
-        with (addNewEntry().plot) {
-            setName("Two")
-            getAxes().add(PlotAxis("Y", ScaleType.LOGARITHMIC, "stuff", "3 * 4"))
-        }
-        with (addNewEntry().plot) {
-            setName("Three")
-            getAxes().add(PlotAxis("Z", ScaleType.LOGARITHMIC, "stuff", "3 * 4"))
-        }
-        plots.forEach {it.status = PlotListEntry.Status.SYNCED}
         table.getModel().addTableModelListener {
         }
         table.getSelectionModel().addListSelectionListener {

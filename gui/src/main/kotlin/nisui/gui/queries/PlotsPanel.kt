@@ -10,4 +10,6 @@ public class PlotsPanel(val nisuiFactory: NisuiFactory): JPanel() {
     init {
         add(PlotSettingPanel(this))
     }
+
+    fun createResultsStorage() = nisuiFactory.createResultsStorage()
 }
