@@ -30,10 +30,17 @@ public class PlotSettingPanel(val parent: PlotsPanel): JPanel(GridBagLayout()) {
             gridy = 1
         })
         add(gridBagJPanel {
-            val button = JButton("SAVE")
-            add(button)
-            button.setMnemonic('S')
-            button.addActionListener({savePlots()})
+            JButton("SAVE").let {
+                add(it)
+                it.setMnemonic('S')
+                it.addActionListener({savePlots()})
+            }
+
+            JButton("RENDER").let {
+                add(it)
+                it.setMnemonic('R')
+                it.addActionListener({renderPlot()})
+            }
         }, constraints {
             gridx = 0
             gridy = 0
@@ -102,5 +109,24 @@ public class PlotSettingPanel(val parent: PlotsPanel): JPanel(GridBagLayout()) {
         }
         postActions.forEach({it()})
         plotsListPanel.tableModel.fireTableDataChanged()
+    }
+
+    fun renderPlot() {
+        createResultsStorage().connect().use {con ->
+            val dataPoints = con.readDataPoints(focusedPlot.filters.map {it.expression}).use {
+                it.toList()
+            }
+            con.runQuery(
+                dataPoints,
+                focusedPlot.formulas.map {it.expression},
+                focusedPlot.axes.map {it.expression}
+            ).use { queryRunner ->
+                println(queryRunner)
+                for (row in queryRunner) {
+                    val row = row as nisui.core.QueryRunner.Row<*>
+                    println("Row be $row, values be ${row.values.toList()}")
+                }
+            }
+        }
     }
 }
