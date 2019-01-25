@@ -4,6 +4,7 @@ from omnipytent.completers import file_completer
 from omnipytent.ext.idan import local, ERUN, gradle
 from omnipytent.ext.extra.testing import TestPicker
 from omnipytent.ext.extra.testing.java import JavaJUnitTest
+from omnipytent.ext.extra.testing.kotlin import KotlinJUnitTest
 
 import re
 from itertools import groupby
@@ -100,7 +101,8 @@ def clean(ctx):
 class the_test_to_run(TestPicker):
     alias = ':2'
     multi = True
-    sources = [(JavaJUnitTest, '.')]
+    sources = [(JavaJUnitTest, '.'),
+               (KotlinJUnitTest, '.')]
 
 
 @task

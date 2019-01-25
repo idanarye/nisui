@@ -131,22 +131,22 @@ public abstract class QueryParser<V, B> {
         return bParser.parse(query).get();
     }
 
-    public abstract V numberLiteral(String literal);
-    public abstract V identifier(String name);
+    protected abstract V numberLiteral(String literal);
+    protected abstract V identifier(String name);
     public V parenthesisValue(V expr) {
         return expr;
     }
-    public abstract V unaryOperator(UnariOperator op, V value);
-    public abstract V binaryOperator(BinaryOperator op, V left, V right);
-    public abstract V scalarFunction(ScalarFunction fn, V value);
-    public abstract V scalarBiFunction(ScalarBiFunction fn, V value1, V value2);
-    public abstract V aggregationFunction(AggregationFunction fn, V value);
+    protected abstract V unaryOperator(UnariOperator op, V value);
+    protected abstract V binaryOperator(BinaryOperator op, V left, V right);
+    protected abstract V scalarFunction(ScalarFunction fn, V value);
+    protected abstract V scalarBiFunction(ScalarBiFunction fn, V value1, V value2);
+    protected abstract V aggregationFunction(AggregationFunction fn, V value);
 
     public B parenthesisBoolean(B pred) {
         return pred;
     }
-    public abstract B comparisonChain(List<V> values, List<ComparisonOperator> ops);
-    public abstract B logicalNot(B pred);
-    public abstract B logicalAnd(B left, B right);
-    public abstract B logicalOr(B left, B right);
+    protected abstract B comparisonChain(List<V> values, List<ComparisonOperator> ops);
+    protected abstract B logicalNot(B pred);
+    protected abstract B logicalAnd(B left, B right);
+    protected abstract B logicalOr(B left, B right);
 }
