@@ -55,7 +55,7 @@ tasks.register<Jar>("fatJar") {
     }
     baseName = "Nisui"
     destinationDir = file("build")
-    from(configurations.compile.get().map({ if (it.isDirectory) it else zipTree(it) }))
+    from(configurations.runtimeClasspath.get().map({ if (it.isDirectory) it else zipTree(it) }))
     with(tasks["jar"] as CopySpec)
 }
 

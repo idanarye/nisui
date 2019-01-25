@@ -2,6 +2,11 @@ from omnipytent import *
 from omnipytent.execution import ShellCommandExecuter
 from omnipytent.completers import file_completer
 from omnipytent.ext.idan import local, ERUN, gradle
+from omnipytent.ext.extra.testing import TestPicker
+from omnipytent.ext.extra.testing.java import JavaJUnitTest
+
+import re
+from itertools import groupby
 
 
 # if FN.exists('g:ale_java_javac_classpath') and not VAR['g:ale_java_javac_classpath']:
@@ -17,14 +22,16 @@ def subproject_names():
             yield path.basename
 
 
-def gradle_tests(test):
-    for subproject_name in subproject_names():
-        if test.startswith('nisui.%s.' % subproject_name):
-            cmd = local['gradle'][':%s:test' % subproject_name]
-            break
-    else:
-        cmd = local['gradle']['test']
-    cmd = cmd['--tests', test]
+def gradle_tests(tests):
+    def by_subproject(test):
+        return test.subproject
+
+    cmd = local['gradle']
+    for subproject, tests in groupby(sorted(tests, key=by_subproject), by_subproject):
+        cmd = cmd['%s:test' % subproject]
+        for test in tests:
+            cmd = cmd['--tests', test.shortname]
+            # cmd = cmd['--tests', '{classname}.{test}'.format_map(test)]
     return cmd
 
 
@@ -90,29 +97,16 @@ def clean(ctx):
     gradle['clean'] & BANG
 
 
-@task.options
-def the_test_to_run(ctx):
-    core_BasicExperimentRunningTest = 'nisui.core.BasicExperimentRunningTest'
-    core_QueryParserTest = 'nisui.core.QueryParserTest'
-    core_util_QueryChunkTest = 'nisui.core.util.QueryChunkTest'
-    h2_store_BuildTablesTest = 'nisui.h2_store.BuildTablesTest'
-    h2_store_FillAndReadDataTest = 'nisui.h2_store.FillAndReadDataTest'
-    h2_store_StoredPlotsTest = 'nisui.h2_store.StoredPlotsTest'
-    h2_store_QueriesTest = 'nisui.h2_store.QueriesTest'
-    core_DynamicValuesTest = 'nisui.core.DynamicValuesTest'
-    java_runner_JavaValuesTest = 'nisui.java_runner.JavaValuesTest'
-    java_runner_JavaExperimentTest = 'nisui.java_runner.JavaExperimentTest'
-    cli_ExperimentCommandsTests = 'nisui.cli.ExperimentCommandsTests'
-    cli_DataPointCommandsTests = 'nisui.cli.DataPointCommandsTests'
-    cli_ExperimentResultCommandsTests = 'nisui.cli.ExperimentResultCommandsTests'
-    cli_QueriesCommandsTests = 'nisui.cli.QueriesCommandsTests'
-    gui_ExperimentRunningControlTest = 'nisui.gui.ExperimentRunningControlTest'
+class the_test_to_run(TestPicker):
+    alias = ':2'
+    multi = True
+    sources = [(JavaJUnitTest, '.')]
 
 
-@task(the_test_to_run)
-def test(ctx, *args):
+@task
+def test(ctx, *args, tests=the_test_to_run):
     # gradle_tests() & BANG
-    gradle_tests(ctx.dep.the_test_to_run)[args] & ERUN.bang
+    gradle_tests(tests)[args] & ERUN.bang
 test.complete(lambda ctx: {'--info', '--debug', '--scan'})
 
 
