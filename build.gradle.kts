@@ -12,6 +12,7 @@ allprojects {
     repositories {
         jcenter()
         maven(url = "https://jitpack.io")
+        maven(url = "http://maven.jzy3d.org/releases")
     }
 
     apply(plugin = "java")
@@ -111,10 +112,20 @@ project(":gui") {
    dependencies {
       implementation(project(":core"))
       implementation(kotlin("reflect"))
-      testImplementation("org.assertj:assertj-swing-junit:3.8.0")
 
+      testImplementation("org.assertj:assertj-swing-junit:3.8.0")
       testImplementation(project(":h2_store"))
       testImplementation(project(":java_runner"))
+
+      implementation(project(":jzy3d_plots"))
+   }
+}
+
+project(":jzy3d_plots") {
+   dependencies {
+      implementation(project(":core"))
+      implementation(kotlin("reflect"))
+      implementation(group = "org.jzy3d", name = "jzy3d-api", version = "1.0.2")
    }
 }
 

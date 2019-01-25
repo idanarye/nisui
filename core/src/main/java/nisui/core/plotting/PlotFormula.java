@@ -92,4 +92,14 @@ public class PlotFormula {
 				getClass().getSimpleName(),
 				caption, symbol, scaleType, unitName, expression);
 	}
+
+	public String getTextForPlot() {
+		if (symbol != null && !symbol.isEmpty()) {
+			return symbol;
+		}
+		if (caption != null && !caption.isEmpty()) {
+			return caption;
+		}
+		return expression;
+	}
 }

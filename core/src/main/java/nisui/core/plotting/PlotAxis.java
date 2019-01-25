@@ -69,4 +69,11 @@ public class PlotAxis {
 				getClass().getSimpleName(),
 				caption, scaleType, unitName, expression);
 	}
+
+	public String getTextForPlot() {
+		if (caption != null && !caption.isEmpty()) {
+			return caption;
+		}
+		return expression;
+	}
 }
