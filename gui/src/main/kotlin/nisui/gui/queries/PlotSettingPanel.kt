@@ -9,6 +9,7 @@ import javax.swing.KeyStroke;
 import java.awt.event.ActionEvent;
 
 import nisui.core.plotting.*
+import nisui.core.util.ExperimentValueQueryEvaluator
 
 import nisui.gui.*
 
@@ -112,6 +113,9 @@ public class PlotSettingPanel(val parent: PlotsPanel): JPanel(GridBagLayout()) {
     }
 
     fun renderPlot() {
+        val dpHandler = parent.nisuiFactory.createExperimentFunction().dataPointHandler
+        val quaryEvaluator = ExperimentValueQueryEvaluator(dpHandler)
+        val axesEvaluators = focusedPlot.axes.map{ quaryEvaluator.parseValue(it.expression) }
         createResultsStorage().connect().use {con ->
             val dataPoints = con.readDataPoints(focusedPlot.filters.map {it.expression}).use {
                 it.toList()
@@ -121,10 +125,10 @@ public class PlotSettingPanel(val parent: PlotsPanel): JPanel(GridBagLayout()) {
                 focusedPlot.formulas.map {it.expression},
                 focusedPlot.axes.map {it.expression}
             ).use { queryRunner ->
-                println(queryRunner)
                 for (row in queryRunner) {
                     val row = row as nisui.core.QueryRunner.Row<*>
-                    println("Row be $row, values be ${row.values.toList()}")
+                    val axes = axesEvaluators.map { it(row.dataPoint) }
+                    println("Axes be $axes, values be ${row.values.toList()}")
                 }
             }
         }
