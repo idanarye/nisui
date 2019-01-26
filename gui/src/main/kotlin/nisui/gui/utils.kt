@@ -1,6 +1,8 @@
 package nisui.gui
 
 import javax.swing.*
+import java.awt.Color
+import java.awt.Container
 import java.awt.GridBagLayout
 import java.awt.GridBagConstraints
 import java.awt.GridLayout
@@ -35,4 +37,12 @@ fun gridBagJPanel(block: JPanel.() -> Unit): JPanel {
     val panel = JPanel(GridLayout())
     panel.block()
     return panel
+}
+
+fun _dbg_showChildrenBorders(container: Container) {
+    for (component in container.getComponents()) {
+        if (component is JComponent) {
+            component.setBorder(BorderFactory.createLineBorder(Color.cyan));
+        }
+    }
 }

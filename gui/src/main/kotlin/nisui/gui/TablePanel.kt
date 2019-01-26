@@ -9,6 +9,7 @@ import javax.swing.table.*
 import javax.swing.border.Border
 import java.awt.BorderLayout
 import java.awt.Color
+import java.awt.Dimension
 import java.awt.event.KeyEvent
 import java.awt.event.ActionEvent
 
@@ -29,6 +30,7 @@ abstract class TablePanel<T>: JScrollPane() {
         makeBorder()?.let(::setBorder)
         table.setFillsViewportHeight(true)
         populateColumns()
+        setMinimumSize(Dimension(100 * columns.size, 100))
         tableModel = object: AbstractTableModel() {
             override fun getColumnCount(): Int {
                 return columns.size

@@ -39,7 +39,9 @@ public class PlotSettingPanel(val parent: PlotsPanel): JPanel(GridBagLayout()) {
             JButton("RENDER").let {
                 add(it)
                 it.setMnemonic('R')
-                it.addActionListener({renderPlot()})
+                it.addActionListener {
+                    this@PlotSettingPanel.parent.viewPanel.renderPlot(focusedPlot)
+                }
             }
         }, constraints {
             gridx = 0
@@ -109,10 +111,5 @@ public class PlotSettingPanel(val parent: PlotsPanel): JPanel(GridBagLayout()) {
         }
         postActions.forEach({it()})
         plotsListPanel.tableModel.fireTableDataChanged()
-    }
-
-    fun renderPlot() {
-        val plot = nisui.jzy3d_plots.Jzy3d2dPlot(parent.nisuiFactory)
-        plot.render(focusedPlot)
     }
 }

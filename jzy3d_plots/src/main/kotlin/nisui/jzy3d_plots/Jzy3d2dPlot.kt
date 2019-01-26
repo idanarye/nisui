@@ -1,25 +1,30 @@
 package nisui.jzy3d_plots
 
-// import org.jzy3d.maths.Range
+import java.awt.Component
+
 import org.jzy3d.chart2d.Chart2d
+import org.jzy3d.chart.Chart
 import org.jzy3d.chart.ChartLauncher
 import org.jzy3d.plot2d.primitives.Serie2d
-import org.jzy3d.colors.Color 
+import org.jzy3d.colors.Color
 
 import nisui.core.*
 import nisui.core.plotting.*
 import nisui.core.util.ExperimentValueQueryEvaluator
 
 class Jzy3d2dPlot(val nisuiFactory: NisuiFactory) {
+    val chart = Chart2d()
+
+    val canvas = chart.getCanvas() as Component
+
     fun render(plotEntry: PlotEntry) {
         val dpHandler = nisuiFactory.createExperimentFunction().dataPointHandler
         val quaryEvaluator = ExperimentValueQueryEvaluator(dpHandler)
         val axesEvaluators = plotEntry.axes.map{ quaryEvaluator.parseValue(it.expression) }
 
-        val chart = Chart2d()
-        val formulasSerie = plotEntry.formulas.map {
+        val formulasSerie = plotEntry.formulas.mapIndexed {i, it ->
             val serie = chart.getSerie(it.textForPlot, Serie2d.Type.LINE)
-            serie.setColor(Color.RED) // TODO: set color dynamically
+            serie.setColor(Color.COLORS[i % Color.COLORS.size]) // TODO: set color dynamically
             serie
         }
 
@@ -44,6 +49,9 @@ class Jzy3d2dPlot(val nisuiFactory: NisuiFactory) {
                 }
             }
         }
-        ChartLauncher.openChart(chart)
+
+        canvas.repaint()
+        // println("Repainted ${System.identityHashCode(canvas)}")
+        // ChartLauncher.openChart(chart)
     }
 }
