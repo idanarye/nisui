@@ -9,8 +9,8 @@ import org.junit.Test
 class ExperimentRunningControlTest: TestsBase() {
     @Test
     fun createTablesFromExperimentRunner() {
-        val mainFrame = MainFrame(factory, System.`in`, System.`out`)
-        val frame = FrameFixture(mainFrame)
-        frame.show()
+        // val mainFrame = MainFrame(factory, System.`in`, System.`out`)
+        // val frame = FrameFixture(mainFrame)
+        // frame.show()
     }
 }

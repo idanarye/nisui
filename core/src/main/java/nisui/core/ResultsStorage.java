@@ -9,8 +9,8 @@ public abstract class ResultsStorage<D, R> {
     public abstract class Connection implements AutoCloseable {
         public abstract DataPointInserter<D> insertDataPoints();
         public abstract DataPointsReader<D> readDataPoints(String... filters);
-        public DataPointsReader<D> readDataPoints(List<DataPoint<D>> filters) {
-            return readDataPoints(filters.toArray(String[]::new));
+        public DataPointsReader<D> readDataPoints(List<String> filters) {
+            return readDataPoints(filters.toArray(new String[filters.size()]));
         }
 
         public abstract ExperimentResultInserter<R> insertExperimentResults();
@@ -18,7 +18,7 @@ public abstract class ResultsStorage<D, R> {
 
         public abstract QueryRunner<D> runQuery(Iterable<DataPoint<D>> dataPoints, String[] queries, String[] groupBy);
         public QueryRunner<D> runQuery(Iterable<DataPoint<D>> dataPoints, List<String> queries, List<String> groupBy) {
-            return runQuery(dataPoints, queries.toArray(String[]::new), groupBy.toArray(String[]::new));
+            return runQuery(dataPoints, queries.toArray(new String[queries.size()]), groupBy.toArray(new String[groupBy.size()]));
         }
 
         public abstract StoredPlotSaver saveStoredPlots();

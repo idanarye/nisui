@@ -100,16 +100,15 @@ def clean(ctx):
 
 class the_test_to_run(TestPicker):
     alias = ':2'
-    multi = True
+    MULTI = True
     sources = [(JavaJUnitTest, '.'),
                (KotlinJUnitTest, '.')]
 
 
 @task
 def test(ctx, *args, tests=the_test_to_run):
-    # gradle_tests() & BANG
-    gradle_tests(tests)[args] & ERUN.bang
-test.complete(lambda ctx: {'--info', '--debug', '--scan'})
+    gradle_tests(tests)[args] & (TERMINAL_PANEL if args else ERUN.bang)
+test.complete(lambda ctx: {'--info', '--debug', '--scan', '--stacktrace'})
 
 
 @task
