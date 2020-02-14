@@ -2,6 +2,7 @@ plugins {
    id 'java'
    id 'application'
    id 'org.jetbrains.kotlin.jvm' version '1.3.61'
+   id 'com.github.johnrengelman.shadow' version '5.2.0'
 }
 mainClassName = 'nisui.app.NisuiApp'
 
@@ -45,16 +46,10 @@ run {
    }
 }
 
-task fatJar(type: Jar) {
-    manifest {
-        attributes 'Implementation-Title': 'Nisui',
-                   /*'Implementation-Version': version,*/
-                   'Main-Class': 'nisui.app.NisuiApp'
-    }
-    archiveBaseName = 'Nisui'
-    destinationDirectory = file('build')
-    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
-    with jar
+shadowJar {
+   baseName = 'Nisui'
+   classifier = ''
+   destinationDirectory = file('build')
 }
 
 subprojects {

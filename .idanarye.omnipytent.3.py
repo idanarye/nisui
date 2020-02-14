@@ -128,7 +128,7 @@ def lombok_jar_file():
 
 @task
 def jar(ctx):
-    local['gradle']['fatJar'] & BANG
+    local['gradle']['shadowJar'] & BANG
 
 
 _vts_args = [
