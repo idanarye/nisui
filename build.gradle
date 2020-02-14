@@ -47,7 +47,7 @@ run {
 }
 
 shadowJar {
-   baseName = 'Nisui'
+   archiveBaseName = 'Nisui'
    classifier = ''
    destinationDirectory = file('build')
 }
@@ -88,7 +88,7 @@ project(":h2_store") {
 project(":cli") {
     dependencies {
        implementation project(':core')
-       implementation 'info.picocli:picocli:2.2.1'
+       implementation 'info.picocli:picocli:4.2.0'
        implementation project(':simple_reactor')
 
        testImplementation 'org.assertj:assertj-core:3.8.0'

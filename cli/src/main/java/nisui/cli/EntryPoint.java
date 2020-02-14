@@ -37,7 +37,7 @@ public class EntryPoint {
         new RunSubcommand(nisuiFactory).register(commandLine);
         new QueriesSubcommand(nisuiFactory).register(commandLine);
 
-        List<CommandLine> subCommands = commandLine.parse(args);
+        List<CommandLine> subCommands = commandLine.parseArgs(args).asCommandLineList();
 
         if (helpRequested) {
             commandLine.usage(out);
