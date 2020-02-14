@@ -9,7 +9,7 @@ allprojects {
     repositories {
         jcenter()
         maven { url 'https://jitpack.io' }
-        maven { url 'http://maven.jzy3d.org/releases' }
+        maven { url 'https://maven.jzy3d.org/releases' }
     }
 
     apply plugin: 'java'
@@ -51,8 +51,8 @@ task fatJar(type: Jar) {
                    /*'Implementation-Version': version,*/
                    'Main-Class': 'nisui.app.NisuiApp'
     }
-    baseName = 'Nisui'
-    destinationDir = file('build')
+    archiveBaseName = 'Nisui'
+    destinationDirectory = file('build')
     from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
     with jar
 }
