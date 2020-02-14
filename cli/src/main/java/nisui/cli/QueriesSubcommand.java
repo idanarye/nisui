@@ -55,7 +55,7 @@ public class QueriesSubcommand extends CommandGroup {
         public void run(InputStream in, PrintStream out) {
             ResultsStorage<?, ?> storage;
             try {
-                storage = nisuiFactory.createResultsStorage();
+                storage = getNisuiFactory().createResultsStorage();
             } catch (ExperimentFunctionCreationException e) {
                 throw new ExitException(e.getMessage());
             }

@@ -52,7 +52,7 @@ public class DataPointSubcommand extends CommandGroup {
         public void run(InputStream in, PrintStream out) {
             ResultsStorage<?, ?> storage;
             try {
-                storage = nisuiFactory.createResultsStorage();
+                storage = getNisuiFactory().createResultsStorage();
             } catch (ExperimentFunctionCreationException e) {
                 throw new ExitException(e.getMessage());
             }
@@ -61,7 +61,7 @@ public class DataPointSubcommand extends CommandGroup {
 
         private <D> void run(PrintStream out, ResultsStorage<D, ?> storage) {
             storage.prepareStorage();
-            D dataPoint = parseValueAssignment(storage.getDataPointHandler(), dataPointValues);
+            D dataPoint = Companion.parseValueAssignment(storage.getDataPointHandler(), dataPointValues);
             try (ResultsStorage<D, ?>.Connection con = storage.connect()) {
                 try (DataPointInserter<D> inserter = con.insertDataPoints()) {
                     inserter.insert(numPlanned, 0, dataPoint);
@@ -85,7 +85,7 @@ public class DataPointSubcommand extends CommandGroup {
         public void run(InputStream in, PrintStream out) {
             ResultsStorage<?, ?> storage;
             try {
-                storage = nisuiFactory.createResultsStorage();
+                storage = getNisuiFactory().createResultsStorage();
             } catch (ExperimentFunctionCreationException e) {
                 throw new ExitException(e.getMessage());
             }

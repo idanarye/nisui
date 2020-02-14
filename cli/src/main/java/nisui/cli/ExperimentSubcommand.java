@@ -39,7 +39,7 @@ public class ExperimentSubcommand extends CommandGroup {
         public void run(InputStream in, PrintStream out) {
             ExperimentFunction<?, ?> experimentFunction;
             try {
-                experimentFunction = nisuiFactory.createExperimentFunction();
+                experimentFunction = getNisuiFactory().createExperimentFunction();
             } catch (ExperimentFunctionCreationException e) {
                 throw new ExitException(e.getMessage());
             }
@@ -86,7 +86,7 @@ public class ExperimentSubcommand extends CommandGroup {
         public void run(InputStream in, PrintStream out) {
             ExperimentFunction<?, ?> experimentFunction;
             try {
-                experimentFunction = nisuiFactory.createExperimentFunction();
+                experimentFunction = getNisuiFactory().createExperimentFunction();
             } catch (ExperimentFunctionCreationException e) {
                 throw new ExitException(e.getMessage());
             }
@@ -95,7 +95,7 @@ public class ExperimentSubcommand extends CommandGroup {
 
         private <D, R> void run(PrintStream out, ExperimentFunction<D, R> experimentFunction) {
             ExperimentValuesHandler<D> dataPointHandler = experimentFunction.getDataPointHandler();
-            D dataPoint = parseValueAssignment(dataPointHandler, dataPointValues);
+            D dataPoint = Companion.parseValueAssignment(dataPointHandler, dataPointValues);
 
             long seed = this.seed;
             if (seed == 0) {

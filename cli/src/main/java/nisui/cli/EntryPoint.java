@@ -61,10 +61,10 @@ public class EntryPoint {
                 }
                 switch (format) {
                     case "":
-                        commandGroup.printFormatSupplier = PrintTabular::new;
+                        commandGroup.setPrintFormatSupplier(PrintTabular::new);
                         break;
                     case "csv":
-                        commandGroup.printFormatSupplier = PrintCSV::new;
+                        commandGroup.setPrintFormatSupplier(PrintCSV::new);
                         break;
                 }
             }
