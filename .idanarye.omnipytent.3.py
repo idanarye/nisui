@@ -87,6 +87,12 @@ def run(ctx, cmd=choose_command):
 
 
 @task
+def yank_command(ctx, cmd=choose_command):
+    from shlex import quote
+    VAR['@0'] = ' '.join(map(quote, cmd.formulate()))
+
+
+@task
 def act(ctx):
     cmd = run_py['--format=csv']['dp', 'list'] | local['column']['-ts,']
     cmd = run_py['--format=csv']['er', 'list'] | local['head'] | local['column']['-ts,']

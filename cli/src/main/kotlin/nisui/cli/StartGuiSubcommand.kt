@@ -10,7 +10,8 @@ import nisui.core.NisuiFactory
 
 @CommandLine.Command(
     name = "gui",
-    description = ["Start the GUI"])
+    description = ["Start the GUI"]
+)
 public class StartGuiSubcommand(nisuiFactory: NisuiFactory) : CommandGroup(nisuiFactory) {
     override fun getNames(): Array<String> {
         return arrayOf("gui")
