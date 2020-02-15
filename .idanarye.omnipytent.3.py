@@ -71,9 +71,9 @@ def choose_command(ctx):
     yield run_py['run', '--help']
     yield run_py['query', 'run', '-bnum', '-ffaces=6', 'avg(total)/num', '(faces+min)/2.0']
     yield run_py['query', 'run', '-bnum', 'avg(total)/num', '(faces+min)/2.0']
-    yield run_py['query', 'run', '-bnum', 'avg(total)/num', '(faces+min)/2.0']
     # yield TERMINAL_PANEL, class_exec_cmd('nisui.app.NisuiGui')['-Pargs=']
     # yield TERMINAL_PANEL, run_py['gui']
+    yield run_py['gui']
     yield TERMINAL_PANEL, gradle['run', '-q']
 
 
