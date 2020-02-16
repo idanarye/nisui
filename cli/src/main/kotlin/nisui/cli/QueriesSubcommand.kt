@@ -54,15 +54,9 @@ public class QueriesSubcommand(nisuiFactory: NisuiFactory) : CommandGroup(nisuiF
             run(out_, nisuiFactory.createResultsStorage())
         }
 
-        private fun <D, R> createRunner(con: ResultsStorage<D, R>.Connection): QueryRunner<D> {
-            return con.readDataPoints(filters).use {
-                con.runQuery(it, queries, by_)
-            }
-        }
-
         private fun <D, R> run(out_: PrintStream, storage: ResultsStorage<D, R>) {
             storage.connect().use { con ->
-                createRunner(con).use { queryRunner ->
+                con.readDataPoints(filters).use { con.runQuery(it, queries, by_) }.use { queryRunner ->
                     val printFormat = createPrintFormat(storage.getDataPointHandler())
                     printFormat.printHeader(out_);
                     for (row in queryRunner) {
