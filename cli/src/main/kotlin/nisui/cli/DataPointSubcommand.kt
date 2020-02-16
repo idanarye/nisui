@@ -26,7 +26,7 @@ import nisui.cli.print_formats.PrintFormat
 )
 public class DataPointSubcommand(nisuiFactory: NisuiFactory) : CommandGroup(nisuiFactory) {
     companion object {
-        private val logger = LoggerFactory.getLogger(DataPointSubcommand::class.java)
+        private val logger = LoggerFactory.getLogger(this.javaClass.declaringClass)
     }
 
     override fun getNames(): Array<String> {
@@ -54,7 +54,7 @@ public class DataPointSubcommand(nisuiFactory: NisuiFactory) : CommandGroup(nisu
             paramLabel = "<name>=<value>",
             description = ["Data-point fields."]
         )
-        var dataPointValues: Array<String> = emptyArray();
+        var dataPointValues: ArrayList<String> = arrayListOf();
 
         override fun run(in_: InputStream?, out_: PrintStream) {
             run(out_, nisuiFactory.createResultsStorage())
@@ -62,7 +62,7 @@ public class DataPointSubcommand(nisuiFactory: NisuiFactory) : CommandGroup(nisu
 
         private fun <D, R> run(out_: PrintStream, storage: ResultsStorage<D, R>) {
             storage.prepareStorage();
-            val dataPoint = parseValueAssignment(storage.getDataPointHandler(), dataPointValues.asList())
+            val dataPoint = parseValueAssignment(storage.getDataPointHandler(), dataPointValues)
             storage.connect().use { con ->
                 con.insertDataPoints().use { inserter ->
                     inserter.insert(numPlanned, 0, dataPoint)

@@ -18,7 +18,7 @@ import nisui.core.ExperimentFunctionCreationException
 )
 public class ExperimentSubcommand(nisuiFactory: NisuiFactory) : CommandGroup(nisuiFactory) {
     companion object {
-        private val logger = LoggerFactory.getLogger(this.javaClass)
+        private val logger = LoggerFactory.getLogger(this.javaClass.declaringClass)
     }
 
     override fun getNames(): Array<String> {
@@ -73,7 +73,7 @@ public class ExperimentSubcommand(nisuiFactory: NisuiFactory) : CommandGroup(nis
         var seed: Long = 0
 
         @CommandLine.Parameters(arity = "0..*", paramLabel = "<name>=<value>", description = ["Data-point fields."])
-        var dataPointValues: Array<String> = emptyArray()
+        var dataPointValues: ArrayList<String> = arrayListOf()
 
         override fun run(in_: InputStream?, out_: PrintStream) {
             run(out_, nisuiFactory.createExperimentFunction())
@@ -81,7 +81,7 @@ public class ExperimentSubcommand(nisuiFactory: NisuiFactory) : CommandGroup(nis
 
         private fun <D, R> run(out_: PrintStream, experimentFunction: ExperimentFunction<D, R>) {
             val dataPointHandler = experimentFunction.getDataPointHandler()
-            val dataPoint = parseValueAssignment(dataPointHandler, dataPointValues.asList())
+            val dataPoint = parseValueAssignment(dataPointHandler, dataPointValues)
 
             val seed = if (this.seed == 0.toLong()) {
                 val seed = System.currentTimeMillis()

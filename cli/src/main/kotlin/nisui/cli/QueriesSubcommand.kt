@@ -25,7 +25,7 @@ import nisui.cli.print_formats.PrintFormat;
 )
 public class QueriesSubcommand(nisuiFactory: NisuiFactory) : CommandGroup(nisuiFactory) {
     companion object {
-        private val logger = LoggerFactory.getLogger(QueriesSubcommand::class.java)
+        private val logger = LoggerFactory.getLogger(this.javaClass.declaringClass)
     }
 
     override fun getNames(): Array<String> {
@@ -48,14 +48,14 @@ public class QueriesSubcommand(nisuiFactory: NisuiFactory) : CommandGroup(nisuiF
         var by_: Array<String> = emptyArray()
 
         @CommandLine.Option(names = ["-f", "--filter"], paramLabel = "<pred>", required = false, description = ["Filter Expressions"])
-        var filters: Array<String> = emptyArray()
+        var filters: ArrayList<String> = arrayListOf()
 
         override fun run(in_: InputStream?, out_: PrintStream) {
             run(out_, nisuiFactory.createResultsStorage())
         }
 
         private fun <D, R> createRunner(con: ResultsStorage<D, R>.Connection): QueryRunner<D> {
-            return con.readDataPoints(filters.toList()).use {
+            return con.readDataPoints(filters).use {
                 con.runQuery(it, queries, by_)
             }
         }
