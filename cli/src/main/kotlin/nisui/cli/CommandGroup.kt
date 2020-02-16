@@ -13,13 +13,9 @@ import nisui.cli.print_formats.PrintFormat
 import nisui.cli.print_formats.PrintTabular
 
 public abstract class CommandGroup(val nisuiFactory: NisuiFactory) : SubCommand() {
-    public var printFormatSupplier: Supplier<PrintFormat<*>> = object : Supplier<PrintFormat<*>> {
-        override fun get(): PrintFormat<*> {
-            return PrintTabular<Any>()
-        }
-    }
+    var printFormatCreator: () -> PrintFormat<*> = { PrintTabular<Any>() }
 
-    protected fun <T> createPrintFormat(): PrintFormat<T> = printFormatSupplier.get() as PrintFormat<T>
+    protected fun <T> createPrintFormat(): PrintFormat<T> = printFormatCreator() as PrintFormat<T>
 
     override fun run(in_: InputStream?, out_: PrintStream) {
         return
