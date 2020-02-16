@@ -52,7 +52,7 @@ public class EntryPoint {
             if (obj instanceof CommandGroup) {
                 CommandGroup commandGroup = CommandGroup.class.cast(obj);
                 if (
-                        commandGroup.helpRequested
+                        commandGroup.getHelpRequested()
                         || i == subCommands.size() - 1
                         || subCommands.get(i + 1).getParent() != subCommand
                    ) {
@@ -70,7 +70,7 @@ public class EntryPoint {
             }
             if (obj instanceof SubCommand) {
                 SubCommand subCmd = SubCommand.class.cast(obj);
-                if (subCmd.helpRequested) {
+                if (subCmd.getHelpRequested()) {
                     subCommand.usage(out);
                     return;
                 }
