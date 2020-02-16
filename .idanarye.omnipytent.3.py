@@ -67,6 +67,7 @@ def choose_command(ctx):
     yield run_py['dp', 'add']['transmittionRadius=10', 'markerRadius=20']
     yield run_py['dp', 'add']['-n', 21, 'faces=5', 'num=20']
     yield run_py['dp', 'list']
+    yield run_py['er', 'list']
     yield run_py['run']
     yield run_py['run', '--help']
     yield run_py['query', 'run', '-bnum', '-ffaces=6', 'avg(total)/num', '(faces+min)/2.0']
