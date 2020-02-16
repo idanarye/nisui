@@ -95,8 +95,9 @@ def yank_command(ctx, cmd=choose_command):
 
 @task
 def act(ctx):
-    cmd = run_py['--format=csv']['dp', 'list'] | local['column']['-ts,']
-    cmd = run_py['--format=csv']['er', 'list'] | local['head'] | local['column']['-ts,']
+    # cmd = run_py['--format=csv']['dp', 'list'] | local['column']['-ts,']
+    # cmd = run_py['--format=csv']['er', 'list'] | local['head'] | local['column']['-ts,']
+    cmd = run_py['--format=csv']['dp', 'list']
 
     cmd & BANG
 
