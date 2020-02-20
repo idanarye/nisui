@@ -216,8 +216,8 @@ public class H2ResultsStorage<D, R> extends ResultsStorage<D, R> {
         }
 
         @Override
-        public H2Operations.RunQuery<D, R> runQuery(Iterable<DataPoint<D>> dataPoints, String[] queries, String[] groupBy) {
-            return new H2Operations.RunQuery<D, R>(this, dataPoints, queries, groupBy);
+        public H2RunQuery<D, R> runQuery(Iterable<DataPoint<D>> dataPoints, String[] queries, String[] groupBy) {
+            return new H2RunQuery<D, R>(this, dataPoints, queries, groupBy);
         }
 
         @Override

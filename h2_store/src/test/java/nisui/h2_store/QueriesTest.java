@@ -10,6 +10,7 @@ import java.util.HashMap;
 import org.junit.Test;
 import org.assertj.core.api.Assertions;
 
+import nisui.core.QueryRunner;
 import nisui.core.DataPoint;
 import nisui.core.DynamicExperimentValue;
 import nisui.core.DynamicExperimentValueHandler;
@@ -63,12 +64,12 @@ public class QueriesTest extends TestsBase {
             }
 
             HashMap<Integer, double[]> results = new HashMap<>();
-            try (H2Operations.RunQuery<DynamicExperimentValue, ?> query = con.runQuery(findDataPoints.apply(new String[]{"a <= 2"}), new String[]{
+            try (H2RunQuery<DynamicExperimentValue, ?> query = con.runQuery(findDataPoints.apply(new String[]{"a <= 2"}), new String[]{
                 "MIN(x)",
                 "SUM(x + 2) + 2",
                 "MIN(x) + SUM(x)",
             }, new String[]{"a"})) {
-                for (H2Operations.RunQuery.Row<DynamicExperimentValue> row : query) {
+                for (QueryRunner.Row<DynamicExperimentValue> row : query) {
                     results.put((int)row.dataPoint.get("a"), row.values);
                 }
             }
@@ -78,12 +79,12 @@ public class QueriesTest extends TestsBase {
             Assertions.assertThat(results.get(2)).containsExactly(3, 13, 10);
 
             results = new HashMap<>();
-            try (H2Operations.RunQuery<DynamicExperimentValue, ?> query = con.runQuery(findDataPoints.apply(new String[]{"1 < a", "a < 3"}), new String[]{
+            try (H2RunQuery<DynamicExperimentValue, ?> query = con.runQuery(findDataPoints.apply(new String[]{"1 < a", "a < 3"}), new String[]{
                 "MIN(x)",
                 "SUM(x + 2) + 2",
                 "MIN(x) + SUM(x)",
             }, new String[]{"a"})) {
-                for (H2Operations.RunQuery.Row<DynamicExperimentValue> row : query) {
+                for (QueryRunner.Row<DynamicExperimentValue> row : query) {
                     results.put((int)row.dataPoint.get("a"), row.values);
                 }
             }
